@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shadow Coder</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Animation slot -->
+  <link rel="stylesheet" href="animation.css" />
+
+  <style>
+    body {
+      background-color: #0f172a;
+      overflow: hidden;
+    }
+    #canvas-fire, #canvas-glitch {
+      position: absolute;
+      top: 0; left: 0;
+      z-index: 0;
+      width: 100vw; height: 100vh;
+      pointer-events: none;
+    }
+    #entity-container {
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      width: 280px; height:320px;
+      pointer-events: none;
+      animation: flicker 1.2s infinite alternate;
+    }
+    @keyframes flicker {
+      0% { filter: brightness(1) blur(0.8px);}
+      50% { filter: brightness(1.2) blur(1.1px);}
+      100% {filter: brightness(1) blur(0.8px);}
+    }
+    .glitch {
+      animation: glitch-anim 1.5s infinite linear alternate;
+    }
+    @keyframes glitch-anim {
+      0% { transform: translate(0, 0) scale(1);}
+      50% { transform: translate(4px, -3px) scale(1.03);}
+      100% { transform: translate(-3px, 2px) scale(0.98);}
+    }
+  </style>
+</head>
+<body class="flex w-full h-full text-white bg-black relative overflow-hidden">
+
+  <!-- 🔥 Canvas animations -->
+  <canvas id="canvas-fire"></canvas>
+  <canvas id="canvas-glitch"></canvas>
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="w-24 bg-black/30 backdrop-blur-md border-r border-white/10 flex flex-col items-center py-4 z-10 relative h-screen">
+    <p class="text-xs text-white/80 font-semibold mb-6">Shadow<br/>Coder</p>
+
+    <!-- 👤 Profile -->
+    <button onclick="goToPage('profile.html')" class="w-12 h-12 mb-5 rounded-full overflow-hidden ring-2 ring-white/10 hover:ring-blue-400">
+      <img id="profile-img" src="images/user-profile-icon.png" alt="Profile" class="w-full h-full object-cover"/>
+    </button>
+
+    <!-- ⚙️ Buttons -->
+    <button onclick="goToPage('settings.html')" class="w-10 h-10 mb-4 bg-white/5 hover:bg-violet-800 rounded-lg p-1">
+      <img src="images/settings-icon.png" class="w-full h-full" alt="Settings"/>
+    </button>
+    <button onclick="goToPage('display.html')" class="w-10 h-10 mb-4 bg-white/5 hover:bg-violet-800 rounded-lg p-1">
+      <img src="images/display-icon.png" class="w-full h-full" alt="Display"/>
+    </button>
+    <button onclick="goToPage('server.html')" class="w-10 h-10 mb-3 bg-white/5 hover:bg-violet-800 rounded-lg p-1">
+      <img src="images/server-icon.png" class="w-full h-full" alt="Server"/>
+    </button>
+  </aside>
+
+  <!-- 🔮 Floating entity -->
+  <div id="entity-container" class="glitch pointer-events-none select-none"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 flex flex-col justify-center items-center gap-10 z-10 relative px-6">
+    <h1 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-wider">🚀 Gamified Learning</h1>
+
+    <div class="flex flex-col gap-5 w-full max-w-md">
+      <button onclick="goToPage('sample-paper.html')" class="w-full py-4 px-6 text-lg bg-gradient-to-r from-pink-500 to-purple-700 ring-2 ring-pink-700 rounded-xl shadow-lg hover:scale-105 transition-all">
+        📝 Sample Paper
+      </button>
+      <button onclick="goToPage('test-paper.html')" class="w-full py-4 px-6 text-lg bg-gradient-to-r from-blue-600 via-indigo-800 to-violet-700 ring-2 ring-blue-600 rounded-xl shadow-lg hover:scale-105 transition-all">
+        🧠 Test Paper
+      </button>
+      <button onclick="goToPage('exam-paper.html')" class="w-full py-4 px-6 text-lg bg-gradient-to-r from-yellow-400 to-red-600 ring-2 ring-yellow-500 rounded-xl shadow-lg hover:scale-105 transition-all">
+        🏆 Exam Paper
+      </button>
+    </div>
+  </main>
+
+  <!-- Firebase Config -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+
+  <script>
+    const isOnline = navigator.onLine;
+
+    // Firebase only loaded when online
+    if (isOnline) {
+      const firebaseConfig = {
+        apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
+        authDomain: "learn-code-with-anay.firebaseapp.com",
+        projectId: "learn-code-with-anay",
+        storageBucket: "learn-code-with-anay.appspot.com",
+        messagingSenderId: "197075143711",
+        appId: "1:197075143711:web:64fc5d83528f907d38d92a"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const storage = firebase.storage();
+
+      auth.onAuthStateChanged((user) => {
+        const uid = user?.uid;
+        if (uid) {
+          storage.ref(`avatars/${uid}.jpg`).getDownloadURL()
+            .then(url => {
+              document.getElementById("profile-img").src = url;
+            }).catch(()=>{});
+        }
+      });
+    }
+
+    function goToPage(file) {
+      fetch(file).then(res => {
+        if (res.ok) window.location.href = file;
+        else alert(`❌ Page "${file}" not found.`);
+      }).catch(() => alert(`⚠️ Unable to open ${file}.`));
+    }
+
+    // ------------------ FIRE PARTICLE BACKGROUND ------------------
+    const canvasFire = document.getElementById('canvas-fire');
+    canvasFire.width = innerWidth;
+    canvasFire.height = innerHeight;
+    const ctx = canvasFire.getContext('2d');
+    const fireParticles = [];
+    for (let i = 0; i < 100; i++) {
+      fireParticles.push({
+        x: Math.random() * innerWidth,
+        y: innerHeight * 0.9 + Math.random() * 50,
+        r: Math.random() * 18 + 6,
+        vy: -Math.random() * 1.2 - 0.5,
+        fade: Math.random()
+      });
+    }
+    function drawFire() {
+      ctx.clearRect(0, 0, canvasFire.width, canvasFire.height);
+      for (let p of fireParticles) {
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        g.addColorStop(0, `rgba(255, ${100 + Math.random() * 80}, 0, 0.8)`);
+        g.addColorStop(1, "transparent");
+        ctx.beginPath();
+        ctx.fillStyle = g;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        p.y += p.vy;
+        if (p.y < 0) {
+          p.x = Math.random() * innerWidth;
+          p.y = innerHeight;
+        }
+      }
+      requestAnimationFrame(drawFire);
+    }
+    drawFire();
+
+    // ------------------ ENTITY ------------------
+    const entity = `
+      <svg width="100%" height="100%" viewBox="0 0 280 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="hoodGrad" cx="50%" cy="45%" r="65%" fx="50%" fy="60%">
+            <stop offset="0%" stop-color="#414152"/>
+            <stop offset="72%" stop-color="#121217"/>
+            <stop offset="99%" stop-color="#000"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="140" cy="140" rx="124" ry="112" fill="url(#hoodGrad)" opacity="0.97" />
+        <ellipse cx="140" cy="185" rx="94" ry="118" fill="#151419" />
+        <text x="50%" y="190" text-anchor="middle" fill="#47f" font-size="18">KNOWLEDGE</text>
+      </svg>
+    `;
+    document.getElementById("entity-container").innerHTML = entity;
+
+    // Glitching animation
+    function glitchLoop() {
+      const e = document.getElementById("entity-container");
+      let scale = 1 + Math.random() * 0.04;
+      let rot = Math.random() * 4 - 2;
+      e.style.transform = `translate(-50%,-50%) scale(${scale}) rotate(${rot}deg)`;
+      requestAnimationFrame(glitchLoop);
+    }
+    glitchLoop();
+
+    window.onresize = () => {
+      canvasFire.width = window.innerWidth;
+      canvasFire.height = window.innerHeight;
+    };
+  </script>
+</body>
+</html>
+

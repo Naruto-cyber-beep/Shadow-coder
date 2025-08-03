@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Server Room - Shadow Coder</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles/animation.css" />
+</head>
+<body class="bg-gray-900 text-white h-screen flex overflow-hidden relative">
+
+  <!-- Sidebar (Server List) -->
+  <aside class="w-20 bg-black/40 backdrop-blur-md border-r border-white/10 flex flex-col items-center py-4 space-y-4">
+    <p class="text-xs text-center font-semibold mb-4">Servers</p>
+    <div id="server-list" class="flex flex-col gap-3 w-full items-center px-2">
+      <!-- Servers will be injected here -->
+    </div>
+    <button onclick="openCreateServerModal()" title="Create Server" class="bg-blue-600 rounded-full w-10 h-10 mt-auto mb-4 text-md font-bold hover:bg-blue-700">+</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="bg-gray-800 px-4 py-2 flex justify-between items-center border-b border-white/10">
+      <h2 id="current-server-name" class="text-xl font-bold">Select a Server</h2>
+      <button onclick="startCall()" class="bg-green-600 px-4 py-1 rounded text-sm hover:bg-green-700">📞 Start Video Call</button>
+    </header>
+
+    <!-- Chat Area -->
+    <section id="chat-area" class="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-950">
+      <div class="text-gray-400 text-center italic text-sm">No server selected</div>
+    </section>
+
+    <!-- Chat Input -->
+    <footer class="p-4 border-t border-white/10 bg-gray-800 flex items-center gap-2">
+      <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 bg-gray-700 px-4 py-2 rounded focus:outline-none">
+      <button onclick="sendMessage()" class="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600">Send</button>
+    </footer>
+  </main>
+
+  <!-- Create Server Modal -->
+  <div id="create-server-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+    <div class="bg-gray-800 p-6 rounded shadow w-full max-w-md">
+      <h3 class="text-lg font-bold mb-4">Create New Server</h3>
+      <input id="new-server-name" type="text" placeholder="Server Name" class="w-full mb-3 px-3 py-2 bg-gray-700 rounded">
+      <select id="new-server-purpose" class="w-full mb-4 px-3 py-2 bg-gray-700 rounded">
+        <option value="study">Study</option>
+        <option value="coding">Coding</option>
+        <option value="discussion">Discussion</option>
+      </select>
+      <div class="flex justify-end gap-3">
+        <button onclick="closeCreateServerModal()" class="px-4 py-2 bg-gray-600 rounded">Cancel</button>
+        <button onclick="createServer()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+  <!-- WebRTC & Logic Scripts -->
+  <script src="js/firebase.js"></script>
+  <script src="js/serverLogic.js"></script>
+  <script src="js/webrtc.js"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shadow Quiz</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .firework {
+      width: 30px; height: 30px;
+      animation: explode 1s ease-in-out;
+      background: url('https://media.giphy.com/media/3o7TKy3ozQ5AWjCEkw/giphy.gif') no-repeat center;
+      background-size: contain;
+    }
+
+    @keyframes explode {
+      0% { transform: scale(0); }
+      100% { transform: scale(2); opacity: 0; }
+    }
+
+    .cross {
+      font-size: 6rem;
+      color: red;
+      animation: fadeout 1s ease-out;
+    }
+
+    @keyframes fadeout {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(2); }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 to-purple-800 text-white min-h-screen p-4">
+
+  <div class="max-w-4xl mx-auto space-y-4">
+    <h1 class="text-3xl font-bold text-center">🔥 Shadow Quiz Arena 🔥</h1>
+
+    <div class="grid grid-cols-2 gap-4">
+      <select id="classSelect" class="p-2 rounded text-black">
+        <option disabled selected>Select Class</option>
+        <option>5</option><option>6</option><option>7</option>
+        <option>8</option><option>9</option><option>10</option>
+        <option>11</option><option>12</option><option>JEE</option><option>NEET</option>
+      </select>
+
+      <select id="streamSelect" class="p-2 rounded text-black hidden">
+        <option disabled selected>Select Stream</option>
+        <option>Science</option><option>Commerce</option><option>Arts</option>
+      </select>
+
+      <select id="subjectSelect" class="p-2 rounded text-black" disabled>
+        <option disabled selected>Select Subject</option>
+      </select>
+    </div>
+
+    <div class="mt-4 p-6 rounded bg-white text-black shadow-xl" id="quizBox">
+      <h2 id="question" class="text-xl font-semibold mb-4">Please select a subject</h2>
+      <div class="space-y-2" id="options"></div>
+    </div>
+
+    <div id="feedback" class="text-4xl text-center mt-6"></div>
+    <div id="extraFX" class="flex justify-center mt-4"></div>
+  </div>
+
+  <script>
+    const classSelect = document.getElementById('classSelect');
+    const streamSelect = document.getElementById('streamSelect');
+    const subjectSelect = document.getElementById('subjectSelect');
+    const questionBox = document.getElementById('question');
+    const optionsBox = document.getElementById('options');
+    const feedback = document.getElementById('feedback');
+    const fxBox = document.getElementById('extraFX');
+
+    const subjects = {
+      "5": ["Math", "Hindi", "English", "Sanskrit", "EVS"],
+      "10": ["Math", "Science", "Social", "Hindi", "English"],
+      "JEE": ["Physics", "Chemistry", "Math"],
+      "NEET": ["Biology", "Physics", "Chemistry"]
+    };
+
+    classSelect.onchange = () => {
+      const value = classSelect.value;
+      if (+value >= 10 || value === "JEE" || value === "NEET") {
+        streamSelect.classList.remove('hidden');
+      } else {
+        streamSelect.classList.add('hidden');
+      }
+
+      subjectSelect.disabled = false;
+      subjectSelect.innerHTML = `<option disabled selected>Select Subject</option>`;
+      (subjects[value] || ["Math", "Science", "Hindi", "English"]).forEach(sub => {
+        subjectSelect.innerHTML += `<option>${sub}</option>`;
+      });
+    };
+
+    subjectSelect.onchange = () => loadQuestion();
+
+    function loadQuestion() {
+      const q = "What is the capital of India?";
+      const answers = ["Mumbai", "Delhi", "Kolkata", "Bangalore"];
+      const correct = "Delhi";
+      questionBox.textContent = q;
+      optionsBox.innerHTML = "";
+
+      answers.forEach(ans => {
+        const btn = document.createElement("button");
+        btn.className = "block w-full p-3 rounded bg-indigo-600 hover:bg-indigo-700 text-white";
+        btn.textContent = ans;
+        btn.onclick = () => validateAnswer(ans === correct);
+        optionsBox.appendChild(btn);
+      });
+    }
+
+    function validateAnswer(isCorrect) {
+      if (isCorrect) {
+        feedback.textContent = "🎉 Very Good!";
+        fxBox.innerHTML = '<div class="firework"></div>';
+        speak("Excellent work!");
+      } else {
+        feedback.innerHTML = "<span class='cross'>❌</span>";
+        speak("Better luck next time!");
+      }
+      setTimeout(loadQuestion, 2500);
+    }
+
+    function speak(msg) {
+      const speech = new SpeechSynthesisUtterance(msg);
+      window.speechSynthesis.speak(speech);
+    }
+  </script>
+
+</body>
+</html>
