@@ -3,67 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Server Room - Shadow Coder</title>
-
-  <!-- Tailwind -->
+  <title>Shadow Coder — Servers</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles/animation.css" />
 </head>
-<body class="bg-gray-900 text-white h-screen flex overflow-hidden relative">
+<body class="bg-gray-900 text-white flex h-screen overflow-hidden">
 
-  <!-- Sidebar (Server List) -->
-  <aside class="w-20 bg-black/40 backdrop-blur-md border-r border-white/10 flex flex-col items-center py-4 space-y-4">
-    <p class="text-xs text-center font-semibold mb-4">Servers</p>
-    <div id="server-list" class="flex flex-col gap-3 w-full items-center px-2">
-      <!-- Servers will be injected here -->
-    </div>
-    <button onclick="openCreateServerModal()" title="Create Server" class="bg-blue-600 rounded-full w-10 h-10 mt-auto mb-4 text-md font-bold hover:bg-blue-700">+</button>
+  <!-- Sidebar: Server icons -->
+  <aside class="w-20 bg-black/40 backdrop-blur border-r border-white/10 flex flex-col items-center py-4">
+    <p class="text-xs text-center mb-5">Shadow<br/>Coder</p>
+    <div id="server-list" class="flex flex-col gap-4 items-center w-full px-2"></div>
+    <button onclick="openServerModal()" title="Create Server" class="bg-blue-600 rounded-full w-10 h-10 mt-auto mb-4 text-xl hover:bg-blue-700">+</button>
   </aside>
 
-  <!-- Main Content -->
-  <main class="flex-1 flex flex-col">
-    <!-- Header -->
-    <header class="bg-gray-800 px-4 py-2 flex justify-between items-center border-b border-white/10">
-      <h2 id="current-server-name" class="text-xl font-bold">Select a Server</h2>
-      <button onclick="startCall()" class="bg-green-600 px-4 py-1 rounded text-sm hover:bg-green-700">📞 Start Video Call</button>
+  <!-- Main Panel -->
+  <main class="flex-1 flex flex-col h-full relative">
+    <header class="bg-gray-800 border-b border-white/10 px-4 py-2 flex justify-between items-center">
+      <h2 class="text-xl font-bold" id="server-name">Select a Server</h2>
+      <div class="flex gap-2">
+        <button onclick="initiateCall()" class="bg-green-600 hover:bg-green-700 px-4 py-1 rounded text-sm">📞 Call</button>
+      </div>
     </header>
-
-    <!-- Chat Area -->
-    <section id="chat-area" class="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-950">
-      <div class="text-gray-400 text-center italic text-sm">No server selected</div>
-    </section>
-
-    <!-- Chat Input -->
-    <footer class="p-4 border-t border-white/10 bg-gray-800 flex items-center gap-2">
-      <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 bg-gray-700 px-4 py-2 rounded focus:outline-none">
-      <button onclick="sendMessage()" class="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600">Send</button>
-    </footer>
-  </main>
-
-  <!-- Create Server Modal -->
-  <div id="create-server-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
-    <div class="bg-gray-800 p-6 rounded shadow w-full max-w-md">
-      <h3 class="text-lg font-bold mb-4">Create New Server</h3>
-      <input id="new-server-name" type="text" placeholder="Server Name" class="w-full mb-3 px-3 py-2 bg-gray-700 rounded">
-      <select id="new-server-purpose" class="w-full mb-4 px-3 py-2 bg-gray-700 rounded">
-        <option value="study">Study</option>
-        <option value="coding">Coding</option>
-        <option value="discussion">Discussion</option>
-      </select>
-      <div class="flex justify-end gap-3">
-        <button onclick="closeCreateServerModal()" class="px-4 py-2 bg-gray-600 rounded">Cancel</button>
-        <button onclick="createServer()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Create</button>
+    <div class="flex flex-1 h-full">
+      <nav class="w-56 bg-gray-800/70 p-3 border-r border-white/10 flex flex-col gap-3" id="channel-list">
+        <!-- Channel list here (optional for multi-channel per server) -->
+        <div class="text-gray-400 text-xs">#general</div>
+      </nav>
+      <section class="flex-1 flex flex-col">
+        <div id="chat-area" class="flex-1 overflow-y-auto p-4 bg-gray-950 space-y-2"></div>
+        <footer class="p-4 bg-gray-800 border-t border-white/10 flex items-center gap-2">
+          <input id="chat-input" class="flex-1 bg-gray-700 px-4 py-2 rounded focus:outline-none" placeholder="Message...">
+          <button onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Send</button>
+        </footer>
+      </section>
+    </div>
+    <!-- Modal: Create Server -->
+    <div id="create-server-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div class="bg-gray-800 w-full max-w-md p-6 rounded shadow-lg">
+        <h3 class="text-lg font-bold mb-4">Create Server</h3>
+        <input id="new-server-name" placeholder="Server name" class="w-full px-3 py-2 rounded bg-gray-700 mb-3" />
+        <select id="new-server-purpose" class="w-full mb-4 px-3 py-2 bg-gray-700 rounded">
+          <option value="study">Study</option>
+          <option value="coding">Coding</option>
+          <option value="community">Community</option>
+        </select>
+        <div class="flex justify-end gap-2">
+          <button onclick="closeServerModal()" class="bg-gray-600 px-4 py-2 rounded">Cancel</button>
+          <button onclick="createServer()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Create</button>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- Firebase -->
+    <!-- Video Call Modal: injected by JS (webrtc.js) -->
+  </main>
+  <!-- Firebase + JS Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-
-  <!-- WebRTC & Logic Scripts -->
   <script src="js/firebase.js"></script>
   <script src="js/serverLogic.js"></script>
   <script src="js/webrtc.js"></script>
 </body>
-</html>
+        </html>
+        
