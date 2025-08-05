@@ -1,112 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login - Shadow Circle</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Login — Shadow Circle</title>
   <style>
-    html, body { height: 100%; }
+    html, body { height: 100%; margin: 0; }
     body {
-      min-height: 100vh;
-      background: linear-gradient(120deg, #ff7979 0%, #fba277 100%);
-      display: flex; align-items: center; justify-content: center;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #ff7878 0%, #faad61 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
     }
-    .login-container {
+    .login-card {
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.10);
-      width: 380px; max-width: 92vw;
-      padding: 2.5rem 2rem;
+      box-shadow: 0 8px 40px 4px rgba(0,0,0,0.10);
+      width: 370px; max-width: 96vw;
+      padding: 2.7rem 2.2rem 2rem 2.2rem;
       display: flex; flex-direction: column; align-items: center;
     }
-    .login-logo {
-      margin-bottom: 1.5rem;
-      font-size: 2.1rem;
-      font-weight: bold;
+    .logo {
+      font-size: 2.5rem;
+      font-weight: 700;
       color: #646cff;
       letter-spacing: 2.5px;
-      text-transform: uppercase;
+      margin-bottom: 1.3rem;
+      text-shadow: 0 4px 20px rgba(110,85,255,0.11);
     }
-    .login-title {
-      margin-bottom: 2rem;
-      font-size: 1.45rem;
-      color: #24243e;
+    .main-title {
+      font-size: 1.53rem;
       font-weight: 500;
+      color: #232648;
+      margin-bottom: 2.2rem;
       text-align: center;
     }
     .login-form {
+      width: 100%; display: flex; flex-direction: column; gap: 1.12rem;
+    }
+    .input-field {
+      padding: 0.9rem 1.1rem;
+      border-radius: 7px;
+      border: 1.7px solid #ececf3;
+      background: #fafbfc;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.18s;
+    }
+    .input-field:focus {
+      border: 1.7px solid #646cff;
+      background: #fff;
+    }
+    .login-btn {
+      margin-top: 0.42rem;
+      padding: 0.88rem 0;
+      border: none;
+      border-radius: 7px;
+      background: #646cff;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.12rem;
+      cursor: pointer;
+      transition: background 0.18s;
+      box-shadow: 0 2px 6px rgba(100,108,255,0.07);
+    }
+    .login-btn:hover {
+      background: #515bdb;
+    }
+    .error-message {
+      background: #ffeaea;
+      color: #cd2525;
+      border-radius: 6px;
+      padding: 0.7rem 0.8rem;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+      display: none;
+      font-weight: 500;
+    }
+    .alt-actions {
+      margin: 1.6rem 0 0 0;
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 1.1rem;
+      align-items: center;
     }
-    .input-field {
-      width: 100%;
-      padding: 0.7rem 1rem;
-      border: 1.6px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 1rem;
-      outline: none;
-      background: #fafbfc;
-      transition: border 0.2s;
-    }
-    .input-field:focus { border: 1.6px solid #646cff; }
-    .login-btn {
-      margin-top: 0.4rem;
-      padding: 0.8rem;
-      border: none;
-      border-radius: 6px;
-      background: #646cff;
-      color: #fff;
-      font-weight: bold;
-      font-size: 1.08rem;
-      cursor: pointer;
-      transition: background 0.18s;
-    }
-    .login-btn:hover { background: #5056c7; }
-    .error-message {
-      background: #ffe6e6;
-      color: #d22626;
-      padding: 0.7rem;
-      width: 100%;
-      border-radius: 5px;
-      text-align: center;
-      margin-bottom: 0.5rem;
-      font-size: 0.98rem;
-      display: none;
-    }
-    .alt-action {
-      margin: 1.3rem 0 0.6rem 0;
-      color: #888;
-      font-size: 1rem;
+    .alt-link {
+      margin-top: 0.3rem;
+      color: #717171;
+      font-size: 1.01rem;
       text-align: center;
     }
-    .alt-action a {
+    .alt-link a {
       color: #646cff;
       text-decoration: none;
+      margin-left: 0.4rem;
       font-weight: bold;
-      margin-left: 0.3rem;
     }
-    .alt-action a:hover { text-decoration: underline; }
+    .alt-link a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width:450px) {
+      .login-card { padding: 1.6rem 0.8rem 1.5rem 0.8rem; }
+      .logo { font-size: 1.9rem; }
+      .main-title { font-size: 1.08rem;  }
+    }
   </style>
 </head>
 <body>
-
-<div class="login-container">
-  <div class="login-logo">Shadow</div>
-  <div class="login-title">Welcome back</div>
+<div class="login-card">
+  <div class="logo">⬤</div>
+  <div class="main-title">Welcome back</div>
   <div id="error-message" class="error-message"></div>
-  <form class="login-form" id="login-form" autocomplete="on">
-    <input type="email" id="email" class="input-field" placeholder="Email" required autocomplete="username" />
-    <input type="password" id="password" class="input-field" placeholder="Password" required autocomplete="current-password" />
+  <form id="login-form" class="login-form" autocomplete="on">
+    <input type="email" id="email" class="input-field" placeholder="Email" required autocomplete="username"/>
+    <input type="password" id="password" class="input-field" placeholder="Password" required autocomplete="current-password"/>
     <button type="submit" class="login-btn">Sign In</button>
   </form>
-  <div class="alt-action">
-    New here?
-    <a href="signup.html">Create account</a>
+  <div class="alt-actions">
+    <div class="alt-link">
+      New to Shadow Circle?
+      <a href="signup.html">Create account</a>
+    </div>
   </div>
 </div>
 
+<!-- Firebase App and Auth -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
@@ -124,45 +146,29 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const loginForm = document.getElementById('login-form');
 const errorDiv = document.getElementById('error-message');
-const DEV_CODE = "290965";
-const CUTOFF_DATE = new Date("2024-08-15T23:59:59");
 
-function checkDevCode(email, password) {
-  const now = new Date();
-  if (now <= CUTOFF_DATE && (email === DEV_CODE || password === DEV_CODE)) {
-    window.location.href = "https://naruto-cyber-beep.github.io/Shadow-coder/"; // SET YOUR URL HERE
-    return true;
-  }
-  return false;
-}
+// Redirect authenticated users to index.html
+auth.onAuthStateChanged(user => {
+  if (user) window.location.href = "index.html";
+});
 
 loginForm.addEventListener('submit', async e => {
   e.preventDefault();
   errorDiv.style.display = 'none';
   const email = loginForm.email.value.trim();
   const password = loginForm.password.value;
-
-  // Developer code shortcut
-  if (checkDevCode(email, password)) return;
-
   if (!email || !password) {
-    errorDiv.textContent = "Please enter both email and password.";
+    errorDiv.textContent = "Please enter email and password.";
     errorDiv.style.display = 'block';
     return;
   }
-
   try {
     await auth.signInWithEmailAndPassword(email, password);
-    window.location.href = "profile.html";
+    window.location.href = "index.html";
   } catch (err) {
     errorDiv.textContent = err.message;
     errorDiv.style.display = 'block';
   }
-});
-
-// Always redirect if already logged in
-auth.onAuthStateChanged(user => {
-  if (user) window.location.href = "profile.html";
 });
 </script>
 </body>
