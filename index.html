@@ -299,15 +299,24 @@
         <li><a href="#">Marking Schemes</a></li>
         <li><a href="#">Other Reference Materials</a></li>
       </ul>
-      <div class="server-feature">
-  <strong>Shadow Circle: Private Student Chat</strong>
-  <p>
-    Create or join your own server, and talk securely with your friends!<br />
-    Organize group study, share resources, or just hang out—right inside Shadowed.
-  </p>
-  <button onclick="window.location.href='server.html'">Create Server</button>
-  <button onclick="window.location.href='server.html'">Join Server</button>
-      </div>
+      <button onclick="checkDateAndRedirect()">Create Server</button>
+<button onclick="checkDateAndRedirect()">Join Server</button>
+
+<script>
+function checkDateAndRedirect() {
+  const today = new Date();
+  const month = today.getMonth() + 1; // Months are 0-based (Jan=0)
+  const day = today.getDate();
+
+  if (month === 8 && day === 10) {
+    // If today is August 10, redirect
+    window.location.href = 'server.html';
+  } else {
+    alert('This feature will be available on 10 August. Please come back then!');
+  }
+}
+</script>
+      
             
       <h2 style="margin-top: 2.2rem;">Quick Tools</h2>
       <ul class="panel-list">
