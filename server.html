@@ -2,67 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Shadow Coder — Server</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="styles/animation.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Shadow Circle — Circles</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #23272a; color: #fff; font-family:'Inter', Arial,sans-serif; }
+    .main { min-height:100vh; display: flex; flex-direction:row; }
+    .sidebar {
+      width: 96px; background:#18191c; min-height: 100vh; display: flex; flex-direction:column; align-items:center; padding: 2.2rem 0; gap:1.6rem; box-shadow: 4px 0 14px #10131944;
+    }
+    .circle-icon {
+      width: 52px; height: 52px; border-radius: 50%; background:#414757; display:flex;align-items:center; justify-content:center;
+      font-size: 2.1rem; margin-bottom: 0.7em; cursor:pointer; transition: background .19s;
+    }
+    .circle-icon.active,.circle-icon:hover { background:#7289da; color:#fff; }
+    .add-circle {
+      font-size:2.7rem;color:#7289da;background:none;border:none;cursor:pointer;margin-top:3rem;margin-bottom:2rem;
+      transition:.21s;
+    }
+    .center {
+      flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; min-height:100vh;
+      background: linear-gradient(120deg,#23272a 70%,#232a3d 100%);
+    }
+    .head {
+      font-size:2.2rem;font-weight:800; color:#7289da;margin-bottom:.7em;
+    }
+    .desc {
+      color:#c9cfea; font-size:1.16em; margin-bottom:2em; text-align:center; max-width:380px;
+    }
+    .action-row {
+      display:flex;gap:1.7rem;margin-bottom:2.7rem;
+    }
+    .circle-btn {
+      padding:0.91em 1.7em;
+      background:#7289da;color:#fff;
+      border:none; border-radius:13px;font-size:1.11rem;
+      font-weight:600;cursor:pointer;transition:.18s;
+      margin-top:1rem;
+    }
+    .circle-btn:hover { background:#4350a2; }
+    .circles-list {background:#2f3136; padding:1.1em 1.2em; border-radius:17px;}
+    .circle-list-item {
+      display:flex;align-items:center;gap:1.3em;margin-bottom:.97em; background: #36393f;padding:.82em 1.2em;border-radius: 9px;cursor:pointer;transition:.13s;}
+    .circle-list-item:last-child{margin-bottom:0;}
+    .circle-list-item:hover {background:#7289da;}
+    .circle-list-pic { width:38px; height:38px; border-radius:60%; background:#bde2f1; color:#23272a; font-weight:700; display:flex;align-items:center;justify-content:center;}
+    .circle-list-col { flex:1;}
+    .circle-list-title {font-size:1.19em;font-weight:700;}
+    .circle-list-invite { font-size:.95em;color:#d6cae1;}
+    @media (max-width: 600px) {.main{flex-direction:column;}.sidebar{flex-direction:row;width:100vw;min-height:auto;}.center{padding:2em 0;}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:none}}
+  </style>
 </head>
-<body class="bg-gray-900 text-white flex h-screen overflow-hidden">
-
-  <!-- Sidebar (servers) -->
-  <aside class="w-20 bg-black/30 backdrop-blur-md border-r border-white/10 flex flex-col items-center py-4">
-    <p class="text-xs font-bold text-center mb-4">Shadow<br/>Coder</p>
-    <div id="server-list" class="flex flex-col gap-3 items-center w-full mt-2 px-2"></div>
-    <button onclick="openCreateModal()" title="Create Server" class="text-lg mb-4 mt-auto bg-blue-600 rounded-full w-10 h-10 hover:bg-blue-700">+</button>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="flex-1 flex flex-col relative">
-    <header class="flex justify-between items-center px-4 py-2 bg-gray-800 border-b border-white/10">
-      <h2 class="text-xl font-semibold" id="server-name">Select a Server</h2>
-      <button onclick="startVideoCall()" class="bg-green-600 hover:bg-green-700 px-4 py-1 rounded text-sm">📞 Start Call</button>
-    </header>
-
-    <div class="flex flex-1">
-      <!-- Channel List (optional) -->
-      <div class="w-48 bg-gray-800/80 p-3 border-r border-gray-700 flex flex-col text-sm">#general</div>
-
-      <!-- Chat Area -->
-      <section class="flex-1 flex flex-col justify-between">
-        <div id="chat-area" class="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-950 text-sm">
-          <p class="text-gray-400 text-center italic">No server selected</p>
+<body>
+  <div class="main">
+    <nav class="sidebar">
+      <div class="circle-icon active" title="Circle: Study Gurukul" onclick="window.location.href='chat.html'">🕉️</div>
+      <div class="circle-icon" title="Circle: Gaming Club">🎮</div>
+      <div class="circle-icon" title="Circle: Memers">😂</div>
+      <button class="add-circle" title="Create/Join Circle" onclick="window.location.href='create_circle.html'">+</button>
+    </nav>
+    <div class="center">
+      <div class="head">Your Circles</div>
+      <div class="desc">Choose a Circle (Mandal) to join the conversations or create a new one below.</div>
+      <div class="action-row">
+        <button class="circle-btn" onclick="window.location.href='create_circle.html'">Create Circle</button>
+        <button class="circle-btn" onclick="window.location.href='join_circle.html'">Join with Code</button>
+      </div>
+      <div class="circles-list">
+        <div class="circle-list-item" onclick="window.location.href='chat.html'">
+          <div class="circle-list-pic">🕉️</div>
+          <div class="circle-list-col">
+            <div class="circle-list-title">Study Gurukul</div>
+            <div class="circle-list-invite">Invite: <b>QWRT12</b></div>
+          </div>
         </div>
-        <footer class="bg-gray-800 px-4 py-3 flex items-center gap-2 border-t border-white/10">
-          <input id="chat-input" class="flex-1 px-3 py-2 rounded bg-gray-700 outline-none" placeholder="Message..." />
-          <button onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Send</button>
-        </footer>
-      </section>
-    </div>
-
-    <!-- Create Server Modal -->
-    <div id="create-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div class="bg-gray-800 p-6 rounded-md w-full max-w-md shadow-xl">
-        <h3 class="text-lg font-bold mb-4">Create Server</h3>
-        <input id="new-server-name" class="w-full px-3 py-2 mb-3 bg-gray-700 rounded" placeholder="Server name" />
-        <select id="new-server-purpose" class="w-full px-3 py-2 mb-4 bg-gray-700 rounded">
-          <option value="study">Study</option>
-          <option value="coding">Coding</option>
-          <option value="community">Community</option>
-        </select>
-        <div class="flex justify-end gap-3">
-          <button onclick="closeCreateModal()" class="px-4 py-2 bg-gray-700 rounded">Cancel</button>
-          <button onclick="createServer()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Create</button>
+        <div class="circle-list-item" onclick="window.location.href='chat.html'">
+          <div class="circle-list-pic">🎮</div>
+          <div class="circle-list-col">
+            <div class="circle-list-title">Gaming Club</div>
+            <div class="circle-list-invite">Invite: <b>GAME3X</b></div>
+          </div>
+        </div>
+        <div class="circle-list-item" onclick="window.location.href='chat.html'">
+          <div class="circle-list-pic">😂</div>
+          <div class="circle-list-col">
+            <div class="circle-list-title">Memers</div>
+            <div class="circle-list-invite">Invite: <b>MEMEZ1</b></div>
+          </div>
         </div>
       </div>
     </div>
-  </main>
-
-  <!-- Firebase + Logic -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-  <script src="js/firebase.js"></script>
-  <script src="js/serverLogic.js"></script>
-  <script src="js/webrtc.js"></script>
+  </div>
 </body>
-            </html>
-        
+              </html>
+              
