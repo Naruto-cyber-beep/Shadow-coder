@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Profile - Shadowed</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f6fb;
+    color: #222;
+    margin: 0; padding: 0;
+    transition: background 0.3s, color 0.3s;
+  }
+  .profile-container {
+    max-width: 480px;
+    margin: 3rem auto;
+    background: white;
+    padding: 2rem;
+    box-shadow: 0 8px 20px rgba(34,34,34,0.1);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .profile-pic-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  .profile-pic {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 10px #5860ea88;
+    cursor: pointer;
+    border: 3px solid #5860ea;
+  }
+  #uploadInput {
+    display: none;
+  }
+  .user-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 1rem 0 0.3rem;
+  }
+  .user-email {
+    font-size: 1rem;
+    color: #5860ea;
+    margin-bottom: 1rem;
+  }
+  button {
+    background-color: #5860ea;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    padding: 0.7rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background-color: #3a44c6;
+  }
+  .settings-section {
+    text-align: left;
+    margin-top: 2rem;
+  }
+  .settings-section h2 {
+    font-size: 1.4rem;
+    border-bottom: 2px solid #5860ea;
+    padding-bottom: 6px;
+  }
+  .setting-item {
+    margin: 1rem 0;
+    font-size: 1.05rem;
+  }
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .toggle-label input[type="checkbox"] {
+    width: 40px;
+    height: 20px;
+    cursor: pointer;
+  }
+  .sub-info {
+    margin: 1rem 0;
+    font-weight: 600;
+  }
+  .link-btn {
+    background: #20a1fa;
+  }
+  .link-btn:hover {
+    background: #186fc1;
+  }
+  #devBadge {
+    margin-top: 10px;
+    color: #20a1fa;
+    font-weight: bold;
+    display: none;
+  }
+  #devZone {
+    margin-top: 20px;
+    background: #e0f0ff;
+    padding: 10px;
+    border-radius: 8px;
+    display: none;
+    text-align: left;
+  }
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
+    authDomain: "learn-code-with-anay.firebaseapp.com",
+    projectId: "learn-code-with-anay",
+    storageBucket: "learn-code-with-anay.firebasestorage.app",
+    messagingSenderId: "197075143711",
+    appId: "1:197075143711:web:64fc5d83528f907d38d92a",
+    measurementId: "G-F01VRZK4ZL"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+</script>
+</head>
+<body>
+
+<div class="profile-container" role="main" aria-label="User Profile">
+
+  <div class="profile-pic-wrapper" tabindex="0" aria-label="Profile picture, click to upload or use camera">
+    <img src="https://i.pravatar.cc/110" alt="Profile Picture" id="profilePic" class="profile-pic" />
+    <input type="file" id="uploadInput" accept="image/*" capture="user" />
+  </div>
+
+  <div class="user-name" id="userName">Loading...</div>
+  <div class="user-email" id="userEmail"></div>
+  <div class="sub-info">Shadow Coins: <strong id="shadowCoins">0</strong></div>
+
+  <div id="devBadge">Developer Mode Enabled</div>
+  <div id="devZone">
+    <h3>Developer Zone</h3>
+    <ul>
+      <li>Access to experimental features</li>
+      <li>Admin analytics dashboard</li>
+      <li>Test new UI elements early</li>
+    </ul>
+  </div>
+
+  <div class="settings-section" id="settingsSection" aria-label="Profile Settings">
+    <h2>Profile Settings</h2>
+
+    <div class="setting-item" id="leaderboardRank">🏆 Leaderboard Rank: <strong>#--</strong></div>
+    <div class="setting-item" id="rankScore">🎯 Rank Score: <strong>-- XP</strong></div>
+    <div class="setting-item" id="badgesEarned">🎖️ Badges Earned: <strong>--</strong></div>
+
+    <div class="setting-item toggle-label">
+      <label for="toggleAnimations">Reduce Animations & Effects</label>
+      <input type="checkbox" id="toggleAnimations" aria-label="Toggle reduce animations and graphics" />
+    </div>
+
+    <div class="sub-info">
+      Subscription: <strong id="subscriptionPlan">Free Plan</strong>
+    </div>
+
+    <button id="purchaseBtn" class="link-btn" aria-label="Purchase subscription plan">Purchase Subscription</button>
+  </div>
+
+</div>
+
+<script>
+  const profilePic = document.getElementById('profilePic');
+  const uploadInput = document.getElementById('uploadInput');
+  const userName = document.getElementById('userName');
+  const userEmail = document.getElementById('userEmail');
+  const shadowCoinsElem = document.getElementById('shadowCoins');
+  const leaderboardRank = document.getElementById('leaderboardRank');
+  const rankScore = document.getElementById('rankScore');
+  const badgesEarned = document.getElementById('badgesEarned');
+  const subscriptionPlan = document.getElementById('subscriptionPlan');
+  const toggleAnimations = document.getElementById('toggleAnimations');
+  const purchaseBtn = document.getElementById('purchaseBtn');
+  const devBadge = document.getElementById('devBadge');
+  const devZone = document.getElementById('devZone');
+
+  // Profile picture upload handling
+  profilePic.addEventListener('click', () => uploadInput.click());
+  uploadInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        profilePic.src = e.target.result;
+        // Upload to Firebase Storage can be handled here if needed
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  toggleAnimations.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      document.body.style.transition = 'none';
+      // In a real app, you'd reduce animations here
+      alert('Animations and graphics will be reduced.');
+    } else {
+      document.body.style.transition = '';
+    }
+  });
+
+  purchaseBtn.addEventListener('click', () => {
+    window.location.href = 'payment.html';
+  });
+
+  // Simulate login and user role detection
+  async function loginFlow() {
+    let email = prompt("Enter your email:");
+    if(!email || !email.includes('@')) {
+      alert("Valid email required!");
+      return;
+    }
+    let devCode = prompt("Enter developer code if you have one, else leave blank:");
+
+    const isDev = (devCode === "290965");
+
+    // Simulated user data - in real case fetch from Firebase Auth/Firestore here
+    const userData = {
+      username: isDev ? "Dev Anay" : "John Doe",
+      email: email,
+      shadowCoins: isDev ? 1500 : 785,
+      leaderboardRank: isDev ? "#1" : "#12",
+      rankScore: isDev ? "3000 XP" : "1540 XP",
+      badges: isDev ? "Dev Master, Shadow Coder" : "Shadow Hunter, Weekly Champ",
+      subscription: isDev ? "Yodha Pack (Annual)" : "Free Plan"
+    };
+
+    // Update UI dynamically
+    userName.textContent = userData.username;
+    userEmail.textContent = userData.email;
+    shadowCoinsElem.textContent = userData.shadowCoins;
+    leaderboardRank.innerHTML = "🏆 Leaderboard Rank: <strong>" + userData.leaderboardRank + "</strong>";
+    rankScore.innerHTML = "🎯 Rank Score: <strong>" + userData.rankScore + "</strong>";
+    badgesEarned.innerHTML = "🎖️ Badges Earned: <strong>" + userData.badges + "</strong>";
+    subscriptionPlan.textContent = userData.subscription;
+
+    if(isDev) {
+      devBadge.style.display = 'block';
+      devZone.style.display = 'block';
+    } else {
+      devBadge.style.display = 'none';
+      devZone.style.display = 'none';
+    }
+  }
+
+  window.onload = loginFlow;
+</script>
+
+</body>
+</html>
