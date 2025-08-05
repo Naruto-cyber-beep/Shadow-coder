@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Shadow Circle – Circle View</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sidebar:#23272a; --channelbar:#2f3136; --mainbg:#36393f; --accent:#7289da; --text:#fff; --secondary:#b9bbbe;
+      --highlight:#5865f2;
+    }
+    body { margin:0; font-family:'Inter',Arial,sans-serif; background:var(--mainbg); color:var(--text);}
+    .layout { display:flex; min-height:100vh;}
+    .server-list {
+      width:70px; background:var(--sidebar); display:flex; flex-direction:column; align-items:center; padding:1.5em 0; gap:1em; box-shadow:3px 0 12px #181b2240;
+    }
+    .server-icon {
+      width:48px; height:48px; border-radius:14px; margin:0.2em 0; background:var(--accent); display: flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer; transition:.17s;
+    }
+    .server-icon.active, .server-icon:hover { background:var(--highlight);}
+    .add-server { font-size:2.4rem;color:var(--accent); background:none;border:none;cursor:pointer;margin-top:2em;margin-bottom:2em; }
+
+    .channels {
+      width:245px; background:var(--channelbar); display:flex; flex-direction:column; padding:1.2em 0.5em 1.2em 0.5em; min-height:100vh;box-shadow:2px 0 12px #13132110;
+    }
+    .circle-header { font-weight:700; font-size:1.17em; color:var(--accent); margin-bottom:0.8em; margin-left:1.1em;}
+    .chan-cat {margin:1em 0 0.18em 1.1em;font-size:0.97em; color:#aaa;}
+    .channel-link {
+      display:flex;align-items:center;gap:0.7em;
+      padding:0.63em 1.3em; color:var(--secondary); border-radius:8px; margin-bottom:0.17em;
+      font-size:1.08em; cursor:pointer;transition:.14s;
+    }
+    .channel-link.active, .channel-link:hover {background:var(--accent); color:var(--text);}
+    .main {
+      flex:1; display:flex; flex-direction:column; background:var(--mainbg);
+    }
+    .topbar {
+      background:var(--channelbar); min-height:54px; display:flex;align-items:center;justify-content:space-between;padding:0 2rem;box-shadow:0 2px 7px #1a143130;
+      font-weight:700;
+    }
+    .lang-select {background:var(--accent);color:#fff;font-weight:600;padding: 0.4em 1.1em;border:0;border-radius:11px;margin-left:1.8em;}
+    .settings-link {color:var(--secondary);background:none;border:none;font-size:1.2em;margin-left:2em;cursor:pointer;}
+    .chat-area {flex:1; display:flex;flex-direction:row;}
+    .chat-main {flex:1;display:flex;flex-direction:column;padding:1.1em 1.7em 0.9em 1.2em;}
+    .message-stream {flex:1; overflow-y:auto;}
+    .msg {display:flex;gap:1em;margin-bottom:1.02em;}
+    .msg-avatar {width:37px;height:37px;border-radius:50%;background:#464a80;display:flex;align-items:center;justify-content:center;font-size:1.1em;}
+    .msg-body {flex:1;}
+    .msg-user {font-weight:700; font-size:1.01em; color:var(--accent);}
+    .msg-time {color:#8a97c8;margin-left:0.55em;font-size:0.88em;}
+    .msg-text {font-size:1.12em;}
+    .chat-input {padding:0.9em 1.2em;background:var(--sidebar);display:flex;align-items:center;}
+    .input-area {flex:1;border:0;padding:0.9em 1.2em;border-radius:2em;margin-right:0.9em;font-size:1.12em;background:var(--channelbar);color:#fff;}
+    .input-area:focus{outline:none;}
+    .send-btn {background:var(--accent); color:#fff; border:0; border-radius:2em; padding:0.63em 1.5em;font-weight:600; font-size:1.02em;}
+    .members {
+      width:220px; background:var(--channelbar); padding:1.3em 0.5em; border-left:1px solid #3b3d43;
+      display:flex; flex-direction:column; gap:0.8em;
+    }
+    .mem-header {color:var(--accent); font-weight:700; margin-bottom:0.7em;}
+    .mem-row {display:flex;align-items:center;gap:0.7em; padding:0.4em 0.9em; border-radius:8px;transition:.14s;cursor:pointer;}
+    .mem-row:hover {background:var(--accent); color:var(--text);}
+    .mem-avatar{width:32px;height:32px;border-radius:50%;background:#6877c2;display:flex;align-items:center;justify-content:center;}
+    .mem-main{flex:1;}
+    .mem-name{font-weight:600;}
+    .mem-role{font-size:0.89em;color:var(--secondary);}
+    @media (max-width:1000px){.members{display:none;}.channels{width:83px;}.channel-link{font-size:0.97em;}}
+    @media (max-width:700px){.server-list{width:46px;}.channels{width:48px;}.topbar{padding:0 0.6em;}}
+  </style>
+</head>
+<body>
+<div class="layout">
+    <!-- Left: Server (Circle) List -->
+    <nav class="server-list">
+        <div class="server-icon active" title="Study Mandal" onclick="window.location.href='circle.html'">🕉️</div>
+        <div class="server-icon" title="Class 12 Science">🧪</div>
+        <div class="server-icon" title="QnA Group">💡</div>
+        <button class="add-server" title="Join/Create Circle" onclick="window.location.href='server.html'">+</button>
+    </nav>
+    <!-- Center: Channels / Category List -->
+    <aside class="channels">
+        <div class="circle-header">🕉️ Study Mandal</div>
+        <div class="chan-cat">Text Spaces</div>
+        <div class="channel-link active" onclick="window.location.href='space.html'"><span>#</span>general</div>
+        <div class="channel-link" onclick="window.location.href='space.html'"><span>#</span>doubts</div>
+        <div class="chan-cat">Voice Spaces</div>
+        <div class="channel-link" onclick="window.location.href='call.html'"><span>🔊</span>discussion</div>
+        <div class="chan-cat">Stage</div>
+        <div class="channel-link" onclick="window.location.href='stage.html'"><span>🎙️</span>sabha-talk</div>
+    </aside>
+    <!-- Main: Chat and Members -->
+    <main class="main">
+        <div class="topbar">
+            <span># general – Study Mandal</span>
+            <span>
+              <select class="lang-select">
+                <option>English</option>
+                <option>Hinglish</option>
+              </select>
+              <button class="settings-link" title="Server Settings" onclick="window.location.href='settings.html'">⚙️</button>
+            </span>
+        </div>
+        <div class="chat-area">
+            <!-- Chat Stream -->
+            <section class="chat-main">
+                <div class="message-stream" id="msg-stream">
+                    <div class="msg">
+                        <div class="msg-avatar">A</div>
+                        <div class="msg-body">
+                            <div><span class="msg-user">Amit</span> <span class="msg-time">09:06</span></div>
+                            <div class="msg-text">Welcome to the Study Mandal, everyone! 🎉</div>
+                        </div>
+                    </div>
+                    <div class="msg">
+                        <div class="msg-avatar">S</div>
+                        <div class="msg-body">
+                            <div><span class="msg-user">Sara</span> <span class="msg-time">09:07</span></div>
+                            <div class="msg-text">Join the discussion in <span style="color:#9edcfa;">#doubts</span> or raise your questions live.</div>
+                        </div>
+                    </div>
+                </div>
+                <form class="chat-input" onsubmit="event.preventDefault();sendMsg();">
+                    <input placeholder="Type your message..." class="input-area" id="msg-input" autocomplete="off"/>
+                    <button type="submit" class="send-btn">Send</button>
+                </form>
+            </section>
+            <!-- Member List -->
+            <aside class="members">
+                <div class="mem-header">Members</div>
+                <div class="mem-row"><span class="mem-avatar">A</span><div class="mem-main"><span class="mem-name">Amit</span><div class="mem-role">Owner</div></div></div>
+                <div class="mem-row"><span class="mem-avatar">S</span><div class="mem-main"><span class="mem-name">Sara</span><div class="mem-role">Moderator</div></div></div>
+                <div class="mem-row"><span class="mem-avatar">R</span><div class="mem-main"><span class="mem-name">Raj</span><div class="mem-role">Member</div></div></div>
+            </aside>
+        </div>
+    </main>
+</div>
+<script>
+function sendMsg() {
+  const stream = document.getElementById('msg-stream');
+  const inp = document.getElementById('msg-input');
+  if(inp.value.trim()){
+    const msg = document.createElement('div');
+    msg.className = 'msg';
+    msg.innerHTML = '<div class="msg-avatar">You</div><div class="msg-body"><div><span class="msg-user">You</span> <span class="msg-time">'+
+      (new Date().toLocaleTimeString().slice(0,5))+'</span></div><div class="msg-text">'+inp.value.replace(/</g,"&lt;")+'</div></div>';
+    stream.appendChild(msg); inp.value=''; stream.scrollTop = stream.scrollHeight;
+  }
+}
+</script>
+</body>
+</html>
