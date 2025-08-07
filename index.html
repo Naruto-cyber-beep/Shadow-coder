@@ -3,47 +3,275 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ShadowEd</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+  <title>ShadowEd • The Future of Learning</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
-    /* ...all your CSS styles from your previous UI, unchanged... */
+    :root {
+      --primary: #4250ea;
+      --accent: #15d4c8;
+      --shadow: #372987;
+      --soft: #f5f8fe;
+      --coin: #ffd600;
+      --gaming: #ea43a5;
+      --server: #19a9ee;
+      --dark: #111733;
+    }
     body {
       margin: 0;
+      background: linear-gradient(110deg, #eef2fd 0%, #e3eaff 100%);
+      min-height: 100vh;
+      color: var(--dark);
       font-family: 'Inter', Arial, sans-serif;
-      background: linear-gradient(120deg,#f0f4f8 0%,#e2eaff 100%);
-      color: #18244e;
+      overflow-x: hidden;
     }
-    /* ...rest of your css... (copy as in previous code) ... */
-    /* ... */
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      padding: 1rem 2.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 4vw;
       background: #fff;
-      box-shadow: 0 2px 16px rgba(70,100,225,.06);
-      z-index: 999;
+      box-shadow: 0 2px 18px 0 rgba(70,114,225,0.08);
+      position: sticky; top: 0; z-index: 1100;
+      border-radius: 0 0 16px 16px;
+      animation: fadein 1.5s;
     }
-    .brand {
-      font-weight: bold;
+    .logo {
+      font-family: 'Montserrat', Arial, sans-serif;
       font-size: 2rem;
-      color: #5860ea;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--primary);
+      display: flex; align-items: center;
+      gap: 0.5em;
+      user-select: none;
+    }
+    .coins-display {
+      background: var(--coin);
+      color: #252107;
+      padding: 0.5em 1.2em;
+      border-radius: 38px;
+      font-weight: 800;
+      display: flex; align-items: center; 
+      font-size: 1.13rem;
+      box-shadow: 0 2px 8px 0 rgba(255,201,50,0.15);
+      gap: 0.7em;
+      animation: popIn 1.1s ease;
+    }
+    .coins-anim {
+      transition: background 0.25s, transform 0.12s;
+    }
+    .coins-icon {
+      font-size: 1.6em;
+      color: #ffd700;
+      filter: drop-shadow(1px 4px 5px #fff69da0);
+    }
+    .nav-main {
+      display: flex; gap: 2.2vw; align-items: center;
+    }
+    .nav-main a {
+      font-size: 1.13rem;
+      color: #23316B;
+      text-decoration: none;
+      font-weight: 700;
+      transition: color 0.18s, background 0.18s;
+      position: relative;
+      padding: 0.22em 1em;
+      border-radius: 0.7em;
+      background: none;
+      outline: none;
+    }
+    .nav-main a:hover, .nav-main a:focus {
+      color: var(--primary); background: #e5eaff;
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 4px 18px var(--soft);
+    }
+    .menu-btn {
+      display: none; margin-left: 1.5vw;
+      font-size: 2.2em; color: var(--primary); background: none; border: none;
+      cursor: pointer;
+      transition: color 0.13s;
+    }
+    .menu-btn:active { color: var(--gaming);}
+    @media (max-width:900px){
+      .nav-main { display: none;}
+      .menu-btn {display:inline-block;}
+    }
+    /* Sidebar/Menu Panel */
+    .side-panel {
+      position: fixed; right: 0; top: 0; height: 100vh;
+      width: 330px; max-width:96vw;
+      background: #fff;
+      box-shadow: -8px 0 36px rgba(67,80,234,0.13);
+      transition: transform 0.32s cubic-bezier(.8,0,.2,1);
+      transform: translateX(100%);
+      z-index: 20002;
+      padding: 2.1rem 2.1rem 2.6rem 2.1rem;
+      overflow-y: auto;
+      border-radius: 0 0 0 30px;
+    }
+    .side-panel.open { transform: translateX(0);}
+    .panel-close {
+      position:absolute; top: 18px; right:20px;
+      background: none; border: none; font-size: 2rem;
+      color:var(--primary); cursor:pointer;
+    }
+    .panel-list {
+      list-style: none; padding: 0 0 1.5rem 0;
+    }
+    .panel-list li {
+      margin-bottom: 1.17rem;
+    }
+    .panel-list a, .panel-list button {
+      text-decoration: none; 
+      color: #324279;
+      font-size: 1.12rem; font-weight: 700;
+      background:none; border:none;
+      transition: color .14s, background .14s, transform .13s;
+      outline:none; cursor: pointer; border-radius: 7px;
+      padding:0.26em 0.8em;
+      display:inline-block;
+    }
+    .panel-list a:hover, .panel-list button:hover {
+      color: #fff; background: var(--primary);
+      box-shadow: 0 2px 12px #4b68ea23;
+      transform: translateY(-2px) scale(1.08);
       letter-spacing: 1px;
     }
-    .nav-main { ... }
-    .nav-main a { ... }
-    /* Paste the rest of your CSS from previous file, unchanged */
-    @media (max-width: 800px) { ... }
-    @media (max-width: 600px) { ... }
-    @keyframes fadeUp { ... }
+    .panel-section-title {
+      margin-top:2.2em; font-size:1.18em; color:var(--primary); font-weight:700;
+      margin-bottom:0.7em;
+      letter-spacing:1px;
+    }
+    .gaming-btn {
+      display: inline-flex;
+      align-items: center;
+      background: linear-gradient(90deg,#ea43a5 60%,#4250ea 100%);
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.13rem;
+      padding: 0.65em 2.2em;
+      margin:1em 0.3em 1em 0.3em;
+      border:none;
+      border-radius: 32px;
+      cursor:pointer;
+      box-shadow: 0 4px 24px #ea43a592;
+      transition: background 0.25s, transform 0.16s;
+      animation: bling 2.8s infinite alternate cubic-bezier(.9,0,.1,1);
+      outline: none;
+      gap:0.75em;
+    }
+    .gaming-btn:hover { background: linear-gradient(90deg,#4250ea,#ea43a5 70%); transform:scale(1.07);}
+    .gaming-btn i { font-size:1.35em; vertical-align:-10%; animation: bounce 1.9s infinite alternate;}
+    @keyframes bounce { 0%{transform:translateY(0);} 100%{transform:translateY(-8px);} }
+    @keyframes bling {0%{box-shadow:0 0 0 0 #ea43a512;}100%{box-shadow:0 12px 54px 0 #ea43a532;} }
+    .server-btn {
+      display: inline-flex; align-items: center;
+      background: linear-gradient(90deg,#19a9ee 60%,#4250ea 100%);
+      color:#fff; font-weight:800;
+      font-size: 1.11rem; padding:0.54em 1.8em; margin:1em 0.2em;
+      border: none; border-radius: 42px; cursor: pointer;
+      transition: background .16s, transform .13s;
+      box-shadow: 0 4px 30px #19a9ee77;
+      outline: none;
+      gap: .7em;
+      animation: popIn 1.5s cubic-bezier(.1,.9,.5,1.6);
+    }
+    .server-btn:hover {background: linear-gradient(90deg,#4250ea 30%,#19a9ee 100%);transform:scale(1.07);}
+    .server-btn i{ font-size:1.25em;}
+    @keyframes popIn {from{opacity:0;transform:scale(0.85) translateY(-20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+    .main-content {
+      max-width: 1100px;
+      margin: 0 auto; padding:2.9rem 1rem 1.5rem 1rem;
+      display: flex; flex-wrap:wrap; justify-content:space-between; gap:3vw;
+    }
+    .hero-content {
+      flex: 1 1 380px; min-width:320px;max-width: 560px;
+      display:flex;flex-direction:column; gap:1.4em;
+      justify-content:center;
+    }
+    .hero-content h1 {
+      font-family: 'Montserrat',sans-serif;
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: .02em;
+      margin-bottom: 0.2em;
+      line-height:1.13em;
+      background: linear-gradient(95deg,#4250ea 35%, #ea43a5 90%, var(--coin) 120%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-content p {
+      font-size:1.26rem; color:#224; font-weight:500;
+      line-height:1.58em; 
+      margin-bottom:.9em;
+    }
+    .hero-buttons {
+      display:flex; gap:1.2em; flex-wrap:wrap; align-items:center;
+    }
+    .section-resources {
+      width:100%;
+      margin: 2.8em 0;
+      display: flex; flex-wrap:wrap; gap:2.4em 2.7vw; justify-content: center;
+    }
+    .resource-card {
+      background: #fff;
+      box-shadow: 0 4px 22px #4250ea0c;
+      border-radius: 17px;
+      padding: 2.1em 1.3em 1.7em 1.3em;
+      min-width:180px;max-width:290px; flex:1 1 240px;
+      display:flex;flex-direction:column;align-items:center;
+      text-align:center;
+      transition: box-shadow .16s,transform .17s,background .19s;
+      cursor:pointer;
+      position:relative;
+      animation: fadein .95s cubic-bezier(.67,0,.1,1.3);
+      margin-bottom: .8em;
+    }
+    .resource-card:hover {
+      box-shadow: 0 14px 38px #19a9ee1c;
+      background:linear-gradient(145deg, #eaf3ff 95%, #fff 100%);
+      transform:translateY(-4px) scale(1.03);
+    }
+    .resource-icon {
+      font-size:2.3em;
+      margin-bottom:0.55em;
+      color:var(--primary);
+      filter:drop-shadow(1px 4px 10px #dbe6ff7a);
+      transition:color .16s;
+    }
+    .resource-card:hover .resource-icon{color:var(--gaming);}
+    .resource-title {
+      font-size:1.11em; font-weight:800;
+      margin-bottom:0.3em;
+      color:var(--shadow);}
+    .resource-desc {font-size:1.0em; color:#293148a6; margin-bottom:0.5em;}
+    /* Footer */
+    .footer {
+      text-align: center; 
+      padding: 2.1rem 2px 1.5rem 2px;
+      color: var(--primary); font-size: 1rem;
+      margin-top: 2.4rem; letter-spacing: 0.08em;
+      background: none; font-weight: 700;
+    }
+    @media (max-width:950px){
+      .main-content{flex-direction:column;gap:2.5em;}
+      .section-resources{gap:1.12em 6vw;}
+    }
+    @media (max-width:600px){
+      header{padding:1rem 1vw;}
+      .logo{font-size:1.4em;}
+      .main-content{padding:1.4em .4em;}
+      .hero-content h1{font-size:1.39em;}
+      .section-resources{gap:1em 1vw;}
+      .resource-card{padding:1.2em 0.4em;}
+    }
+    @keyframes fadein {from{opacity:0;}to{opacity:1;}}
   </style>
 </head>
 <body>
-<!-- Firebase App and Auth (if you keep this) -->
+<!-- Firebase App and Firestore for real-time Shadow Coins -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
@@ -55,107 +283,156 @@ const firebaseConfig = {
   measurementId: "G-F01VRZK4ZL"
 };
 firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-// Optional: enforce login for main page
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "login.html";
-  }
-});
+// Real Shadow Coins (display for demo login user, e.g. shadow-anayupadhyay4138 for now)
+// Replace with your logic for currently logged-in user's UID
+function fetchShadowCoins() {
+  const shadowCoinsElem = document.getElementById("shadow-coins-value");
+  // Demo: use special UID for now, update this as per your user login system
+  const customUID = "shadow-anayupadhyay4138";
+  db.collection("users").doc(customUID)
+    .onSnapshot(doc=>{
+      let coins = doc.exists && doc.data().coins!==undefined ? doc.data().coins : 0;
+      shadowCoinsElem.textContent = coins;
+      // Animation pop when value changes
+      shadowCoinsElem.parentElement.classList.add("coins-anim");
+      setTimeout(()=>shadowCoinsElem.parentElement.classList.remove("coins-anim"), 300);
+    });
+}
+window.addEventListener('DOMContentLoaded', fetchShadowCoins);
 </script>
 
 <header>
-  <div class="brand">ShadowEd</div>
+  <div class="logo">
+    <i class="fa-solid fa-graduation-cap"></i> ShadowEd
+  </div>
+  <div class="coins-display" title="Your current Shadow Coins">
+    <i class="fas fa-coins coins-icon"></i> 
+    <span id="shadow-coins-value">0</span>
+  </div>
   <nav class="nav-main">
     <a href="#about">About Us</a>
-    <a href="#features">Features</a>
+    <a href="#resources">Resources</a>
     <a href="#contact">Contact</a>
-    <a href="profile.html">Profile</a>
-    <button class="menu-btn" id="openPanelBtn" aria-label="Menu">&#9776;</button>
+    <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+    <a href="server.html"><i class="fa-solid fa-server"></i> Server</a>
+    <a href="games.html" class="gaming-btn"><i class="fa-solid fa-gamepad"></i> Play Games</a>
+    <a href="javascript:void(0);" class="server-btn" onclick="location.href='server.html'"><i class="fa-solid fa-network-wired"></i> Join/Create Server</a>
   </nav>
+  <button class="menu-btn" id="openPanelBtn" aria-label="Open menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
 </header>
 
-<section class="hero">
-  <h1>Learn Confidently. Together, In ShadowEd.</h1>
-  <p>The all-in-one educational platform for focused learners:<br>
-    explore curated resources, organize your preparation, and connect with friends securely.
-  </p>
-  <button class="cta-btn" id="ctaOpenPanel">Check the Resources</button>
-</section>
-
-<!-- About Us Section -->
-<section id="about" style="max-width: 900px; margin: 2rem auto; background: #fff; border-radius: 17px; padding: 2.3rem 1.7rem; box-shadow: 0 3px 19px rgba(76,137,250,.07); font-size: 1.09rem; color: #293273; text-align: center; line-height: 1.75;">
-  <h2>About Us</h2>
-  <p>
-    <strong>ShadowEd</strong> is designed by students and educators to deliver a clutter-free, clean, and super-useful learning experience.
-    Our philosophy: Only essential features are on the main page—everything else is accessible but never in your way!
-    From past exam papers to custom chat servers for classmates and private friend groups, ShadowEd is built for modern, dynamic learners, with privacy and simplicity at its core.
-  </p>
-</section>
-
-<section class="features" id="features">
-  <div class="feature-box">
-    <span class="feature-icon">📚</span>
-    <h3>Personalized Study Dashboard</h3>
-    <p>See your progress, recommended resources and learning targets in one organized space.</p>
-  </div>
-  <div class="feature-box">
-    <span class="feature-icon">🔍</span>
-    <h3>Smart Resource Search</h3>
-    <p>Find what you need fast with keyword and tag-based filtering for every subject and paper.</p>
-  </div>
-  <div class="feature-box">
-    <span class="feature-icon">💡</span>
-    <h3>Instant Solutions &amp; Tips</h3>
-    <p>Get step-by-step answers to practice problems, plus clever study tricks to stay ahead.</p>
-  </div>
-</section>
-
-<!-- Side Panel For Extra Resources -->
-<div class="side-panel" id="sidePanel" aria-label="Side Resources Panel">
-  <div>
-    <button class="panel-close" id="closePanelBtn" aria-label="Close menu">&times;</button>
-    <h2>Exam &amp; Study Resources</h2>
-    <ul class="panel-list">
-      <li><a href="javascript:void(0);" onclick="location.href='sample-papers.html'">Sample Papers (Board &amp; Competitive)</a></li>
-      <li><a href="javascript:void(0);" onclick="location.href='mock-tests.html'">Online Mock Tests</a></li>
-      <li><a href="javascript:void(0);" onclick="location.href='past-papers.html'">Past Exam Papers (All years)</a></li>
-      <li><a href="javascript:void(0);" onclick="location.href='mcq-practice.html'">MCQ Practice Sets</a></li>
-      <li><a href="javascript:void(0);" onclick="location.href='revision-notes.html'">Revision Notes</a></li>
-      <li><a href="javascript:void(0);" onclick="location.href='syllabus.html'">Syllabus &amp; Blueprints</a></li>
-      <li><a href="javascript:void(0);" onclick="location.href='marking-schemes.html'">Marking Schemes</a></li>
-      <li><a href="javascript:void(0);" onclick="location.href='reference-materials.html'">Other Reference Materials</a></li>
-    </ul>
-    <button onclick="checkDateAndRedirect()">Create Server</button>
-    <button onclick="checkDateAndRedirect()">Join Server</button>
-    
-    <h2 style="margin-top: 2.2rem;">Quick Tools</h2>
-    <ul class="panel-list">
-      <li><a href="javascript:void(0);" onclick="location.href='gpa-calculator.html'">GPA/Percent Calculator</a></li>
-      <li><a href="javascript:void(0);" onclick="location.href='exam-timetable.html'">Exam Timetable</a></li>
-      <li><a href="javascript:void(0);" onclick="location.href='doubt-forum.html'">Live Doubt Forum</a></li>
-    </ul>
-  </div>
+<!-- Sidebar / Hamburger (mobile/tablet) -->
+<div class="side-panel" id="sidePanel" aria-label="Navigation Menu">
+  <button class="panel-close" id="closePanelBtn" aria-label="Close menu">&times;</button>
+  <h2 style="color:var(--primary);font-size:1.22em;margin-bottom:.8em;">Menu</h2>
+  <ul class="panel-list">
+    <li><a href="#about">About Us</a></li>
+    <li><a href="#resources">Resources</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a></li>
+    <li><a class="gaming-btn" href="games.html"><i class="fa-solid fa-gamepad"></i> Play Games</a></li>
+    <li><a class="server-btn" href="server.html"><i class="fa-solid fa-server"></i> Server</a></li>
+  </ul>
+  <div class="panel-section-title">Quick Links</div>
+  <ul class="panel-list">
+    <li><a href="sample-papers.html">Sample Papers</a></li>
+    <li><a href="mock-tests.html">Online Mock Tests</a></li>
+    <li><a href="past-papers.html">Exam Papers</a></li>
+    <li><a href="mcq-practice.html">MCQ Practice Sets</a></li>
+    <li><a href="revision-notes.html">Revision Notes</a></li>
+    <li><a href="syllabus.html">Syllabus &amp; Blueprints</a></li>
+    <li><a href="marking-schemes.html">Marking Schemes</a></li>
+    <li><a href="reference-materials.html">Reference Materials</a></li>
+  </ul>
 </div>
 
-<section id="contact" style="max-width:440px;margin:3rem auto 2rem auto;background:#fff;padding:2rem;border-radius:14px;box-shadow:0 2px 18px rgba(70,100,225,.07);">
-  <h2 style="color:#5860ea;">Contact</h2>
+<main class="main-content">
+  <section class="hero-content">
+    <h1>Unlock Learning, Gaming & Growth on <span style="color:var(--gaming)">ShadowEd</span></h1>
+    <p>
+      Where high-level education meets gaming fun.<br>
+      Practice with real sample papers, engage in smart competitive games, climb the server-based leaderboards, and watch your Shadow Coins stack up in real time!
+    </p>
+    <div class="hero-buttons">
+      <button class="gaming-btn" onclick="location.href='games.html'"><i class="fa-solid fa-gamepad"></i> Play Games</button>
+      <button class="server-btn" onclick="location.href='server.html'"><i class="fa-solid fa-network-wired"></i> Server Lobby</button>
+    </div>
+  </section>
+  <section class="section-resources" id="resources">
+    <div class="resource-card" onclick="location.href='sample-papers.html'">
+      <i class="fas fa-book-open resource-icon"></i>
+      <div class="resource-title">Sample Papers</div>
+      <div class="resource-desc">Board & Competition sample sets.</div>
+    </div>
+    <div class="resource-card" onclick="location.href='mock-tests.html'">
+      <i class="fa-solid fa-laptop-code resource-icon"></i>
+      <div class="resource-title">Online Mock Tests</div>
+      <div class="resource-desc">Live MCQ exams & analytics.</div>
+    </div>
+    <div class="resource-card" onclick="location.href='past-papers.html'">
+      <i class="fa-solid fa-archive resource-icon"></i>
+      <div class="resource-title">Exam Papers</div>
+      <div class="resource-desc">All years, all boards.</div>
+    </div>
+    <div class="resource-card" onclick="location.href='mcq-practice.html'">
+      <i class="fa-solid fa-list-ul resource-icon"></i>
+      <div class="resource-title">MCQ Practice Sets</div>
+      <div class="resource-desc">Sharpen skills with topic-wise quizzes.</div>
+    </div>
+    <div class="resource-card" onclick="location.href='revision-notes.html'">
+      <i class="fa-solid fa-note-sticky resource-icon"></i>
+      <div class="resource-title">Revision Notes</div>
+      <div class="resource-desc">Short & clear revision sheets for exams.</div>
+    </div>
+    <div class="resource-card" onclick="location.href='syllabus.html'">
+      <i class="fa-solid fa-road resource-icon"></i>
+      <div class="resource-title">Syllabus & Blueprints</div>
+      <div class="resource-desc">Always up-to-date, always reliable.</div>
+    </div>
+    <div class="resource-card" onclick="location.href='marking-schemes.html'">
+      <i class="fa-solid fa-clipboard-check resource-icon"></i>
+      <div class="resource-title">Marking Schemes</div>
+      <div class="resource-desc">Master scoring patterns and rubrics.</div>
+    </div>
+    <div class="resource-card" onclick="location.href='reference-materials.html'">
+      <i class="fa-solid fa-lightbulb resource-icon"></i>
+      <div class="resource-title">Reference Materials</div>
+      <div class="resource-desc">Extra support for every subject.</div>
+    </div>
+  </section>
+</main>
+
+<section id="about" style="max-width: 880px; margin: 3.8rem auto 2.4rem auto; background: #fff; border-radius: 17px; padding: 2.8rem 1.7rem; box-shadow: 0 4px 24px #4c89fa10; color: #213c64; text-align: center; line-height: 1.75; font-size:1.19rem;">
+  <h2 style="font-family:'Montserrat';color:var(--primary);font-weight:900;">About Us</h2>
   <p>
-    Got questions or feedback? <br />
-    <strong>Email:</strong> team@shadowed.com <br />
-    <strong>Telegram:</strong> <a href="#" style="color:#5860ea;">@shadowed_group</a>
+    <b>ShadowEd</b> is the next evolution in student-centric learning—blending real academic mastery with the energy of cloud gaming and pro communities.  
+    Study, compete, connect and win—on your terms!
+    <br><br>
+    Every tool and button is crafted for speed, clarity, and pure confidence—from real-time Shadow Coins integration, to a smart server system, to always-on gaming and leaderboard connectivity.
   </p>
 </section>
 
+<section id="contact" style="max-width:500px;margin:4rem auto 3rem auto;background:#fff;padding:2.2rem;border-radius:14px;box-shadow:0 2px 18px rgba(70,100,225,.07);">
+  <h2 style="color:var(--primary);font-family:'Montserrat',sans-serif;">Contact</h2>
+  <p>
+    Questions, support, or partnership? <br>
+    <b>Email:</b> team@shadowed.com<br>
+    <b>Telegram:</b> <a style="color:var(--primary);" href="#">@shadowed_group</a>
+  </p>
+</section>
 <div class="footer">
-  &copy; 2025 ShadowEd &bull; Crafted for learners, by learners.
+  &copy; 2025 ShadowEd &bull; The new way to Learn + Play.
 </div>
 
 <script>
+  // Hamburger/Side panel behavior
   const sidePanel = document.getElementById('sidePanel');
   const openBtn = document.getElementById('openPanelBtn');
   const closeBtn = document.getElementById('closePanelBtn');
-  const ctaOpenPanel = document.getElementById('ctaOpenPanel');
 
   function openPanel() {
     sidePanel.classList.add('open');
@@ -163,36 +440,16 @@ firebase.auth().onAuthStateChanged(user => {
   function closePanel() {
     sidePanel.classList.remove('open');
   }
-
   openBtn.onclick = openPanel;
   closeBtn.onclick = closePanel;
-  ctaOpenPanel.onclick = openPanel;
 
-  // Close side panel if clicking outside (on backdrop)
+  // Close on outside click (mobile backdrop)
   window.onclick = function(event) {
     if (event.target === sidePanel) {
       sidePanel.classList.remove('open');
     }
   };
 </script>
-
-<script>
-  // Profile redirection function (already direct with <a>, but if you use button, you can keep this)
-  function goToProfile() {
-    window.location.href = 'profile.html';
-  }
-  // Server redirects as before
-  function checkDateAndRedirect() {
-    const today = new Date();
-    const month = today.getMonth() + 1; // Jan=0
-    const day = today.getDate();
-    if (month === 8 && day === 10) {
-      window.location.href = 'server.html';
-    } else {
-      alert('This feature will be available on 10 August. Please come back then!');
-    }
-  }
-</script>
 </body>
   </html>
-      
+  
