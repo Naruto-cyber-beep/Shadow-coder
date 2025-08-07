@@ -26,20 +26,19 @@
       overflow-x: hidden;
     }
     header {
-    header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;            /* add this if not present! */
-  padding: 2.4rem 5vw 2.4rem 5vw;   /* was 1.25rem 4vw — make it 2.4rem for top/bottom, 5vw sides */
-  background: #fff;
-  box-shadow: 0 2px 18px 0 rgba(70,114,225,0.08);
-  position: sticky; top: 0; z-index: 1100;
-  border-radius: 0 0 24px 24px;    /* bolder border radius for "bigger box" look */
-  animation: fadein 1.5s;
-  min-height: 100px;              /* explicitly sets a minimum height */
-                                }
-      
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      padding: 2.3rem 5vw;
+      background: #fff;
+      box-shadow: 0 2px 18px 0 rgba(70,114,225,0.08);
+      position: sticky; top: 0; z-index: 1100;
+      border-radius: 0 0 28px 28px;
+      animation: fadein 1.5s;
+      min-height: 108px;
+      gap: 2vw;
+    }
     .logo {
       font-family: 'Montserrat', Arial, sans-serif;
       font-size: 2rem;
@@ -49,6 +48,7 @@
       display: flex; align-items: center;
       gap: 0.5em;
       user-select: none;
+      flex-shrink: 0;
     }
     .coins-display {
       background: var(--coin);
@@ -56,11 +56,13 @@
       padding: 0.5em 1.2em;
       border-radius: 38px;
       font-weight: 800;
-      display: flex; align-items: center; 
+      display: flex; align-items: center;
       font-size: 1.13rem;
-      box-shadow: 0 2px 8px 0 rgba(255,201,50,0.15);
+      box-shadow: 0 2px 8px 0 rgba(255,201,50,0.12);
       gap: 0.7em;
       animation: popIn 1.1s ease;
+      flex-shrink: 0;
+      margin-left: 1vw; margin-right: 1vw;
     }
     .coins-anim {
       transition: background 0.25s, transform 0.12s;
@@ -71,25 +73,70 @@
       filter: drop-shadow(1px 4px 5px #fff69da0);
     }
     .nav-main {
-      display: flex; gap: 2.2vw; align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.3vw;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 290px;
+      flex: 1 1 400px;
     }
     .nav-main a {
-      font-size: 1.13rem;
+      font-size: 1.15rem;
       color: #23316B;
       text-decoration: none;
       font-weight: 700;
       transition: color 0.18s, background 0.18s;
       position: relative;
-      padding: 0.22em 1em;
-      border-radius: 0.7em;
+      padding: 0.40em 1.23em;
+      border-radius: 0.85em;
       background: none;
       outline: none;
+      box-sizing: border-box;
+      display: inline-block;
+    }
+    .nav-main a.gaming-btn,
+    .nav-main a.server-btn {
+      padding: 0.46em 1.50em;
+      font-size: 1.12em;
+      margin: 0; /* override defaults */
+      box-sizing: border-box;
     }
     .nav-main a:hover, .nav-main a:focus {
-      color: var(--primary); background: #e5eaff;
-      transform: translateY(-3px) scale(1.05);
+      color: var(--primary);
+      background: #e5eaff;
+      transform: translateY(-3px) scale(1.07);
       box-shadow: 0 4px 18px var(--soft);
     }
+    .gaming-btn {
+      background: linear-gradient(90deg,#ea43a5 60%,#4250ea 100%);
+      color: #fff;
+      font-weight: 900;
+      border: none;
+      border-radius: 32px;
+      cursor:pointer;
+      box-shadow: 0 4px 24px #ea43a592;
+      transition: background 0.25s, transform 0.16s;
+      animation: bling 2.8s infinite alternate cubic-bezier(.9,0,.1,1);
+      display: inline-flex; align-items: center; gap: 0.65em;
+    }
+    .gaming-btn:hover { background: linear-gradient(90deg,#4250ea,#ea43a5 70%); }
+    .gaming-btn i { font-size:1.29em; vertical-align:-8%; animation: bounce 2s infinite alternate;}
+    @keyframes bounce { 0%{transform:translateY(0);} 100%{transform:translateY(-6px);} }
+    @keyframes bling {0%{box-shadow:0 0 0 0 #ea43a512;}100%{box-shadow:0 8px 24px 0 #ea43a532;} }
+    .server-btn {
+      background: linear-gradient(90deg,#19a9ee 60%,#4250ea 100%);
+      color:#fff; font-weight:800;
+      border: none; border-radius: 40px;
+      cursor: pointer;
+      transition: background .16s, transform .13s;
+      box-shadow: 0 4px 20px #19a9ee77;
+      outline: none;
+      display: inline-flex; align-items: center; gap: .6em;
+      animation: popIn 1.5s cubic-bezier(.1,.9,.5,1.6);
+    }
+    .server-btn:hover {background: linear-gradient(90deg,#4250ea 30%,#19a9ee 100%);}
+    .server-btn i{ font-size:1.18em;}
     .menu-btn {
       display: none; margin-left: 1.5vw;
       font-size: 2.2em; color: var(--primary); background: none; border: none;
@@ -97,9 +144,20 @@
       transition: color 0.13s;
     }
     .menu-btn:active { color: var(--gaming);}
+    @media (max-width: 1320px) {
+      header { padding: 2.3rem 2vw; }
+      .main-content { max-width: 98vw; padding-left:1vw; padding-right:1vw;}
+    }
+    @media (max-width:1100px){
+      header { flex-wrap: wrap; }
+      .coins-display { margin-bottom: 0.7em; }
+      .nav-main { flex: 1 1 100vw; gap: 1vw; }
+    }
     @media (max-width:900px){
       .nav-main { display: none;}
       .menu-btn {display:inline-block;}
+      /* Make header stack vertically if items overflow */
+      header {justify-content: flex-start;}
     }
     /* Sidebar/Menu Panel */
     .side-panel {
@@ -147,51 +205,14 @@
       margin-bottom:0.7em;
       letter-spacing:1px;
     }
-    .gaming-btn {
-      display: inline-flex;
-      align-items: center;
-      background: linear-gradient(90deg,#ea43a5 60%,#4250ea 100%);
-      color: #fff;
-      font-weight: 900;
-      font-size: 1.13rem;
-      padding: 0.65em 2.2em;
-      margin:1em 0.3em 1em 0.3em;
-      border:none;
-      border-radius: 32px;
-      cursor:pointer;
-      box-shadow: 0 4px 24px #ea43a592;
-      transition: background 0.25s, transform 0.16s;
-      animation: bling 2.8s infinite alternate cubic-bezier(.9,0,.1,1);
-      outline: none;
-      gap:0.75em;
-    }
-    .gaming-btn:hover { background: linear-gradient(90deg,#4250ea,#ea43a5 70%); transform:scale(1.07);}
-    .gaming-btn i { font-size:1.35em; vertical-align:-10%; animation: bounce 1.9s infinite alternate;}
-    @keyframes bounce { 0%{transform:translateY(0);} 100%{transform:translateY(-8px);} }
-    @keyframes bling {0%{box-shadow:0 0 0 0 #ea43a512;}100%{box-shadow:0 12px 54px 0 #ea43a532;} }
-    .server-btn {
-      display: inline-flex; align-items: center;
-      background: linear-gradient(90deg,#19a9ee 60%,#4250ea 100%);
-      color:#fff; font-weight:800;
-      font-size: 1.11rem; padding:0.54em 1.8em; margin:1em 0.2em;
-      border: none; border-radius: 42px; cursor: pointer;
-      transition: background .16s, transform .13s;
-      box-shadow: 0 4px 30px #19a9ee77;
-      outline: none;
-      gap: .7em;
-      animation: popIn 1.5s cubic-bezier(.1,.9,.5,1.6);
-    }
-    .server-btn:hover {background: linear-gradient(90deg,#4250ea 30%,#19a9ee 100%);transform:scale(1.07);}
-    .server-btn i{ font-size:1.25em;}
-    @keyframes popIn {from{opacity:0;transform:scale(0.85) translateY(-20px);}to{opacity:1;transform:scale(1) translateY(0);}}
     .main-content {
-      max-width: 1100px;
-      margin: 0 auto; padding:2.9rem 1rem 1.5rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto; padding:3.4rem 2vw 2.1rem 2vw;
       display: flex; flex-wrap:wrap; justify-content:space-between; gap:3vw;
     }
     .hero-content {
       flex: 1 1 380px; min-width:320px;max-width: 560px;
-      display:flex;flex-direction:column; gap:1.4em;
+      display:flex;flex-direction:column; gap:1.35em;
       justify-content:center;
     }
     .hero-content h1 {
@@ -259,19 +280,29 @@
       margin-top: 2.4rem; letter-spacing: 0.08em;
       background: none; font-weight: 700;
     }
-    @media (max-width:950px){
-      .main-content{flex-direction:column;gap:2.5em;}
-      .section-resources{gap:1.12em 6vw;}
+    @media (max-width:1250px){
+      .main-content{max-width:98vw;}
+      header { padding: 2.3rem 1.2vw; }
+    }
+    @media (max-width:1000px){
+      .main-content{max-width:100vw;}
+      .nav-main{gap:0.8vw;}
+    }
+    @media (max-width:900px){
+      header{flex-direction:column;align-items:stretch;}
+      .logo, .coins-display {margin-bottom:0.7em;}
+      .main-content {padding:2em 1vw;}
     }
     @media (max-width:600px){
-      header{padding:1rem 1vw;}
+      header{padding:1.1rem 1vw;}
       .logo{font-size:1.4em;}
-      .main-content{padding:1.4em .4em;}
-      .hero-content h1{font-size:1.39em;}
+      .main-content{padding:1.3em .3em;}
+      .hero-content h1{font-size:1.41em;}
       .section-resources{gap:1em 1vw;}
       .resource-card{padding:1.2em 0.4em;}
     }
     @keyframes fadein {from{opacity:0;}to{opacity:1;}}
+    @keyframes popIn {from{opacity:0;transform:scale(0.85) translateY(-20px);}to{opacity:1;transform:scale(1) translateY(0);}}
   </style>
 </head>
 <body>
@@ -291,20 +322,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Real Shadow Coins (display for demo login user, e.g. shadow-anayupadhyay4138 for now)
-// Replace with your logic for currently logged-in user's UID
 function fetchShadowCoins() {
   const shadowCoinsElem = document.getElementById("shadow-coins-value");
-  // Demo: use special UID for now, update this as per your user login system
+  // DEMO: Replace with your own user UID system! For now, using special UID:
   const customUID = "shadow-anayupadhyay4138";
-  db.collection("users").doc(customUID)
-    .onSnapshot(doc=>{
-      let coins = doc.exists && doc.data().coins!==undefined ? doc.data().coins : 0;
-      shadowCoinsElem.textContent = coins;
-      // Animation pop when value changes
-      shadowCoinsElem.parentElement.classList.add("coins-anim");
-      setTimeout(()=>shadowCoinsElem.parentElement.classList.remove("coins-anim"), 300);
-    });
+  db.collection("users").doc(customUID).onSnapshot(doc=>{
+    let coins = doc.exists && doc.data().coins!==undefined ? doc.data().coins : 0;
+    shadowCoinsElem.textContent = coins;
+    shadowCoinsElem.parentElement.classList.add("coins-anim");
+    setTimeout(()=>shadowCoinsElem.parentElement.classList.remove("coins-anim"), 300);
+  });
 }
 window.addEventListener('DOMContentLoaded', fetchShadowCoins);
 </script>
@@ -448,8 +475,6 @@ window.addEventListener('DOMContentLoaded', fetchShadowCoins);
   }
   openBtn.onclick = openPanel;
   closeBtn.onclick = closePanel;
-
-  // Close on outside click (mobile backdrop)
   window.onclick = function(event) {
     if (event.target === sidePanel) {
       sidePanel.classList.remove('open');
@@ -457,5 +482,5 @@ window.addEventListener('DOMContentLoaded', fetchShadowCoins);
   };
 </script>
 </body>
-  </html>
-  
+                                                                         </html>
+      
