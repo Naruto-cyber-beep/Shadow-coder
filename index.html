@@ -26,14 +26,20 @@
       overflow-x: hidden;
     }
     header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1.25rem 4vw;
-      background: #fff;
-      box-shadow: 0 2px 18px 0 rgba(70,114,225,0.08);
-      position: sticky; top: 0; z-index: 1100;
-      border-radius: 0 0 16px 16px;
-      animation: fadein 1.5s;
-    }
+    header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;            /* add this if not present! */
+  padding: 2.4rem 5vw 2.4rem 5vw;   /* was 1.25rem 4vw — make it 2.4rem for top/bottom, 5vw sides */
+  background: #fff;
+  box-shadow: 0 2px 18px 0 rgba(70,114,225,0.08);
+  position: sticky; top: 0; z-index: 1100;
+  border-radius: 0 0 24px 24px;    /* bolder border radius for "bigger box" look */
+  animation: fadein 1.5s;
+  min-height: 100px;              /* explicitly sets a minimum height */
+                                }
+      
     .logo {
       font-family: 'Montserrat', Arial, sans-serif;
       font-size: 2rem;
