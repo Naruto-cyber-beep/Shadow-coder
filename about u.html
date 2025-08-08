@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>About You – Registration</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
+  <style>
+    html,body {margin:0;padding:0;min-height:100vh;width:100vw;background:linear-gradient(120deg,#2a246b 0%,#ede7ee 100%);
+      font-family:'Poppins',sans-serif;}
+    #container {max-width:455px;margin:7vw auto 2vw auto;background:rgba(255,255,255,0.94);border-radius:36px;
+      box-shadow:0 12px 56px #3847aa32;padding:42px 34px 28px 34px;position:relative;overflow:hidden;}
+    .step {display:none;animation:fadein .38s;}
+    .step.active {display:block;}
+    @keyframes fadein {0%{opacity:0;transform:translateY(30px);}100%{opacity:1;transform:none;}}
+    .step-title {font-size:1.62em;font-weight:700;color:#193483;margin-bottom:11px;text-align:center;}
+    .form-row {margin:20px 0 19px 0;}
+    .form-label {font-weight:600;color:#3e4683;font-size:1.08em;margin-bottom:7px;display:block;}
+    .form-inp {font-size:1.1em;padding:9px 16px;border-radius:11px;
+      border:1.7px solid #b2cbee;background:#f3f8ff;margin-top:2px;width:97%;box-sizing:border-box;}
+    .next-btn {background:#1b51d3;color:#fff;font-weight:700;
+      border:0;border-radius:16px;padding:13px 38px;position:absolute;bottom:35px;right:32px;box-shadow:0 2px 14px #2971be60;font-size:1.21em;cursor:pointer;}
+    .next-btn:active {background:#193483;}
+    .checkloc-btn {background:#15a255;color:#fff;font-weight:600;padding:9px 19px;border-radius:12px;border:0;box-shadow:0 2px 13px #15a25559;cursor:pointer;font-size:1.07em;}
+    .manualloc-btn {background:#ebd419;color:#393b29;font-weight:600;padding:9px 18px;border-radius:12px;border:0;box-shadow:0 2px 13px #d9d73459;cursor:pointer;font-size:1.07em;margin-left:9px;}
+    .reg-btn {background:linear-gradient(97deg,#ff9900 25%,#1bca94 85%);
+      color:#fff;font-size:1.26em;font-weight:800;padding:13px 33px;border-radius:18px;border:0;box-shadow:0 2px 23px #ff99004a;cursor:pointer;display:block;margin:0 auto 0 auto;}
+    .reg-btn:active {background:#13bc72;}
+    .info-code {font-size:1.19em;color:#247b48;background:#f9fff3e8;border-radius:13px;padding:10px 17px;margin:22px 0 18px 0;text-align:center;}
+    .blur-bg.active {position:fixed;top:0;left:0;width:100vw;height:100vh;background:#2a246b99;backdrop-filter:blur(7px);z-index:88;}
+    .google-signin-btn {background:#fff;color:#205e3e;border:none;border-radius:99px;font-size:1.12em;padding:10px 22px;font-weight:700;box-shadow:0 2px 8px #205e3e26;cursor:pointer;}
+    #success-page {display:none;}
+    .success-icon {font-size:2.4em;background:linear-gradient(92deg,#2ca665,#13bc72,#ff9900);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;text-align:center;}
+    @media (max-width:600px){
+      #container{padding:8vw 3vw;}
+      .next-btn{bottom:17px;right:11px;width:90vw;}
+      .reg-btn{padding:13px 18px;}
+    }
+  </style>
+</head>
+<body>
+<div id="blur-overlay" class="blur-bg"></div>
+<div id="container">
+  <!-- Step 1: Name, Age, Class -->
+  <div class="step active" id="step-1">
+    <div class="step-title">Let's Get Started</div>
+    <div class="form-row">
+      <label class="form-label">What's your name?</label>
+      <input type="text" class="form-inp" id="inp-name" autocomplete="off" maxlength="35" required>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Your age?</label>
+      <input type="number" class="form-inp" id="inp-age" min="5" max="100" required>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Your class?</label>
+      <select class="form-inp" id="inp-class">
+        <option value="">Select...</option>
+        <option value="Class 6">Class 6</option>
+        <option value="Class 7">Class 7</option>
+        <option value="Class 8">Class 8</option>
+        <option value="Class 9">Class 9</option>
+        <option value="Class 10">Class 10</option>
+        <option value="Class 11">Class 11</option>
+        <option value="Class 12">Class 12</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <button class="next-btn" onclick="nextStep1()">Next →</button>
+  </div>
+
+  <!-- Step 2: Get Location -->
+  <div class="step" id="step-2">
+    <div class="step-title">Your Location</div>
+    <div class="form-row">
+      <label class="form-label">Detect or enter your city/state:</label>
+      <button class="checkloc-btn" onclick="checkLocation()">Check My Location</button>
+      <button class="manualloc-btn" onclick="manualLoc()">Enter Location Manually</button>
+    </div>
+    <div class="form-row" id="location-result" style="display:none;"></div>
+    <div class="form-row" id="manual-location" style="display:none;">
+      <input type="text" class="form-inp" id="inp-location" maxlength="50" placeholder="City, State, Country">
+    </div>
+    <button class="next-btn" onclick="nextStep2()" style="display:none;">Next →</button>
+  </div>
+
+  <!-- Step 3: Register & Google Auth -->
+  <div class="step" id="step-3">
+    <div class="step-title">Register & Change the World</div>
+    <div id="account-status"></div>
+    <div class="form-row" style="text-align:center;">
+      <button class="google-signin-btn" onclick="signInWithGoogle()" id="google-signin-btn">Sign in with Google</button>
+    </div>
+    <div class="form-row" id="registration-area" style="display:none;">
+      <div class="info-code" id="reg-code-area">
+        Registration Code:<br>
+        <span id="reg-code" style="font-family:monospace;font-size:1.31em;color:#1b51d3;">...</span>
+        <br><span style="font-size:0.92em;">(copy or save this code)</span>
+      </div>
+      <button class="reg-btn" onclick="submitRegistration()" id="register-btn">Register yourself & Change the World! 🌎</button>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div class="step" id="success-page">
+    <div class="success-icon">🎉</div>
+    <div class="step-title" style="font-size:1.33em;padding-top:2px;">You're Registered!</div>
+    <div style="color:#18343e;text-align:center;font-size:1.08em;">Your profile is synced.<br>Enjoy Shadow Quest! 🚀</div>
+  </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ==== Insert your real Firebase config below ==== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
+  authDomain: "learn-code-with-anay.firebaseapp.com",
+  projectId: "learn-code-with-anay",
+  storageBucket: "learn-code-with-anay.firebasestorage.app",
+  messagingSenderId: "197075143711",
+  appId: "1:197075143711:web:64fc5d83528f907d38d92a",
+  measurementId: "G-F01VRZK4ZL"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+/* === Step Logic === */
+let userData = {name:"",age:"",class:"",location:"",regCode:""}, user = null;
+function showStep(n) {
+  Array.from(document.querySelectorAll('.step')).forEach((e,i)=>e.style.display=i===n?'block':'none');
+  // Blur if not first screen
+  document.getElementById('blur-overlay').className = n>0?'blur-bg active':'blur-bg';
+}
+
+/* Step 1 Next */
+function nextStep1() {
+  let name = document.getElementById('inp-name').value.trim();
+  let age = document.getElementById('inp-age').value.trim();
+  let classVal = document.getElementById('inp-class').value;
+  if(!name || !age || !classVal){alert("Please fill all fields.");return;}
+  userData.name = name;
+  userData.age = age;
+  userData.class = classVal;
+  showStep(1);
+}
+function nextStep2() {
+  let loc;
+  if(document.getElementById('manual-location').style.display!=="none"){
+    loc = document.getElementById('inp-location').value.trim();
+    if(!loc){alert("Please enter your location.");return;}
+  } else {
+    loc = document.getElementById('location-result').textContent;
+    if(!loc){alert("Please detect or enter your location.");return;}
+  }
+  userData.location = loc;
+  showStep(2);
+  triggerGoogleRegistration();
+}
+/* Step 2 Location Logic */
+function checkLocation() {
+  if(!navigator.geolocation){alert("Geolocation not supported.");return;}
+  document.getElementById('location-result').style.display="block";
+  document.getElementById('location-result').innerHTML = "<span>Detecting location...</span>";
+  navigator.geolocation.getCurrentPosition(function(pos){
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    // Try reverse-geocoding (OpenStreetMap Nominatim, up to quota)
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+      .then(r=>r.json()).then(j=>{
+        let loc = j.address.city || j.address.town || j.address.village || (j.address.state+", "+j.address.country) || "Unknown";
+        document.getElementById('location-result').textContent = loc;
+        document.querySelector('#step-2 .next-btn').style.display="block";
+        document.getElementById('manual-location').style.display="none";
+      }).catch(()=>{
+        document.getElementById('location-result').textContent = "Detected Location: " + lat.toFixed(4)+", "+lon.toFixed(4);
+        document.querySelector('#step-2 .next-btn').style.display="block";
+        document.getElementById('manual-location').style.display="none";
+      });
+  },function(){
+    document.getElementById('location-result').textContent="Location detection failed.";
+    document.getElementById('manual-location').style.display="block";
+  });
+}
+function manualLoc() {
+  document.getElementById('manual-location').style.display="block";
+  document.getElementById('location-result').style.display="none";
+  document.querySelector('#step-2 .next-btn').style.display="block";
+}
+
+/* Step 3: Google Registration and Registration Code Logic */
+function triggerGoogleRegistration() {
+  // If already signed in, skip sign-in button and show registration flow
+  auth.onAuthStateChanged(function(u){
+    user = u;
+    if(u){
+      document.getElementById('google-signin-btn').style.display="none";
+      document.getElementById('account-status').innerHTML = `
+        <div style="color:#1b51d3;font-weight:700;">Signed in as<br>${u.displayName||u.email}</div>
+      `;
+      showRegistrationCode();
+    } else {
+      document.getElementById('google-signin-btn').style.display="block";
+      document.getElementById('account-status').innerHTML = `<div style="color:#b02135;font-weight:700;">Please sign in with Google.</div>`;
+      document.getElementById('registration-area').style.display="none";
+    }
+  });
+}
+function signInWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).then(()=>{showRegistrationCode();});
+}
+function showRegistrationCode() {
+  // Generate code if not already set
+  userData.regCode = userData.regCode || "REG-" + Math.random().toString(36).toUpperCase().slice(2,14) + "-" + Date.now().toString().slice(-4);
+  document.getElementById('reg-code').textContent = userData.regCode;
+  document.getElementById('registration-area').style.display="block";
+}
+
+/* Registration submission */
+function submitRegistration() {
+  if(!user){alert("Sign in required.");return;}
+  // Save to Firestore "/users/{uid}/about" and also top-level profile (for easy profile.html sync)
+  db.collection("users").doc(user.uid).set({
+    displayName: user.displayName||userData.name,
+    name: userData.name,
+    age: userData.age,
+    class: userData.class,
+    location: userData.location,
+    registrationCode: userData.regCode,
+    photoURL: user.photoURL||"",
+    googleEmail: user.email||"",
+    regTimestamp: Date.now()
+  },{merge:true}).then(()=>{
+    // Can also write to /users/{uid}/about if you want nested records for profile
+    showStep(3);
+    document.getElementById('success-page').style.display = 'block';
+    Array.from(document.querySelectorAll('.step')).forEach(e=>e.style.display="none");
+  });
+}
+
+/* Wizard navigation logic */
+function showStep(n){
+  Array.from(document.querySelectorAll('.step')).forEach((e,i)=>{
+    e.className = i===n?'step active':'step';
+  });
+  document.getElementById('blur-overlay').className = n>0?'blur-bg active':'blur-bg';
+}
+
+</script>
+</body>
+</html>
