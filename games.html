@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shadow Quest – Class Escape Room</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <style>
+    html,body { margin:0; padding:0; width:100vw; height:100vh; background:#191e36; font-family:Poppins,sans-serif;}
+    #game-root { max-width:480px; margin:6vw auto; background:#f6faffec; border-radius:23px; box-shadow:0 8px 32px #1a2344a4; padding:32px 28px 26px 28px; position:relative;}
+    .room-title { font-size:2em; font-weight:700; margin-bottom:9px; color:#234cad; text-shadow:0 1px 9px #aca4ee8b;}
+    .room-intro { font-size:1.15em; margin-bottom:15px; color:#224431;}
+    .escape-puzzle { margin-top:23px; margin-bottom:21px;}
+    .escape-puzzle label { display:block; margin-bottom:7px; font-weight:600;}
+    .escape-puzzle input, .escape-puzzle select { font-size:1.13em; border-radius:8px; padding:4.5px 7.5px;}
+    .button { background:#225bb9; color:#fff; border:none; border-radius:99px; font-size:1.11em; padding:9px 22px; margin-top:12px; cursor:pointer;}
+    .button:active { background:#193b74;}
+    #progress-bar { background:#eaeff6; height:18px; border-radius:12px; margin:12px 0; overflow:hidden;}
+    #progress-bar-fill { background:#2fd58e; height:18px; width:0%; transition:width .3s;}
+    .success { background:#cdf6e2;color:#21a771; padding:9px 13px; border-radius:9px; margin:16px 0; font-weight:700;}
+    .fail { background:#ffe9e9; color:#bf2e2e; padding:9px 13px; border-radius:9px; margin:18px 0;}
+    #timer { color:#156c96; margin-bottom:12px; font-size:1.13em; }
+    #ghost { position:absolute; top:-45px; right:-20px; z-index:2; width:75px; height:75px; display:flex; align-items:center; justify-content:center;}
+    #ghost-img { width:70px; height:70px; animation: ghostmove 1.2s infinite alternate; filter: drop-shadow(0 0 14px #0f0a23bb);}
+    @keyframes ghostmove { 0% {transform:translateX(-4px) scale(1);} 50%{transform:translateX(20px) scale(1.11);}100%{transform:translateY(7px) scale(1.15);}}
+    #ghost-close { animation:ghostclose .3s infinite alternate;}
+    @keyframes ghostclose { 0%{filter:drop-shadow(0 0 18px #d70b50);} 100%{filter:drop-shadow(0 0 32px #b80615);}}
+    #coins { position:absolute; top:14px; left:16px; font-weight:700;padding:5px 13px;background:#282f89;color:#ffe700;border-radius:13px;box-shadow:0 2px 8px #0a1747bb;}
+    #area { position:absolute; bottom:-46px; left:50%; transform:translateX(-50%);padding:7px 19px;background:#191e36f4;color:#fff;border-radius:13px;font-weight:600;font-size:1.14em;box-shadow:0 2px 13px #2fd58e15;}
+    @media (max-width:600px){
+      #game-root{padding:9vw 3vw;}
+      .room-title{font-size:1.31em;}
+      .room-intro{font-size:1.11em;}
+      #ghost{width:48px;height:48px;}
+      #ghost-img{width:46px;height:46px;}
+      #coins{font-size:1em;}
+      #area{bottom:-36px;}
+    }
+  </style>
+</head>
+<body>
+<div id="game-root"></div>
+<script>
+const CLASSES = ['Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
+const AREAS = [
+  { name: "Monastery", ghostEmoji: "👻", bg:"#191e36", ghostName:"The Monk", intro:"Haunted corridors echo with distant footsteps..." },
+  { name: "Catacombs", ghostEmoji: "💀", bg:"#201732", ghostName:"Wraith", intro:"Bones crunch underfoot. Shadows stretch long..." },
+  { name: "Haunted Mansion", ghostEmoji: "🧟", bg:"#26203a", ghostName:"Butler", intro:"Dusty velvet. Candlelight flickers. Danger looms..." },
+];
+
+let container = document.getElementById('game-root');
+let selectedClass = null, currentLevel = 1, areaIdx = 0, ghostTick=0, ghostTimerInt=null, coins=0, solved=false, userSeed = String(Math.floor(Math.random()*1e12));
+
+function showClassSelector() {
+  let html = `<div style="font-size:1.27em;margin-bottom:17px;font-weight:600;">Select your Class (up to 10th):</div>
+    <select id="class-select" style="font-size:1.14em;padding:8px 21px;margin-bottom:22px;">
+      ${CLASSES.map(c=>`<option value="${c}">${c}</option>`).join('')}
+    </select>
+    <button class="button" onclick="confirmClass()">Start Escape Room</button>`;
+  container.innerHTML = html;
+}
+function confirmClass(){
+  selectedClass = document.getElementById('class-select').value;
+  startGame();
+}
+
+function startGame() {
+  currentLevel=1; areaIdx=0; coins=0;
+  document.body.style.background=AREAS[areaIdx].bg;
+  showAreaInfo();
+  roomIntro();
+}
+function showAreaInfo(){
+  setTimeout(() => {
+    if (!document.getElementById("area")) container.innerHTML += `<div id="area">${AREAS[areaIdx].name}</div>`;
+  }, 290);
+}
+function roomIntro(){
+  let area = AREAS[areaIdx];
+  let msg = `<div class="room-title">Level ${currentLevel}: ${area.name} Room</div>
+     <div class="room-intro">${area.intro} An ominous presence approaches... Solve the puzzle and run!</div>
+     <button class="button" onclick="nextPuzzle()">Start</button>`;
+  container.innerHTML = `<div id="coins">🪙 ${coins}</div>${msg}
+    <div id="ghost"><span id="ghost-emoji" style="font-size:3em;">${area.ghostEmoji}</span></div>`;
+}
+function nextPuzzle(){
+  areaIdx = Math.floor((currentLevel-1)/15)%AREAS.length;
+  document.body.style.background=AREAS[areaIdx].bg;
+  let puzzle = generatePuzzle(currentLevel, userSeed, selectedClass);
+  solved = false;
+  let ghostTime = getGhostTime(currentLevel);
+  renderPuzzle(puzzle, ghostTime);
+  startGhostChase(ghostTime);
+  showAreaInfo();
+}
+function getGhostTime(level) { return Math.max(7, 30 - Math.floor(level/2)); }
+
+function generatePuzzle(level, seedStr, selectedClass) {
+  // Per-class logic, increasing difficulty
+  const rng = seededRNG(level + seedStr + selectedClass);
+  if(selectedClass==='Class 6'){
+    if(level <=5) {
+      let a = rngNum(1,20,rng), b = rngNum(1,10,rng);
+      let ans = a - b, opts = shuffle([ans,ans+1,ans-1],rng);
+      return {type:"mcq",question:`What is ${a} - ${b}?`,options:opts,answer:`${ans}`};
+    }
+    else if(level <= 10) {
+      let a = rngNum(1,11,rng), b = rngNum(1,9,rng);
+      return {type:"mcq",question:`What is ${a} × ${b}?`,options:shuffle([a*b,a*b+1,a*b-2],rng),answer:`${a*b}`};
+    }
+    else if(level <=15) {
+      let code = rngNum(100,999,rng);
+      return {type:"logic",question:"Enter the 3-digit code: "+code,answer:`${code}`};
+    }
+    else {
+      let seq=[rngNum(2,20,rng),rngNum(1,20,rng),rngNum(2,20,rng),rngNum(3,21,rng)];
+      let miss= Math.floor(rng()*4);
+      let disp=seq.slice(); disp[miss]='?';
+      return {type:"logic",question:`Fill the missing: ${disp.join(', ')}`,answer:`${seq[miss]}`};
+    }
+  }
+  else if(selectedClass==='Class 7'){
+    if(level <=6) {
+      let a = rngNum(21,50,rng), b = rngNum(11,30,rng);
+      let ans = a + b, opts = shuffle([ans,ans+4,ans-2],rng);
+      return {type:"mcq",question:`What is ${a} + ${b}?`,options:opts,answer:`${ans}`};
+    }
+    else if(level<=12){
+      let a = rngNum(10,99,rng), b = rngNum(2,8,rng);
+      let ans = Math.floor(a/b), opts=shuffle([ans,ans+1,ans-1],rng);
+      return {type:"mcq",question:`What is ${a} ÷ ${b}?`,options:opts,answer:`${ans}`};
+    }
+    else if(level<=18){
+      let code = rngNum(1000,9999,rng);
+      return {type:"logic",question:`Enter the 4-digit code: ${code}`,answer:`${code}`};
+    }else{
+      let seq=[rngNum(10,28,rng),rngNum(10,28,rng),rngNum(10,28,rng),rngNum(10,28,rng)], miss=Math.floor(rng()*4),disp=seq.slice();disp[miss]='?';
+      return {type:"logic",question:`Number series: ${disp.join(' - ')}`,answer:`${seq[miss]}`};
+    }
+  }
+  else if(selectedClass==='Class 8'){
+    if(level<=7){
+      let a = rngNum(6,15,rng), b = rngNum(5,13,rng);
+      return {type:"mcq",question:`What is ${a} × ${b}?`,options:shuffle([a*b,a*b+2,a*b-3],rng),answer:`${a*b}`};
+    }
+    else if(level<=14){
+      let a=rngNum(20,60,rng), b=rngNum(1,19,rng);
+      return {type:"mcq",question:`What is ${a} - ${b}?`,options:shuffle([a-b,a-b+2,a-b-4],rng),answer:`${a-b}`};
+    }
+    else if(level<=21){
+      let code = rngNum(1111,9999,rng);
+      return {type:"logic",question:`Unlock: Enter code ${code}`,answer:`${code}`};
+    }
+    else{
+      let seq=[rngNum(13,36,rng),rngNum(15,39,rng),rngNum(18,44,rng),rngNum(20,48,rng)], miss=Math.floor(rng()*4),disp=seq.slice();disp[miss]='?';
+      return {type:"logic",question:`Sequence: ${disp.join(', ')}`,answer:`${seq[miss]}`};
+    }
+  }
+  else if(selectedClass==='Class 9'){
+    if(level<=8){
+      let a=rngNum(21,100,rng),b=rngNum(10,30,rng),ans=a+b;
+      return {type:"mcq",question:`Find the sum: ${a}+${b}`,options:shuffle([ans,ans+3,ans-3],rng),answer:`${ans}`};
+    }
+    else if(level<=16){
+      let a = rngNum(50,99,rng), b = rngNum(2,10,rng), ans=a*b;
+      return {type:"mcq",question:`${a} × ${b} = ?`,options:shuffle([ans,ans+7,ans-4],rng),answer:`${ans}`};
+    }
+    else if(level<=22){
+      let code = rngNum(2000,9999,rng);
+      return {type:"logic",question:`Unlock: Enter secret number ${code}`,answer:`${code}`};
+    }
+    else{
+      let expr = rngNum(2,8,rng) + 'x + ' + rngNum(1,5,rng) + ' = 17'; let val = (17 - parseInt(expr.split('+')[1]))/parseInt(expr[0]);
+      return {type:"logic",question:`Solve for x: ${expr}`,answer:`${val}`};
+    }
+  }
+  else if(selectedClass==='Class 10'){
+    if(level<=10){
+      let x = rngNum(3,15,rng), y = rngNum(2,14,rng);
+      let eq = `${x}x + ${y} = 19`; let solve = Math.round((19-y)/x);
+      return {type:"logic",question:`Solve for x: ${eq}`,answer:`${solve}`};
+    }
+    else if(level<=20){
+      let a = rngNum(30,99,rng), b = rngNum(8,29,rng);
+      let ans = Math.floor(a%b), opts=shuffle([ans,ans+2,ans-2],rng);
+      return {type:"mcq",question:`${a} mod ${b} = ?`,options:opts,answer:`${ans}`};
+    }
+    else{
+      let word = ["ESCAPE","ALGEBRA","PYTHAGORAS","PHYSICS","SCIENCE"][Math.floor(rng()*5)], letters=shuffle(word.split(""),rng);
+      return {type:"logic",question:`Unscramble these: ${letters.join(' ')}`,answer:word};
+    }
+  }
+  // fallback
+  let a=1, b=1;
+  return {type:"mcq",question:`Simple: What is ${a}+${b}?`,options:[2,3,4],answer:"2"};
+}
+// Utility
+function seededRNG(seed) {
+  let a = typeof seed === "string"
+    ? seed.split("").reduce((s, c) => s + c.charCodeAt(0), 0)
+    : seed;
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a); t = (t ^ t >>> 7) ^ (t >>> 3);
+    return ((t >>> 0) / 4294967296);}
+}
+function shuffle(arr, rng) { let a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { let j = Math.floor(rng()* (i+1)); [a[i], a[j]] = [a[j], a[i]];} return a;}
+function rngNum(a,b,rng) { return Math.floor(rng()*(b-a+1))+a; }
+
+function renderPuzzle(puz,ghostTime){
+  let area = AREAS[areaIdx];
+  let ui = `<div id="coins">🪙 ${coins}</div>
+     <div id="ghost"><span id="ghost-emoji" style="font-size:3em;">${area.ghostEmoji}</span></div>
+     <div class="room-title">Level ${currentLevel}: ${area.name}</div>
+     <div class="room-intro">Solve before the ghost arrives!</div>
+     <div id="timer"></div>
+     ${renderProgress()}
+     <div class="escape-puzzle">`;
+  if(puz.type==="mcq"){
+    ui += `<label>${puz.question}</label>`;
+    puz.options.forEach(opt=>{ui += `<div><input type="radio" name="mcq" value="${opt}" id="r${opt}"><label for="r${opt}">${opt}</label></div>`;});
+    ui += `<button class="button" onclick="submitMCQ('${puz.answer}')">Submit</button>`;
+  } else if(puz.type==="logic"){
+    ui += `<label>${puz.question}</label>
+    <input type="text" id="logic-answer" autocomplete="off">
+    <button class="button" onclick="submitLogic('${puz.answer}')">Submit</button>`;
+  }
+  ui += `</div>`;
+  container.innerHTML = ui;
+  ghostTick = ghostTime;
+  updateTimer();
+}
+function renderProgress(){
+  let percent = Math.floor(100*((currentLevel-1)%15)/15);
+  return `<div id="progress-bar"><div id="progress-bar-fill" style="width:${percent}%"></div></div>`;
+}
+
+function startGhostChase(t){
+  clearInterval(ghostTimerInt);
+  ghostTick = t;
+  let ghostEl = document.getElementById("ghost-emoji");
+  ghostEl.classList.remove("ghost-close");
+  ghostTimerInt = setInterval(()=>{
+    if(solved){clearInterval(ghostTimerInt); return;}
+    ghostTick--; updateTimer();
+    let ghostEl = document.getElementById("ghost-emoji");
+    if(ghostTick<5) ghostEl.classList.add("ghost-close");
+    if(ghostTick<=0){showLoseScreen(); clearInterval(ghostTimerInt);}
+  },1000);
+}
+function updateTimer(){
+  let el=document.getElementById("timer");
+  if(el) el.textContent="Ghost arrives in: "+ghostTick+" s";
+}
+function stopGhostChase(){ clearInterval(ghostTimerInt); solved=true; }
+function submitMCQ(ans){
+  let val = document.querySelector("input[name=mcq]:checked");
+  if(val && val.value===ans){stopGhostChase(); coins+=10; showSuccess();}
+  else showFail("Wrong answer. The ghost is getting closer!");
+}
+function submitLogic(ans){
+  let val = document.getElementById("logic-answer").value.trim();
+  if(val.toLowerCase()===ans.toLowerCase()){stopGhostChase(); coins+=12; showSuccess();}
+  else showFail("Not correct! Try again quickly.");
+}
+function showSuccess(){
+  let elapsed = ghostTick;
+  let nextAreaText = (currentLevel%15==0) ? `<div style="margin-top:6px;font-size:1.09em;">Area change next!</div>` : "";
+  container.innerHTML =
+    `<div class="room-title">Room Escaped!</div>
+     <div class="success">You solved the puzzle and got away!<br>
+       <b>Coins: ${coins}</b>${nextAreaText}</div>
+     <button class="button" onclick="nextRoom()">Next Room</button>`;
+}
+function showFail(msg){
+  container.innerHTML =
+    `<div class="room-title">Ghost Encounter!</div>
+     <div class="fail">${msg}</div>
+     <button class="button" onclick="retryRoom()">Retry Puzzle</button>`;
+}
+function showLoseScreen(){
+  container.innerHTML =
+    `<div class="room-title">Caught by ${AREAS[areaIdx].ghostName}!</div>
+     <div class="fail">The ghost reached you before you solved the room.<br>Your coins: <b>${coins}</b></div>
+     <button class="button" onclick="startGame()">Restart</button>`;
+}
+function retryRoom(){ nextPuzzle(); }
+function nextRoom(){
+  currentLevel++;
+  if(currentLevel%15===1){ areaIdx = Math.floor((currentLevel-1)/15)%AREAS.length; document.body.style.background=AREAS[areaIdx].bg; }
+  roomIntro();
+}
+
+/* ==== Start! ==== */
+window.showClassSelector = showClassSelector;
+showClassSelector();
+
+</script>
+</body>
+</html>
