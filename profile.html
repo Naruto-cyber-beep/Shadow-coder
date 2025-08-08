@@ -6,19 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
   <link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
   <style>
-    html,body {margin:0;padding:0;min-height:100vh;width:100vw;
-      background:linear-gradient(135deg,#fff9e4 15%,#e8f7ed 54%,#2a246b 95%);
+    html,body {margin:0;padding:0;min-height:100vh;width:100vw; background:linear-gradient(135deg,#fff9e4 15%,#e8f7ed 54%,#2a246b 95%);
       font-family:'Poppins',sans-serif;}
     #profile-root {max-width:480px;margin:7vw auto 2vw auto;
-      background:rgba(255,255,255,0.93);
-      border-radius:36px;box-shadow:0 12px 56px #2a4d9575;
+      background:rgba(255,255,255,0.93); border-radius:36px;box-shadow:0 12px 56px #2a4d9575;
       padding:42px 38px 29px 38px;position:relative;}
     .avatar {width:102px;height:102px;border-radius:50%;box-shadow:0 3px 36px #17b3b744;margin:0 auto 14px auto;display:block;border:5px solid #e9f7ff;object-fit:cover;transition: box-shadow .22s;}
     .avatar:hover {box-shadow:0 9px 78px #2aaedfcc;}
-    .independence-bg {background: linear-gradient(105deg,
-      #fff7d1 10%,#feeca5 35%,#cdfbed 60%,#205e3e 100%);}
     h2 {font-family:inherit; font-size:2.04em; margin:9px 0 2px 0; font-weight:700;text-align:center;color:#283b75;}
-    .national {font-size:0.98em; color:#126e34; text-align:center; font-weight:700;letter-spacing:2.8px;margin-top:0;}
     .profile-row {margin:16px 0 19px 0;display:flex;justify-content:space-between;}
     .profile-label {color:#25337b;font-size:1.07em;letter-spacing:.7px;}
     .profile-value {font-weight:700;}
@@ -34,30 +29,57 @@
     .lb-name {flex:1;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     .lb-points {font-weight:700;color:#15a255;margin-left:7px;}
     #subs-panel {margin-top:26px;}
-    .plan-btn {background:#ffa100;color:#fff;font-weight:700;padding:8px 24px;min-width:109px;
-      border:0;border-radius:15px;margin:7px 7px;cursor:pointer;font-size:1.11em;box-shadow:0 2px 13px #234aaf17;transition:.17s;}
-    .plan-btn.selected,.plan-btn.sub-active {background:#15a255;color:#fff;}
+    .plan-btn,
+    .subscribe-glow-btn {background:#ffa100;color:#fff;font-weight:700;padding:12px 38px;min-width:109px;
+      border:0;border-radius:20px;margin:12px auto 8px auto;cursor:pointer;font-size:1.16em;
+      box-shadow:0 3px 13px #16f6915c,0 3px 25px #ffbf009e;transition:.20s;
+      display:block;text-align:center;}
+    .subscribe-glow-btn {
+      animation:glow-sub 1s infinite alternate;
+      font-weight:700;letter-spacing:1px;
+      outline: none;
+      border-width:3px !important;
+    }
+    @keyframes glow-sub {
+      0% { box-shadow:0 0 18px #ffec8e,0 0 38px #29ff8e,0 0 0 #0e0;}
+      100% { box-shadow:0 0 50px #ffec8e,0 0 25px #31ffc6; background:#ffd133;}
+    }
     .shadow-points {background:#ffe051c5;color:#305670;font-weight:700;padding:5px 13px;border-radius:14px;}
+    .level-badge {background:linear-gradient(115deg,#fff0a4,#ffd129,#f59140);color:#573d00;font-weight:800;border-radius:12px;padding:5px 16px 6px 16px;margin-left:8px;box-shadow:0 2px 10px #d2bf41;}
+    #subscription-free-dialog {
+      position:fixed;top:50vh;left:50vw;transform:translate(-50%,-50%);
+      background:linear-gradient(109deg,#fff1a4 10%,#dbffd1 90%);
+      color:#23b741;border-radius:18px;box-shadow:0 6px 32px #ffbf008a;
+      font-size:1.21em;font-weight:700;padding:26px 32px;text-align:center;z-index:888;
+      border:4px solid #ffe500;display:none;}
+    #subscription-free-dialog.show {display:block;}
+    #subscription-free-dialog b {color:#ff8800;}
+    #subscription-free-dialog button {margin-top:21px;}
     #google-btn {background:#fff;color:#205e3e;border:none;border-radius:99px;font-size:1.14em;padding:8px 18px;font-weight:700;margin-top:7px;box-shadow:0 2px 8px #1282c622;cursor:pointer;}
     #google-btn span {position:relative;top:1px;margin-right:5px;}
-    .level-badge {background:linear-gradient(115deg,#fff0a4,#ffd129,#f59140);color:#573d00;font-weight:800;border-radius:12px;padding:5px 16px 6px 16px;margin-left:8px;box-shadow:0 2px 10px #d2bf41;}
     @media (max-width:600px){
       #profile-root{padding:7vw 2vw;}
       .big-card{padding:7vw 5vw;}
       h2{font-size:1.22em;}
       .avatar{width:72px;height:72px;}
+      #subscription-free-dialog {max-width:98vw;}
     }
   </style>
 </head>
-<body class="independence-bg">
+<body>
 <div id="profile-root">
   <div id="profile-loader" style="text-align:center;font-size:1.14em;color:#2b3779;">Loading your profile...</div>
+</div>
+<div id="subscription-free-dialog">
+  <div>🎉 <b>Enjoy free premium services till 20th August!</b><br>
+  No payment required right now.<br>
+  <button class="plan-btn" onclick="document.getElementById('subscription-free-dialog').classList.remove('show')">OK</button>
+  </div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-/* === INSERT YOUR REAL FIREBASE CONFIG BELOW! === */
 const firebaseConfig = {
   apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
   authDomain: "learn-code-with-anay.firebaseapp.com",
@@ -70,8 +92,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-/* =====   UI RENDERING   ===== */
-let unsubProfile=null,unsubLb=null;
+
+function showIndependenceDayBanner(isToday) {
+  let national = document.querySelector(".national");
+  if(national) national.style.display = isToday ? "block" : "none";
+}
+function checkIndependenceDay() {
+  let now=new Date();
+  let showIDay=(now.getDate()===15 && now.getMonth()===7); // August is month=7 (0-indexed)
+  showIndependenceDayBanner(showIDay);
+}
+setTimeout(checkIndependenceDay, 400);
 
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -87,7 +118,7 @@ function renderProfile(user, profile) {
     <h2>${profile.displayName || user.displayName || "Player " + (user.uid||"").slice(0,6)}
       <span class="level-badge" title="Your Level">Lv.${profile.level||Math.max(1,Math.floor((profile.shadowPoints||0)/100)+1)}</span>
     </h2>
-    <div class="national">🇮🇳 Happy Independence Day! 🇮🇳</div>
+    <div class="national" style="display:none;">🇮🇳 Happy Independence Day! 🇮🇳</div>
     <div class="profile-row"><div class="profile-label">Email:</div>
       <div class="profile-value">${user.email}</div></div>
     <div class="profile-row"><div class="profile-label">Class:</div>
@@ -111,35 +142,24 @@ function renderProfile(user, profile) {
     </div>
     <div id="subs-panel">
       <div class="lb-head" style="margin-top:18px;">Subscription:</div>
-      <div>
-        <button class="plan-btn" id="monthly">Monthly</button>
-        <button class="plan-btn" id="quarterly">Quarterly</button>
-        <button class="plan-btn" id="yearly">Yearly</button>
-      </div>
-      <div id="sub-msg" style="color:#289eae;font-weight:600;margin-top:7px;"></div>
+      <button class="subscribe-glow-btn" id="subscription-free-btn">Enjoy Free Services</button>
+      <div id="sub-msg" style="color:#289eae;font-weight:600;margin-top:12px;font-size:0.98em;"></div>
     </div>
   `;
+  setTimeout(checkIndependenceDay,160);
 
-  // Show current subscription if any
-  if(profile.subscription){
-    document.getElementById(profile.subscription).classList.add("sub-active");
-    document.getElementById('sub-msg').textContent = `Current: ${profile.subscription.charAt(0).toUpperCase()+profile.subscription.slice(1)} plan active.`;
-  }
-  // Subscription selection logic (ready to connect with your own payment flow)
-  ['monthly','quarterly','yearly'].forEach(plan=>{
-    document.getElementById(plan).onclick = ()=>{
-      ['monthly','quarterly','yearly'].forEach(p=>document.getElementById(p).classList.remove('selected'));
-      document.getElementById(plan).classList.add('selected');
-      document.getElementById('sub-msg').textContent = `Click to proceed for ${plan.charAt(0).toUpperCase()+plan.slice(1)} subscription (payment integration goes here).`;
-    }
-  });
+  // Glowing button logic
+  document.getElementById('subscription-free-btn').onclick = function() {
+    document.getElementById("subscription-free-dialog").classList.add("show");
+  };
 
   document.getElementById('refresh-lb').onclick = ()=>{ updateLeaderboard(profile.displayName, user.uid); };
 }
 
 /* ===== REAL-TIME LEADERBOARD & RANK ===== */
+let unsubLb=null;
 function updateLeaderboard(username, uid) {
-  if(unsubLb) unsubLb(); // remove old listener
+  if(unsubLb) unsubLb();
   unsubLb = db.collection("users").orderBy("shadowPoints","desc").limit(10)
     .onSnapshot(snapshot=>{
       let html = "";
@@ -157,21 +177,16 @@ function updateLeaderboard(username, uid) {
         rank++;
       });
       document.getElementById('lb-list').innerHTML = html||"<div style='color:#486;'>No players yet.</div>";
-
-      // If self not in top 10, show true rank
       if(yourRank==null){
-        db.collection("users").doc(uid)
-          .onSnapshot(me=>{
-            if(!me.exists) return;
-            yourPoints = me.data().shadowPoints||0;
-            db.collection("users").where("shadowPoints",">",yourPoints)
-              .get()
-              .then(snap2=>{
-                let realRank=snap2.size+1;
-                document.getElementById('profile-rank').textContent = "#" + realRank;
-                document.getElementById('rank-context').textContent = realRank<=10 ? 'You are Top 10!' : `Your overall rank: #${realRank}`;
-              });
+        db.collection("users").doc(uid).onSnapshot(me=>{
+          if(!me.exists) return;
+          yourPoints = me.data().shadowPoints||0;
+          db.collection("users").where("shadowPoints",">",yourPoints).get().then(snap2=>{
+            let realRank=snap2.size+1;
+            document.getElementById('profile-rank').textContent = "#" + realRank;
+            document.getElementById('rank-context').textContent = realRank<=10 ? 'You are Top 10!' : `Your overall rank: #${realRank}`;
           });
+        });
       } else {
         document.getElementById('profile-rank').textContent = "#" + yourRank;
         document.getElementById('rank-context').textContent = yourRank<=10 ? 'Top 10! Congrats!' : '';
@@ -179,25 +194,20 @@ function updateLeaderboard(username, uid) {
     });
 }
 
-/* ===== REAL-TIME PROFILE LISTENER ===== */
+let unsubProfile=null;
 function startRealtimeProfile(user) {
-  if(unsubProfile) unsubProfile(); // remove any old listener
+  if(unsubProfile) unsubProfile();
   unsubProfile = db.collection("users").doc(user.uid)
     .onSnapshot(doc=>{
       let profile = doc.exists ? doc.data() : {
         displayName: user.displayName || "",
-        level: 1,
-        class: "",
-        shadowPoints: 0,
-        subscription: "",
-        photoURL: user.photoURL||""
+        level: 1, class: "", shadowPoints: 0, subscription: "", photoURL: user.photoURL||""
       };
       renderProfile(user, profile);
       updateLeaderboard(profile.displayName, user.uid);
     });
 }
 
-/* ======= GOOGLE AUTH, AUTO-LOGIN, REAL-TIME PROFILE BOOTSTRAP ====== */
 auth.onAuthStateChanged(user=>{
   if(!user){
     document.getElementById('profile-root').innerHTML =
@@ -210,13 +220,11 @@ auth.onAuthStateChanged(user=>{
       </div>`;
     return;
   }
-  // Update user's Firestore profile (sync Google photo/displayName if first time)
   db.collection("users").doc(user.uid).set({
     photoURL: user.photoURL || "",
     displayName: user.displayName || "Player",
     email: user.email
   }, {merge:true});
-  // Start real-time listeners
   startRealtimeProfile(user);
 });
 
