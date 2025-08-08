@@ -481,6 +481,39 @@ window.addEventListener('DOMContentLoaded', fetchShadowCoins);
     }
   };
 </script>
+  <!-- Popup Modal for about-u.html (hidden unless needed) -->
+<div id="aboutUPopup" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(44,36,107,0.18);backdrop-filter:blur(5px);align-items:center;justify-content:center;">
+  <iframe id="aboutUIframe" src="about-u.html" style="width:95vw;max-width:455px;height:90vh;border-radius:26px;border:0;box-shadow:0 8px 32px #2a137a33;"></iframe>
+</div>
+<script>
+function showAboutUPopup() {
+  document.getElementById('aboutUPopup').style.display = 'flex';
+}
+// Optionally: Listen for postMessage from about-u.html on completion, then hide modal
+window.addEventListener('message', function(e){
+  if(e.data === 'aboutUComplete') {
+    document.getElementById('aboutUPopup').style.display = 'none';
+    location.reload(); // or just hide modal
+  }
+});
+
+// Firebase check - Run on page load, do NOT touch rest of code
+window.addEventListener('DOMContentLoaded', function(){
+  if(window.firebase && window.firebase.auth){
+    firebase.auth().onAuthStateChanged(function(user){
+      if(!user) return;
+      firebase.firestore().collection("users").doc(user.uid)
+        .onSnapshot(doc=>{
+          let d=doc.data()||{};
+          if(!d || !d.name || !d.class || !d.location || !d.hobbies || !d.favouriteSubject){
+            showAboutUPopup();
+          }
+        });
+    });
+  }
+});
+</script>
+  
 </body>
                                                                          </html>
       
