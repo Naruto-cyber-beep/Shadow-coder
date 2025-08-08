@@ -1,144 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Shadow Circle – Live Profile</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gradient-to-tr from-fuchsia-100 to-blue-100 min-h-screen flex items-center justify-center">
-
-<div class="w-full max-w-lg p-8 bg-white shadow-xl rounded-3xl mx-auto space-y-7 text-center">
-
-  <h2 class="text-2xl font-bold text-violet-700 mb-6">Profile</h2>
-
-  <div id="auth-section">
-    <button id="google-btn"
-      class="py-2 px-6 bg-red-600 hover:bg-red-700 text-white text-lg rounded-lg font-semibold shadow transition mb-2">
-      <svg class="inline mr-2 -mt-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48"><g><path fill="#FFC107" d="M43.61 20.083h-18.5v7.834h10.638c-1.19 3.648-4.56 6.25-8.638 6.25-5.273 0-9.555-4.28-9.555-9.555s4.28-9.555 9.555-9.555c2.63 0 5.004 1.015 6.716 2.615l5.736-5.736c-3.222-2.988-7.465-4.829-12.452-4.829C13.52 7 5.445 15.077 5.445 24.357s8.074 17.36 17.36 17.36c8.313 0 16.004-6.02 16.004-16.005a21.013 21.013 0 0 0-.203-3.629z"/></g></svg>
-      Connect with Google
-    </button>
-  </div>
-
-  <!-- Registered user info -->
-  <div id="profile-section" class="hidden mt-3 text-left">
-    <div class="flex flex-col items-center mb-4">
-      <img id="user-photo" class="rounded-full w-24 h-24 bg-gray-200 border-4 border-violet-200 object-cover" src="" alt="Photo" />
-      <div class="mt-2 text-xl font-semibold text-violet-700" id="user-name"></div>
-      <div class="text-gray-600 text-lg" id="user-email"></div>
-      <span id="special-badge"></span>
-    </div>
-    <div class="p-4 bg-violet-50 rounded-xl mb-3 space-y-2">
-      <div><b>UID:</b> <span id="uid"></span></div>
-      <div><b>Token:</b> <span id="token"></span></div>
-      <div><b>Batch:</b> <span id="specialGroup"></span></div>
-      <div><b>Shadow Coins:</b> <span id="coins"></span></div>
-      <div><b>Rank:</b> <span id="rank"></span></div>
-      <div><b>Storage:</b> <span id="storage"></span></div>
-    </div>
-    <a href="leaderboard.html" class="inline-block mt-3 px-5 py-2 bg-violet-700 text-white rounded-lg font-semibold hover:bg-violet-800">Show Leaderboard</a>
-  </div>
-
-  <!-- Unregistered user -->
-  <div id="no-user-section" class="hidden mt-4 text-gray-700">
-    <div class="text-xl mb-1 font-semibold" id="google-name"></div>
-    <div id="google-email" class="mb-2"></div>
-    <img id="google-photo" class="w-20 h-20 rounded-full mx-auto mb-2" src="" alt="Google Photo" />
-    <div class="mb-2 text-lg text-gray-500">You have not yet registered on Shadow Circle.</div>
-    <div>
-      <b>Batch:</b> Basic<br>
-      <b>Shadow Coins:</b> 0<br>
-      <b>Rank:</b> <i>Not started</i><br>
-      <b>Storage:</b> 2GB
-    </div>
-    <a href="leaderboard.html" class="inline-block mt-3 px-5 py-2 bg-violet-700 text-white rounded-lg font-semibold hover:bg-violet-800">Show Leaderboard</a>
-  </div>
-
-  <div id="loading-msg" class="hidden text-violet-700 font-semibold mt-3"></div>
-</div>
-
-<!-- Firebase scripts -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
-    authDomain: "learn-code-with-anay.firebaseapp.com",
-    projectId: "learn-code-with-anay",
-    storageBucket: "learn-code-with-anay.firebasestorage.app",
-    messagingSenderId: "197075143711",
-    appId: "1:197075143711:web:64fc5d83528f907d38d92a",
-    measurementId: "G-F01VRZK4ZL"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
-
-  const googleBtn = document.getElementById('google-btn');
-  const profileSection = document.getElementById('profile-section');
-  const noUserSection = document.getElementById('no-user-section');
-  const loadingMsg = document.getElementById('loading-msg');
-
-  let unsubscribe = null; // for cleaning up the real-time listener
-
-  googleBtn.onclick = async () => {
-    loadingMsg.textContent = "Authenticating...";
-    loadingMsg.classList.remove('hidden');
-    try {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      const result = await auth.signInWithPopup(provider);
-      const user = result.user;
-      if (!user || !user.email) {
-        loadingMsg.textContent = "";
-        alert("Could not get Google account. Try again.");
-        return;
-      }
-      loadingMsg.textContent = "Listening for your user record...";
-      // Realtime: listen for THIS user's doc in Firestore
-      if (unsubscribe) unsubscribe(); // Remove previous listener if any
-      unsubscribe = db.collection("users")
-        .where("email", "==", user.email)
-        .onSnapshot((snap) => {
-          loadingMsg.textContent = ""; 
-          if (!snap.empty) {
-            const data = snap.docs[0].data();
-            // "Unlimited" logic
-            let isChosenOne = (
-              (data.customUID === "shadow-anayupadhyay4138" && data.token === "971195") ||
-              data.specialGroup === "first10"
-            );
-            profileSection.classList.remove('hidden');
-            document.getElementById('auth-section').classList.add('hidden');
-            noUserSection.classList.add('hidden');
-            document.getElementById('user-photo').src = data.photoURL || user.photoURL || "";
-            document.getElementById('user-name').textContent = data.name || user.displayName || "";
-            document.getElementById('user-email').textContent = data.email || user.email;
-            document.getElementById('uid').textContent = data.customUID || "-";
-            document.getElementById('token').textContent = data.token || "-";
-            document.getElementById('coins').textContent = isChosenOne ? "∞" : (typeof data.coins === "number" ? data.coins : 0);
-            document.getElementById('rank').textContent = isChosenOne ? "1 (Maha Yodha)" : (data.rank !== undefined ? data.rank : "-");
-            document.getElementById('specialGroup').textContent = isChosenOne ? "Unlimited (Maha Yodha)" : (data.specialGroup === "first10" ? "Maha Yodha" : (data.specialGroup || "Basic"));
-            document.getElementById('storage').textContent = isChosenOne ? "Unlimited" : (data.storagePlan || "2GB");
-            document.getElementById('special-badge').innerHTML = isChosenOne
-              ? `<span class="inline-block rounded-full px-4 py-1 bg-yellow-300 text-orange-900 font-bold mt-2">👑 Maha Yodha – All Unlimited</span><br><span class="text-green-800 font-semibold">Congratulations, you are the chosen one!</span>`
-              : "";
-          } else {
-            // Not registered! Show plain Google info, zero coins/rank
-            noUserSection.classList.remove('hidden');
-            document.getElementById('auth-section').classList.add('hidden');
-            profileSection.classList.add('hidden');
-            document.getElementById('google-name').textContent = user.displayName || "";
-            document.getElementById('google-email').textContent = user.email;
-            document.getElementById('google-photo').src = user.photoURL || "";
-          }
-        });
-    } catch (err) {
-      loadingMsg.textContent = "";
-      alert("Google sign-in failed: " + (err.message || "unknown error"));
+  <meta charset="UTF-8"/>
+  <title>Shadow Quest – Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
+  <style>
+    html,body {margin:0;padding:0;min-height:100vh;width:100vw;
+      background:linear-gradient(135deg,#fff9e4 15%,#e8f7ed 54%,#2a246b 95%);
+      font-family:'Poppins',sans-serif;}
+    #profile-root {max-width:480px;margin:7vw auto 2vw auto;
+      background:rgba(255,255,255,0.93);
+      border-radius:36px;box-shadow:0 12px 56px #2a4d9575;
+      padding:42px 38px 29px 38px;position:relative;}
+    .avatar {width:102px;height:102px;border-radius:50%;box-shadow:0 3px 36px #17b3b744;margin:0 auto 14px auto;display:block;border:5px solid #e9f7ff;object-fit:cover;transition: box-shadow .22s;}
+    .avatar:hover {box-shadow:0 9px 78px #2aaedfcc;}
+    .independence-bg {background: linear-gradient(105deg,
+      #fff7d1 10%,#feeca5 35%,#cdfbed 60%,#205e3e 100%);}
+    h2 {font-family:inherit; font-size:2.04em; margin:9px 0 2px 0; font-weight:700;text-align:center;color:#283b75;}
+    .national {font-size:0.98em; color:#126e34; text-align:center; font-weight:700;letter-spacing:2.8px;margin-top:0;}
+    .profile-row {margin:16px 0 19px 0;display:flex;justify-content:space-between;}
+    .profile-label {color:#25337b;font-size:1.07em;letter-spacing:.7px;}
+    .profile-value {font-weight:700;}
+    .big-card {background:linear-gradient(100deg,#237bbd 50%,#1affa5aa 200%);
+      border-radius:22px;color:#fff;padding:24px 19px 13px 18px;box-shadow:0 2px 18px #1ab6b834;margin:0 auto 20px auto;}
+    .stat-head {font-size:1.03em;color:#ffed4d;text-shadow:0 2px 12px #0b9c2975;}
+    .stat-val {font-size:2.2em;font-weight:900;padding-bottom:3px;letter-spacing:1.8px;}
+    #leaderboards {margin:22px 0 0 0;border-radius:18px;background:#deffec;padding:16px 15px;}
+    .lb-head {font-weight:700;color:#064316;font-size:1.19em;margin-bottom:8px;}
+    .lb-row {display:flex;align-items:center;padding:8px 0;}
+    .lb-rank {font-family:monospace;font-size:1.19em;width:2.5em;text-align:right;}
+    .lb-userpic {width:36px;height:36px;border-radius:50%;margin:0 13px 0 5px;object-fit:cover;}
+    .lb-name {flex:1;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .lb-points {font-weight:700;color:#15a255;margin-left:7px;}
+    #subs-panel {margin-top:26px;}
+    .plan-btn {background:#ffa100;color:#fff;font-weight:700;padding:8px 24px;min-width:109px;
+      border:0;border-radius:15px;margin:7px 7px;cursor:pointer;font-size:1.11em;box-shadow:0 2px 13px #234aaf17;transition:.17s;}
+    .plan-btn.selected,.plan-btn.sub-active {background:#15a255;color:#fff;}
+    .shadow-points {background:#ffe051c5;color:#305670;font-weight:700;padding:5px 13px;border-radius:14px;}
+    #google-btn {background:#fff;color:#205e3e;border:none;border-radius:99px;font-size:1.14em;padding:8px 18px;font-weight:700;margin-top:7px;box-shadow:0 2px 8px #1282c622;cursor:pointer;}
+    #google-btn span {position:relative;top:1px;margin-right:5px;}
+    .level-badge {background:linear-gradient(115deg,#fff0a4,#ffd129,#f59140);color:#573d00;font-weight:800;border-radius:12px;padding:5px 16px 6px 16px;margin-left:8px;box-shadow:0 2px 10px #d2bf41;}
+    @media (max-width:600px){
+      #profile-root{padding:7vw 2vw;}
+      .big-card{padding:7vw 5vw;}
+      h2{font-size:1.22em;}
+      .avatar{width:72px;height:72px;}
     }
-  };
+  </style>
+</head>
+<body class="independence-bg">
+<div id="profile-root">
+  <div id="profile-loader" style="text-align:center;font-size:1.14em;color:#2b3779;">Loading your profile...</div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* === INSERT YOUR REAL FIREBASE CONFIG BELOW! === */
+const firebaseConfig = {
+  apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
+  authDomain: "learn-code-with-anay.firebaseapp.com",
+  projectId: "learn-code-with-anay",
+  storageBucket: "learn-code-with-anay.firebasestorage.app",
+  messagingSenderId: "197075143711",
+  appId: "1:197075143711:web:64fc5d83528f907d38d92a",
+  measurementId: "G-F01VRZK4ZL"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+/* =====   UI RENDERING   ===== */
+let unsubProfile=null,unsubLb=null;
+
+function signInWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
+}
+function signOut() {
+  auth.signOut();
+}
+function renderProfile(user, profile) {
+  document.getElementById('profile-root').innerHTML = `
+    <img class="avatar" src="${user.photoURL||
+      'https://api.dicebear.com/8.x/thumbs/svg?seed='+(user.uid||'shadow')}" loading="lazy">
+    <h2>${profile.displayName || user.displayName || "Player " + (user.uid||"").slice(0,6)}
+      <span class="level-badge" title="Your Level">Lv.${profile.level||Math.max(1,Math.floor((profile.shadowPoints||0)/100)+1)}</span>
+    </h2>
+    <div class="national">🇮🇳 Happy Independence Day! 🇮🇳</div>
+    <div class="profile-row"><div class="profile-label">Email:</div>
+      <div class="profile-value">${user.email}</div></div>
+    <div class="profile-row"><div class="profile-label">Class:</div>
+      <div class="profile-value" id="user-class">${profile.class || 'Not set'}</div></div>
+    <div class="profile-row"><div class="profile-label">Shadow Points:</div>
+      <div class="shadow-points" id="shadow-points">${profile.shadowPoints||0}</div></div>
+    <div style="text-align:right;margin-bottom:16px;">
+      <button id="google-btn" onclick="signOut()"><span>🚪</span>Sign Out</button>
+    </div>
+    <div class="big-card" style="margin-top:16px;">
+      <div class="stat-head">Your Current Rank</div>
+      <div id="profile-rank" class="stat-val" style="margin-top:7px;">–</div>
+      <div style="font-size:.97em;padding-top:10px;" id="rank-context"></div>
+    </div>
+    <div id="leaderboards">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="lb-head">Leaderboard</div>
+        <button id="refresh-lb" class="plan-btn" title="View Top 10" style="padding:4px 14px;font-size:.96em;">Show Top 10</button>
+      </div>
+      <div id="lb-list">Loading leaderboard...</div>
+    </div>
+    <div id="subs-panel">
+      <div class="lb-head" style="margin-top:18px;">Subscription:</div>
+      <div>
+        <button class="plan-btn" id="monthly">Monthly</button>
+        <button class="plan-btn" id="quarterly">Quarterly</button>
+        <button class="plan-btn" id="yearly">Yearly</button>
+      </div>
+      <div id="sub-msg" style="color:#289eae;font-weight:600;margin-top:7px;"></div>
+    </div>
+  `;
+
+  // Show current subscription if any
+  if(profile.subscription){
+    document.getElementById(profile.subscription).classList.add("sub-active");
+    document.getElementById('sub-msg').textContent = `Current: ${profile.subscription.charAt(0).toUpperCase()+profile.subscription.slice(1)} plan active.`;
+  }
+  // Subscription selection logic (ready to connect with your own payment flow)
+  ['monthly','quarterly','yearly'].forEach(plan=>{
+    document.getElementById(plan).onclick = ()=>{
+      ['monthly','quarterly','yearly'].forEach(p=>document.getElementById(p).classList.remove('selected'));
+      document.getElementById(plan).classList.add('selected');
+      document.getElementById('sub-msg').textContent = `Click to proceed for ${plan.charAt(0).toUpperCase()+plan.slice(1)} subscription (payment integration goes here).`;
+    }
+  });
+
+  document.getElementById('refresh-lb').onclick = ()=>{ updateLeaderboard(profile.displayName, user.uid); };
+}
+
+/* ===== REAL-TIME LEADERBOARD & RANK ===== */
+function updateLeaderboard(username, uid) {
+  if(unsubLb) unsubLb(); // remove old listener
+  unsubLb = db.collection("users").orderBy("shadowPoints","desc").limit(10)
+    .onSnapshot(snapshot=>{
+      let html = "";
+      let rank = 1, yourRank=null, yourPoints=null;
+      snapshot.forEach(doc=>{
+        const d=doc.data();
+        let self = doc.id===uid;
+        if(self) {yourRank=rank; yourPoints=d.shadowPoints; }
+        html += `<div class="lb-row" style="${self?'background:#c3f7e35c;':''}">
+          <div class="lb-rank">${rank}</div>
+          <img class="lb-userpic" src="${d.photoURL||'https://api.dicebear.com/8.x/thumbs/svg?seed='+(doc.id||'')}" loading="lazy">
+          <div class="lb-name">${d.displayName||("Player "+(doc.id||"").slice(0,5))}</div>
+          <div class="lb-points">${d.shadowPoints||0}</div>
+        </div>`;
+        rank++;
+      });
+      document.getElementById('lb-list').innerHTML = html||"<div style='color:#486;'>No players yet.</div>";
+
+      // If self not in top 10, show true rank
+      if(yourRank==null){
+        db.collection("users").doc(uid)
+          .onSnapshot(me=>{
+            if(!me.exists) return;
+            yourPoints = me.data().shadowPoints||0;
+            db.collection("users").where("shadowPoints",">",yourPoints)
+              .get()
+              .then(snap2=>{
+                let realRank=snap2.size+1;
+                document.getElementById('profile-rank').textContent = "#" + realRank;
+                document.getElementById('rank-context').textContent = realRank<=10 ? 'You are Top 10!' : `Your overall rank: #${realRank}`;
+              });
+          });
+      } else {
+        document.getElementById('profile-rank').textContent = "#" + yourRank;
+        document.getElementById('rank-context').textContent = yourRank<=10 ? 'Top 10! Congrats!' : '';
+      }
+    });
+}
+
+/* ===== REAL-TIME PROFILE LISTENER ===== */
+function startRealtimeProfile(user) {
+  if(unsubProfile) unsubProfile(); // remove any old listener
+  unsubProfile = db.collection("users").doc(user.uid)
+    .onSnapshot(doc=>{
+      let profile = doc.exists ? doc.data() : {
+        displayName: user.displayName || "",
+        level: 1,
+        class: "",
+        shadowPoints: 0,
+        subscription: "",
+        photoURL: user.photoURL||""
+      };
+      renderProfile(user, profile);
+      updateLeaderboard(profile.displayName, user.uid);
+    });
+}
+
+/* ======= GOOGLE AUTH, AUTO-LOGIN, REAL-TIME PROFILE BOOTSTRAP ====== */
+auth.onAuthStateChanged(user=>{
+  if(!user){
+    document.getElementById('profile-root').innerHTML =
+      `<div style="text-align:center;margin-top:44px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" width="47" style="border-radius:12px;box-shadow:0 3px 12px #0a7554a1;margin-bottom:14px;">
+        <h2>Sign in to view your Profile</h2>
+        <button id="google-btn" onclick="signInWithGoogle()">
+          <span>🔑</span> Sign in with Google
+        </button>
+      </div>`;
+    return;
+  }
+  // Update user's Firestore profile (sync Google photo/displayName if first time)
+  db.collection("users").doc(user.uid).set({
+    photoURL: user.photoURL || "",
+    displayName: user.displayName || "Player",
+    email: user.email
+  }, {merge:true});
+  // Start real-time listeners
+  startRealtimeProfile(user);
+});
+
+window.signInWithGoogle = signInWithGoogle;
+window.signOut = signOut;
 </script>
 </body>
-  </html>
-  
+</html>
