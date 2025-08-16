@@ -9,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     
-    <!-- Puter.js - No initialization needed! -->
+    <!-- Puter.js -->
     <script src="https://js.puter.com/v2/"></script>
     
     <!-- EmailJS -->
@@ -19,12 +19,11 @@
         :root {
             --primary: #667eea;
             --secondary: #764ba2;
-            --danger: #e74c3c;
             --success: #2ecc71;
+            --danger: #e74c3c;
             --warning: #f39c12;
             --dark: #2c3e50;
             --white: #ffffff;
-            --shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
         * {
@@ -49,14 +48,14 @@
             height: 90vh;
             background: var(--white);
             border-radius: 20px;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
         }
 
-        /* Loading Screen */
+        /* Simple Loading Screen that auto-hides */
         .loading-screen {
             position: absolute;
             top: 0;
@@ -69,20 +68,23 @@
             align-items: center;
             justify-content: center;
             z-index: 999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
         }
 
-        .loading-screen.hidden {
-            display: none;
+        .loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         @keyframes spin {
@@ -92,149 +94,11 @@
 
         .loading-text {
             color: var(--primary);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 10px;
-            font-weight: 600;
         }
 
-        .loading-progress {
-            color: var(--secondary);
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-
-        /* Debug Panel */
-        .debug-trigger {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 30px;
-            height: 30px;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 1001;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255,255,255,0.7);
-            font-size: 12px;
-        }
-
-        .debug-trigger:hover {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        .debug-panel {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.95);
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            z-index: 1002;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .debug-panel.show {
-            display: block;
-        }
-
-        .debug-header {
-            background: #1a1a1a;
-            color: #00ff41;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #00ff41;
-        }
-
-        .debug-section {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 6px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .debug-section h3 {
-            color: #58a6ff;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #21262d;
-            padding-bottom: 5px;
-        }
-
-        .debug-log {
-            max-height: 200px;
-            overflow-y: auto;
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 4px;
-            padding: 10px;
-            margin-top: 10px;
-        }
-
-        .log-entry {
-            margin-bottom: 5px;
-            font-size: 0.85rem;
-        }
-
-        .log-success { color: #238636; }
-        .log-error { color: #f85149; }
-        .log-warning { color: #d29922; }
-        .log-info { color: #79c0ff; }
-
-        .debug-controls {
-            background: #21262d;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 20px;
-        }
-
-        .debug-btn {
-            background: #238636;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            font-family: monospace;
-        }
-
-        .debug-btn:hover {
-            background: #2ea043;
-        }
-
-        .debug-btn.danger {
-            background: #da3633;
-        }
-
-        .debug-btn.danger:hover {
-            background: #f85149;
-        }
-
-        .close-debug {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            background: #da3633;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Chat Interface */
+        /* Chat Header */
         .chat-header {
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: var(--white);
@@ -253,41 +117,40 @@
             font-size: 0.9rem;
         }
 
-        .status-info {
+        .debug-btn {
             position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 15px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 0.8rem;
-            opacity: 0.9;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
         }
 
+        /* Chat Messages */
         .chat-messages {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
             background: #f8f9fa;
+            scroll-behavior: smooth;
         }
 
         .welcome-screen {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             text-align: center;
-            padding: 40px;
+            padding: 40px 20px;
         }
 
-        .welcome-content h2 {
+        .welcome-screen h2 {
             color: var(--primary);
             font-size: 2rem;
             margin-bottom: 15px;
         }
 
-        .welcome-content p {
+        .welcome-screen p {
             color: #666;
             font-size: 1.1rem;
             margin-bottom: 30px;
@@ -295,15 +158,15 @@
 
         .example-questions {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
             margin-top: 30px;
         }
 
         .example-question {
             background: var(--white);
-            padding: 20px;
-            border-radius: 12px;
+            padding: 15px;
+            border-radius: 10px;
             border: 2px solid transparent;
             cursor: pointer;
             transition: all 0.3s;
@@ -312,74 +175,7 @@
 
         .example-question:hover {
             border-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
-        }
-
-        .chat-input {
-            padding: 20px;
-            background: var(--white);
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            gap: 15px;
-        }
-
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-
-        .chat-textarea {
-            width: 100%;
-            padding: 15px 60px 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            resize: none;
-            font-size: 1rem;
-            line-height: 1.4;
-            max-height: 120px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            font-family: inherit;
-        }
-
-        .chat-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .chat-textarea:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            background: #f5f5f5;
-        }
-
-        .send-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: var(--white);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
-        }
-
-        .send-btn:hover:not(:disabled) {
-            transform: translateY(-50%) scale(1.05);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+            transform: translateY(-2px);
         }
 
         .message {
@@ -421,6 +217,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
+        /* Typing Indicator */
         .typing-indicator {
             display: none;
             text-align: left;
@@ -434,13 +231,12 @@
             border: 1px solid #e0e0e0;
             border-radius: 18px;
             color: var(--primary);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .typing-dots {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
 
         .typing-dots span {
@@ -449,15 +245,69 @@
             border-radius: 50%;
             background: var(--primary);
             animation: typingDots 1.5s infinite;
-            opacity: 0.5;
         }
 
         .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
         .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes typingDots {
-            0%, 60%, 100% { opacity: 0.5; transform: scale(1); }
+            0%, 60%, 100% { opacity: 0.4; transform: scale(1); }
             30% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Chat Input */
+        .chat-input {
+            padding: 20px;
+            background: var(--white);
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-textarea {
+            width: 100%;
+            padding: 15px 60px 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            resize: none;
+            font-size: 1rem;
+            line-height: 1.4;
+            max-height: 120px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .chat-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--white);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-50%) scale(1.1);
         }
 
         .status-message {
@@ -469,104 +319,60 @@
         }
 
         .status-message.show { display: block; }
-        .status-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status-message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .status-message.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .status-message.success { background: #d4edda; color: #155724; }
+        .status-message.error { background: #f8d7da; color: #721c24; }
+        .status-message.warning { background: #fff3cd; color: #856404; }
 
         @media (max-width: 768px) {
             .example-questions { grid-template-columns: 1fr; }
-            .status-info { display: none; }
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <!-- Debug Trigger -->
-        <div class="debug-trigger" onclick="showDebugPanel()" title="Click for debug info">🔧</div>
-
-        
-
-        <!-- Debug Panel -->
-        <div class="debug-panel" id="debugPanel">
-            <button class="close-debug" onclick="hideDebugPanel()">✕ CLOSE</button>
-            
-            <div class="debug-header">
-                <h2>🔧 ADMIN DEBUG SYSTEM</h2>
-                <p>Real-time system monitoring</p>
-            </div>
-
-            <div class="debug-section">
-                <h3>📊 Services Status</h3>
-                <div id="servicesStatus">
-                    <div>🔥 Firebase: <span id="firebaseStatus">Checking...</span></div>
-                    <div>🤖 Puter.js: <span id="puterStatus">Checking...</span></div>
-                    <div>📧 EmailJS: <span id="emailjsStatus">Checking...</span></div>
-                    <div>🆔 Device ID: <span id="deviceIdStatus">Not Generated</span></div>
-                    <div>👤 User Data: <span id="userDataStatus">Not Loaded</span></div>
-                </div>
-            </div>
-
-            <div class="debug-section">
-                <h3>📋 Live Log</h3>
-                <div class="debug-log" id="debugLog"></div>
-            </div>
-
-            <div class="debug-section">
-                <h3>❌ Errors</h3>
-                <div class="debug-log" id="errorLog">
-                    <div class="log-info">No errors detected</div>
-                </div>
-            </div>
-
-            <div class="debug-controls">
-                <h3>🎮 Debug Controls</h3>
-                <button class="debug-btn" onclick="testPuter()">🧪 Test Puter</button>
-                <button class="debug-btn" onclick="testFirebase()">🧪 Test Firebase</button>
-                <button class="debug-btn" onclick="skipAll()">⏭️ Skip All</button>
-                <button class="debug-btn" onclick="clearStorage()">🗑️ Clear Storage</button>
-                <button class="debug-btn danger" onclick="location.reload()">🔄 Reload</button>
-            </div>
+        <!-- Simple Loading Screen (auto-hides in 2 seconds) -->
+        <div class="loading-screen" id="loadingScreen">
+            <div class="spinner"></div>
+            <div class="loading-text">Setting up your AI assistant...</div>
         </div>
 
-        <!-- Chat Interface -->
+        <!-- Chat Header -->
         <div class="chat-header">
-            <div class="status-info" id="statusInfo">
-                <div>Status: Loading...</div>
-                <div>Violations: 0/10</div>
-            </div>
             <h1>🎓 NCERT Study Assistant</h1>
-            <p>Free AI-powered learning assistant</p>
+            <p>AI-powered learning companion for Indian students</p>
+            <button class="debug-btn" onclick="showDebugInfo()">Debug</button>
         </div>
 
+        <!-- Status Messages -->
         <div class="status-message" id="statusMessage"></div>
 
+        <!-- Chat Messages -->
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-screen">
-                <div class="welcome-content">
-                    <h2>Welcome to your AI Study Assistant!</h2>
-                    <p>Ask me anything about your studies - I can explain concepts, solve problems, and help you understand any topic!</p>
-                    
-                    <div class="example-questions">
-                        <div class="example-question" onclick="askQuestion('Explain photosynthesis in simple terms for class 8')">
-                            <strong>🌱 Photosynthesis</strong><br>
-                            <small>How do plants make their own food?</small>
-                        </div>
-                        <div class="example-question" onclick="askQuestion('What is the water cycle?')">
-                            <strong>💧 Water Cycle</strong><br>
-                            <small>How water moves in nature</small>
-                        </div>
-                        <div class="example-question" onclick="askQuestion('Explain Newton laws of motion with examples')">
-                            <strong>🚀 Physics Laws</strong><br>
-                            <small>Newton's laws made simple</small>
-                        </div>
-                        <div class="example-question" onclick="askQuestion('How does human digestion work?')">
-                            <strong>🫁 Human Body</strong><br>
-                            <small>Digestive system explained</small>
-                        </div>
+                <h2>Welcome to your AI Study Assistant!</h2>
+                <p>Ask me anything about your studies - I can explain concepts, solve problems, and help with homework!</p>
+                
+                <div class="example-questions">
+                    <div class="example-question" onclick="askQuestion('Explain photosynthesis in simple terms')">
+                        <strong>🌱 Photosynthesis</strong><br>
+                        <small>How do plants make food?</small>
+                    </div>
+                    <div class="example-question" onclick="askQuestion('What is the water cycle?')">
+                        <strong>💧 Water Cycle</strong><br>
+                        <small>Water movement in nature</small>
+                    </div>
+                    <div class="example-question" onclick="askQuestion('Explain Newton laws of motion')">
+                        <strong>🚀 Physics</strong><br>
+                        <small>Motion and forces</small>
+                    </div>
+                    <div class="example-question" onclick="askQuestion('How does human digestion work?')">
+                        <strong>🫁 Biology</strong><br>
+                        <small>Digestive system</small>
                     </div>
                 </div>
             </div>
 
+            <!-- Typing Indicator -->
             <div class="typing-indicator" id="typingIndicator">
                 <div class="typing-bubble">
                     🤖 AI is thinking
@@ -577,15 +383,15 @@
             </div>
         </div>
 
+        <!-- Chat Input -->
         <div class="chat-input">
             <div class="input-wrapper">
                 <textarea 
                     id="messageInput" 
                     class="chat-textarea" 
                     placeholder="Ask me anything about your studies..." 
-                    rows="1"
-                    disabled></textarea>
-                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                    rows="1"></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M2 21L23 12 2 3V10L17 12 2 14V21Z"/>
                     </svg>
@@ -612,29 +418,189 @@
             publicKey: "rpRk2Ug-KURSyDb5U"
         };
 
-        // Global state
-        let firebase_app, db, deviceId, currentUser = null;
-        let initStep = 0;
-        const totalSteps = 4;
+        // Global variables
+        let db, deviceId, currentUser = null;
 
-        // Debug system
-        const DEBUG = {
-            logs: [],
-            addLog: function(message, type = 'info') {
-                const timestamp = new Date().toLocaleTimeString();
-                const entry = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
-                this.logs.push(entry);
-                console.log(entry);
-                
-                const logEl = document.getElementById('debugLog');
-                if (logEl) {
-                    const div = document.createElement('div');
-                    div.className = `log-entry log-${type}`;
-                    div.textContent = entry;
-                    logEl.appendChild(div);
-                    logEl.scrollTop = logEl.scrollHeight;
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Starting NCERT Assistant...');
+            
+            // Auto-hide loading screen after 2 seconds regardless
+            setTimeout(() => {
+                hideLoadingScreen();
+                setupChat();
+                initializeServices();
+            }, 2000);
+        });
+
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 500);
+            console.log('✅ Loading screen hidden');
+        }
+
+        function setupChat() {
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            
+            // Enable input
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+            
+            // Auto-resize textarea
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            // Send on Enter
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
                 }
-            },
-            addError: function(message, error) {
-                const errorInfo = `${message}: ${error?.message || error}`;
-                this
+            });
+            
+            console.log('✅ Chat setup complete');
+            showStatus('🎉 AI Assistant is ready! Start asking questions!', 'success');
+        }
+
+        // Initialize services in background (non-blocking)
+        async function initializeServices() {
+            try {
+                // Initialize EmailJS
+                if (typeof emailjs !== 'undefined') {
+                    emailjs.init(emailConfig.publicKey);
+                    console.log('✅ EmailJS initialized');
+                }
+
+                // Initialize Firebase
+                if (typeof firebase !== 'undefined') {
+                    const app = firebase.initializeApp(firebaseConfig);
+                    db = firebase.firestore();
+                    await db.enableNetwork();
+                    console.log('✅ Firebase connected');
+                    
+                    // Setup user
+                    deviceId = generateDeviceId();
+                    await setupUser();
+                }
+
+                console.log('✅ All services initialized');
+            } catch (error) {
+                console.warn('⚠️ Some services failed to initialize:', error);
+                // Don't block the chat - it still works without these services
+            }
+        }
+
+        function generateDeviceId() {
+            const data = navigator.userAgent + screen.width + navigator.language;
+            let hash = 0;
+            for (let i = 0; i < data.length; i++) {
+                const char = data.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash).toString(16).substring(0, 16);
+        }
+
+        async function setupUser() {
+            try {
+                const userRef = db.collection('users').doc(deviceId);
+                const doc = await userRef.get();
+                
+                if (doc.exists) {
+                    currentUser = doc.data();
+                } else {
+                    currentUser = {
+                        deviceId: deviceId,
+                        violations: [],
+                        totalViolations: 0,
+                        createdAt: firebase.firestore.Timestamp.now()
+                    };
+                    await userRef.set(currentUser);
+                }
+                console.log('✅ User setup complete');
+            } catch (error) {
+                console.warn('⚠️ User setup failed:', error);
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            console.log('📤 Sending message:', message.substring(0, 50) + '...');
+            
+            // Hide welcome screen and add user message
+            document.querySelector('.welcome-screen').style.display = 'none';
+            addMessage('user', message);
+            input.value = '';
+            input.style.height = 'auto';
+
+            // Show typing and get AI response
+            showTyping();
+            
+            try {
+                const response = await getAIResponse(message);
+                hideTyping();
+                addMessage('assistant', response);
+            } catch (error) {
+                hideTyping();
+                console.error('❌ AI response failed:', error);
+                addMessage('assistant', '❌ Sorry, I encountered an error. Please try again in a moment.');
+            }
+        }
+
+        async function getAIResponse(message) {
+            try {
+                // Try Puter.js AI
+                if (typeof window.puter !== 'undefined') {
+                    console.log('🤖 Using Puter.js AI');
+                    const response = await puter.ai.chat(
+                        `You are a helpful NCERT study assistant for Indian students. Answer this question clearly and educationally: ${message}`
+                    );
+                    return response.message || response;
+                }
+            } catch (error) {
+                console.warn('⚠️ Puter.js failed, using fallback:', error);
+            }
+            
+            // Fallback response
+            return `Thank you for asking about "${message.substring(0, 50)}...". While I'm currently experiencing some technical difficulties with my AI capabilities, I recommend checking your NCERT textbook or asking your teacher for detailed information on this topic. I should be back to full functionality soon!`;
+        }
+
+        function askQuestion(question) {
+            document.getElementById('messageInput').value = question;
+            sendMessage();
+        }
+
+        function addMessage(sender, content) {
+            const container = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.textContent = content;
+            
+            messageDiv.appendChild(bubble);
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        }
+
+        function hideTyping() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function showStatus(message, type) {
+    
