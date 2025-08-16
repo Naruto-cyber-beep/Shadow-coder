@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NCERT Study Assistant</title>
     
-    <!-- Firebase SDK - Latest stable version -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     
-    <!-- Puter.js for AI -->
+    <!-- Puter.js -->
     <script src="https://js.puter.com/v2/"></script>
     
-    <!-- EmailJS for unban requests -->
+    <!-- EmailJS -->
     <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
     
     <style>
@@ -23,7 +23,6 @@
             --success: #2ecc71;
             --warning: #f39c12;
             --dark: #2c3e50;
-            --light: #ecf0f1;
             --white: #ffffff;
             --shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
@@ -79,7 +78,7 @@
         .spinner {
             width: 50px;
             height: 50px;
-            border: 5px solid var(--light);
+            border: 5px solid #f3f3f3;
             border-top: 5px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -102,39 +101,130 @@
             color: var(--secondary);
             font-size: 0.9rem;
             text-align: center;
-            max-width: 400px;
+            margin-bottom: 20px;
         }
 
-        .error-text {
-            color: var(--danger);
-            font-size: 1rem;
-            max-width: 500px;
-            text-align: center;
-            line-height: 1.6;
-            background: #ffe6e6;
+        /* Debug Panel */
+        .debug-trigger {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .debug-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            z-index: 1002;
+            overflow-y: auto;
             padding: 20px;
-            border-radius: 10px;
+        }
+
+        .debug-panel.show {
+            display: block;
+        }
+
+        .debug-header {
+            background: #1a1a1a;
+            color: #00ff41;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #00ff41;
+        }
+
+        .debug-section {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .debug-section h3 {
+            color: #58a6ff;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 5px;
+        }
+
+        .debug-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+
+        .log-success { color: #238636; }
+        .log-error { color: #f85149; }
+        .log-warning { color: #d29922; }
+        .log-info { color: #79c0ff; }
+
+        .debug-controls {
+            background: #21262d;
+            padding: 15px;
+            border-radius: 6px;
             margin-top: 20px;
         }
 
-        .retry-btn {
-            background: var(--primary);
+        .debug-btn {
+            background: #238636;
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            margin-top: 15px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-right: 10px;
+            margin-bottom: 10px;
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background 0.3s;
+            font-family: monospace;
         }
 
-        .retry-btn:hover {
-            background: var(--secondary);
+        .debug-btn:hover {
+            background: #2ea043;
         }
 
-        /* Header */
+        .debug-btn.danger {
+            background: #da3633;
+        }
+
+        .debug-btn.danger:hover {
+            background: #f85149;
+        }
+
+        .close-debug {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: #da3633;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Chat Interface */
         .chat-header {
             background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: var(--white);
@@ -153,150 +243,22 @@
             font-size: 0.9rem;
         }
 
-        .status-info {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.8rem;
-            opacity: 0.9;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-
-        .admin-btn {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: background 0.3s;
-        }
-
-        .admin-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* Chat Messages */
         .chat-messages {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
             background: #f8f9fa;
-            scroll-behavior: smooth;
         }
 
-        .message {
-            margin-bottom: 15px;
-            animation: messageSlide 0.3s ease;
-        }
-
-        @keyframes messageSlide {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message.user {
-            text-align: right;
-        }
-
-        .message.assistant {
-            text-align: left;
-        }
-
-        .message-bubble {
-            display: inline-block;
-            padding: 12px 18px;
-            border-radius: 18px;
-            max-width: 75%;
-            word-wrap: break-word;
-            line-height: 1.5;
-            position: relative;
-        }
-
-        .message.user .message-bubble {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: var(--white);
-        }
-
-        .message.assistant .message-bubble {
-            background: var(--white);
-            color: var(--dark);
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .message-time {
-            font-size: 0.7rem;
-            opacity: 0.6;
-            margin-top: 5px;
-        }
-
-        /* Typing Indicator */
-        .typing-indicator {
-            display: none;
-            text-align: left;
-            margin-bottom: 15px;
-        }
-
-        .typing-bubble {
-            display: inline-block;
-            padding: 12px 18px;
-            background: var(--white);
-            border: 1px solid #e0e0e0;
-            border-radius: 18px;
-            color: var(--primary);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .typing-dots {
-            display: inline-flex;
+        .welcome-screen {
+            flex: 1;
+            display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
         }
 
-        .typing-dots span {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--primary);
-            animation: typingDots 1.5s infinite;
-            opacity: 0.5;
-        }
-
-        .typing-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typingDots {
-            0%, 60%, 100% {
-                opacity: 0.5;
-                transform: scale(1);
-            }
-            30% {
-                opacity: 1;
-                transform: scale(1.2);
-            }
-        }
-
-        /* Input Area */
         .chat-input {
             padding: 20px;
             background: var(--white);
@@ -305,237 +267,44 @@
             gap: 10px;
         }
 
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-
         .chat-textarea {
-            width: 100%;
-            padding: 15px 60px 15px 20px;
+            flex: 1;
+            padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 25px;
+            border-radius: 8px;
             resize: none;
             font-size: 1rem;
-            line-height: 1.4;
-            max-height: 120px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            font-family: inherit;
-        }
-
-        .chat-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .chat-textarea:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            background: #f5f5f5;
         }
 
         .send-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: var(--white);
+            background: var(--primary);
+            color: white;
             border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            padding: 12px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
-        }
-
-        .send-btn:hover:not(:disabled) {
-            transform: translateY(-50%) scale(1.05);
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
         }
 
         .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: translateY(-50%) scale(1);
-        }
-
-        /* Welcome Screen */
-        .welcome-screen {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-            background: #f8f9fa;
-        }
-
-        .welcome-content h2 {
-            color: var(--primary);
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-
-        .welcome-content p {
-            color: #666;
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        .example-questions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin-top: 30px;
-            max-width: 800px;
-        }
-
-        .example-question {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 12px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .example-question:hover {
-            border-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
-        }
-
-        .example-question strong {
-            color: var(--primary);
-            font-size: 1.1rem;
-        }
-
-        .example-question small {
-            color: #666;
-            display: block;
-            margin-top: 5px;
-            line-height: 1.4;
-        }
-
-        /* Ban Screen */
-        .ban-screen {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(231, 76, 60, 0.95);
-            color: var(--white);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-        }
-
-        .ban-screen.show {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .ban-content h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .ban-content p {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .violation-info {
-            background: rgba(255,255,255,0.15);
-            padding: 20px;
-            border-radius: 12px;
-            margin: 25px 0;
-            max-width: 500px;
-        }
-
-        .unban-section {
-            background: rgba(255,255,255,0.15);
-            padding: 30px;
-            border-radius: 15px;
-            margin-top: 30px;
-            max-width: 500px;
-        }
-
-        .unban-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .unban-input {
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-family: inherit;
-        }
-
-        .unban-btn {
-            background: var(--success);
-            color: var(--white);
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .unban-btn:hover {
-            background: #27ae60;
-        }
-
-        .unban-btn:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
         }
 
-        .admin-code-section {
-            margin-top: 25px;
-            padding-top: 25px;
-            border-top: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .code-input {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* Status Messages */
         .status-message {
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 10px 20px;
             margin: 10px 20px;
+            border-radius: 8px;
             text-align: center;
-            font-size: 0.95rem;
-            font-weight: 500;
             display: none;
-            position: relative;
-            z-index: 10;
+        }
+
+        .status-message.show {
+            display: block;
         }
 
         .status-message.success {
@@ -555,145 +324,295 @@
             color: #856404;
             border: 1px solid #ffeaa7;
         }
-
-        .status-message.show {
-            display: block;
-            animation: messageSlide 0.3s ease;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .chat-container {
-                height: 100vh;
-                border-radius: 0;
-                max-width: 100%;
-            }
-
-            .example-questions {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .ban-screen {
-                padding: 20px;
-            }
-
-            .ban-content h2 {
-                font-size: 2rem;
-            }
-
-            .message-bubble {
-                max-width: 85%;
-            }
-
-            .status-info {
-                display: none;
-            }
-
-            .welcome-content h2 {
-                font-size: 1.8rem;
-            }
-
-            .welcome-content p {
-                font-size: 1rem;
-            }
-
-            .code-input {
-                flex-direction: column;
-            }
-        }
-
-        /* Scrollbar Styling */
-        .chat-messages::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .chat-messages::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary);
-        }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <!-- Enhanced Loading Screen -->
+        <!-- Hidden Debug Trigger (click to access) -->
+        <button class="debug-trigger" onclick="showDebugPanel()" title="Debug Panel"></button>
+
+        <!-- Loading Screen -->
         <div class="loading-screen" id="loadingScreen">
-            <div class="spinner" id="spinner"></div>
+            <div class="spinner"></div>
             <div class="loading-text" id="loadingText">Initializing System...</div>
-            <div class="loading-subtext" id="loadingSubtext">Setting up Firebase, Puter.js, and AI capabilities</div>
-            <div class="error-text" id="errorText" style="display: none;"></div>
-            <button class="retry-btn" id="retryBtn" onclick="initializeApp()" style="display: none;">🔄 Retry Initialization</button>
+            <div class="loading-subtext" id="loadingSubtext">Please wait while we set up the services</div>
         </div>
 
-        <!-- Main Chat Header -->
-        <div class="chat-header">
-            <div class="status-info" id="statusInfo">
-                <div>ID: Loading...</div>
-                <div>Violations: Loading...</div>
+        <!-- Debug Panel (Hidden by default) -->
+        <div class="debug-panel" id="debugPanel">
+            <button class="close-debug" onclick="hideDebugPanel()">✕ CLOSE</button>
+            
+            <div class="debug-header">
+                <h2>🔧 ADMIN DEBUG SYSTEM</h2>
+                <p>Real-time initialization monitoring and system diagnostics</p>
             </div>
-            <h1>🎓 NCERT Study Assistant</h1>
-            <p>Powered by Puter.js AI • Ask me anything about your studies!</p>
-            <button class="admin-btn" onclick="showAdminPanel()">⚙️ Admin</button>
+
+            <div class="debug-section">
+                <h3>📊 System Status</h3>
+                <div id="systemStatus">
+                    <div>🔄 Initialization: <span id="initStatus">Not Started</span></div>
+                    <div>🔥 Firebase: <span id="firebaseStatus">Not Connected</span></div>
+                    <div>🤖 Puter.js: <span id="puterStatus">Not Loaded</span></div>
+                    <div>📧 EmailJS: <span id="emailjsStatus">Not Initialized</span></div>
+                    <div>🆔 Device ID: <span id="deviceIdStatus">Not Generated</span></div>
+                    <div>👤 User Data: <span id="userDataStatus">Not Loaded</span></div>
+                </div>
+            </div>
+
+            <div class="debug-section">
+                <h3>📋 Initialization Log</h3>
+                <div class="debug-log" id="debugLog">
+                    <div class="log-entry log-info">[INFO] Debug panel initialized</div>
+                </div>
+            </div>
+
+            <div class="debug-section">
+                <h3>🌐 Network & Environment</h3>
+                <div id="networkInfo">
+                    <div>📡 Online: <span id="onlineStatus">Checking...</span></div>
+                    <div>🌐 User Agent: <span id="userAgent">Loading...</span></div>
+                    <div>📍 Location: <span id="locationInfo">Detecting...</span></div>
+                    <div>🔒 HTTPS: <span id="httpsStatus">Checking...</span></div>
+                </div>
+            </div>
+
+            <div class="debug-section">
+                <h3>❌ Error Details</h3>
+                <div class="debug-log" id="errorLog">
+                    <div class="log-info">No errors yet...</div>
+                </div>
+            </div>
+
+            <div class="debug-controls">
+                <h3>🎮 Debug Controls</h3>
+                <button class="debug-btn" onclick="retryInitialization()">🔄 Retry Init</button>
+                <button class="debug-btn" onclick="skipFirebase()">⏭️ Skip Firebase</button>
+                <button class="debug-btn" onclick="skipPuter()">⏭️ Skip Puter</button>
+                <button class="debug-btn" onclick="forceEnable()">⚡ Force Enable</button>
+                <button class="debug-btn" onclick="clearStorage()">🗑️ Clear Storage</button>
+                <button class="debug-btn danger" onclick="simulateError()">💥 Test Error</button>
+            </div>
         </div>
 
-        <!-- Status Messages -->
+        <!-- Main Chat Interface -->
+        <div class="chat-header">
+            <h1>🎓 NCERT Study Assistant</h1>
+            <p>AI-powered educational support system</p>
+        </div>
+
         <div class="status-message" id="statusMessage"></div>
 
-        <!-- Chat Messages Area -->
         <div class="chat-messages" id="chatMessages">
-            <div class="welcome-screen" id="welcomeScreen">
-                <div class="welcome-content">
-                    <h2>Welcome to your AI Study Assistant!</h2>
-                    <p>I can help you understand any topic, solve problems, and explain concepts in simple terms suitable for your grade level.</p>
-                    
-                    <div class="example-questions">
-                        <div class="example-question" onclick="askQuestion('Explain photosynthesis process in simple terms for class 8 students')">
-                            <strong>🌱 Photosynthesis Process</strong><br>
-                            <small>How do plants make their own food using sunlight?</small>
-                        </div>
-                        <div class="example-question" onclick="askQuestion('What is the water cycle and explain its steps with examples')">
-                            <strong>💧 Water Cycle</strong><br>
-                            <small>Learn about evaporation, condensation, and precipitation</small>
-                        </div>
-                        <div class="example-question" onclick="askQuestion('Explain Newton\'s three laws of motion with real life examples')">
-                            <strong>🚀 Physics - Motion Laws</strong><br>
-                            <small>Newton's laws made simple with everyday examples</small>
-                        </div>
-                        <div class="example-question" onclick="askQuestion('How does human digestive system work step by step')">
-                            <strong>🫁 Human Biology</strong><br>
-                            <small>Journey of food through our digestive system</small>
-                        </div>
-                        <div class="example-question" onclick="askQuestion('What are acids and bases? Give examples we use daily')">
-                            <strong>🧪 Chemistry Basics</strong><br>
-                            <small>Understanding acids and bases in everyday life</small>
-                        </div>
-                        <div class="example-question" onclick="askQuestion('Explain the structure of an atom in simple words')">
-                            <strong>⚛️ Atomic Structure</strong><br>
-                            <small>Protons, neutrons, and electrons made easy</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Typing Indicator -->
-            <div class="typing-indicator" id="typingIndicator">
-                <div class="typing-bubble">
-                    <span>🤖 Assistant is thinking</span>
-                    <div class="typing-dots">
-                        <span></span><span></span><span></span>
-                    </div>
+            <div class="welcome-screen">
+                <div>
+                    <h2>Welcome to your Study Assistant!</h2>
+                    <p>Ask me anything about your studies and I'll help explain concepts clearly.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Chat Input Area -->
-        <d
+        <div class="chat-input">
+            <textarea id="messageInput" class="chat-textarea" placeholder="Type your question here..." disabled></textarea>
+            <button id="sendBtn" class="send-btn" disabled>Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Debug System
+        const DEBUG = {
+            log: [],
+            errors: [],
+            status: {
+                init: false,
+                firebase: false,
+                puter: false,
+                emailjs: false,
+                deviceId: false,
+                userData: false
+            }
+        };
+
+        // Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
+            authDomain: "learn-code-with-anay.firebaseapp.com",
+            projectId: "learn-code-with-anay",
+            storageBucket: "learn-code-with-anay.firebasestorage.app",
+            messagingSenderId: "197075143711",
+            appId: "1:197075143711:web:64fc5d83528f907d38d92a",
+            measurementId: "G-F01VRZK4ZL"
+        };
+
+        const emailConfig = {
+            serviceID: "service_fnfsdzb",
+            templateID: "template_t87ngjb",
+            publicKey: "rpRk2Ug-KURSyDb5U"
+        };
+
+        const SYSTEM_CONFIG = {
+            MAX_VIOLATIONS: 10,
+            BAN_DURATION: 3 * 24 * 60 * 60 * 1000,
+            ADMIN_CODE: "290965"
+        };
+
+        // Global variables
+        let firebase_app, db, puter, deviceId, currentUser = null;
+        let isInitialized = false;
+
+        // Debug Functions
+        function debugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = { timestamp, message, type };
+            DEBUG.log.push(entry);
+            
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            
+            // Update debug panel if open
+            const debugLogEl = document.getElementById('debugLog');
+            if (debugLogEl) {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry log-${type}`;
+                logEntry.textContent = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
+                debugLogEl.appendChild(logEntry);
+                debugLogEl.scrollTop = debugLogEl.scrollHeight;
+            }
+        }
+
+        function debugError(message, error) {
+            const errorInfo = {
+                message,
+                error: error?.message || error,
+                stack: error?.stack,
+                timestamp: new Date().toISOString()
+            };
+            DEBUG.errors.push(errorInfo);
+            
+            debugLog(`ERROR: ${message} - ${error?.message || error}`, 'error');
+            
+            // Update error log
+            const errorLogEl = document.getElementById('errorLog');
+            if (errorLogEl) {
+                const errorEntry = document.createElement('div');
+                errorEntry.className = 'log-entry log-error';
+                errorEntry.innerHTML = `
+                    <strong>[${errorInfo.timestamp}] ${message}</strong><br>
+                    Error: ${errorInfo.error}<br>
+                    ${errorInfo.stack ? `Stack: ${errorInfo.stack.substring(0, 200)}...` : ''}
+                `;
+                errorLogEl.appendChild(errorEntry);
+                errorLogEl.scrollTop = errorLogEl.scrollHeight;
+            }
+        }
+
+        function updateDebugStatus(service, status, details = '') {
+            DEBUG.status[service] = status;
+            
+            const statusEl = document.getElementById(`${service}Status`);
+            if (statusEl) {
+                statusEl.textContent = status ? `✅ ${details || 'Connected'}` : `❌ ${details || 'Failed'}`;
+                statusEl.style.color = status ? '#238636' : '#f85149';
+            }
+        }
+
+        function showDebugPanel() {
+            document.getElementById('debugPanel').classList.add('show');
+            updateNetworkInfo();
+            debugLog('Debug panel opened', 'info');
+        }
+
+        function hideDebugPanel() {
+            document.getElementById('debugPanel').classList.remove('show');
+        }
+
+        function updateNetworkInfo() {
+            document.getElementById('onlineStatus').textContent = navigator.onLine ? '✅ Online' : '❌ Offline';
+            document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 100) + '...';
+            document.getElementById('httpsStatus').textContent = location.protocol === 'https:' ? '✅ Secure' : '⚠️ HTTP';
+            
+            // Get timezone
+            try {
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                document.getElementById('locationInfo').textContent = timezone;
+            } catch (e) {
+                document.getElementById('locationInfo').textContent = 'Unknown';
+            }
+        }
+
+        // Debug Controls
+        function retryInitialization() {
+            debugLog('Manual retry triggered', 'warning');
+            location.reload();
+        }
+
+        function skipFirebase() {
+            debugLog('Skipping Firebase initialization', 'warning');
+            updateDebugStatus('firebase', true, 'Skipped');
+            continueInitialization();
+        }
+
+        function skipPuter() {
+            debugLog('Skipping Puter.js initialization', 'warning');
+            updateDebugStatus('puter', true, 'Skipped');
+            continueInitialization();
+        }
+
+        function forceEnable() {
+            debugLog('Force enabling chat interface', 'warning');
+            document.getElementById('loadingScreen').classList.add('hidden');
+            enableChat();
+            showStatus('⚡ Chat force-enabled by admin', 'warning');
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            debugLog('All storage cleared', 'warning');
+            showStatus('🗑️ Storage cleared', 'success');
+        }
+
+        function simulateError() {
+            debugError('Simulated error for testing', new Error('Test error from debug panel'));
+        }
+
+        function continueInitialization() {
+            // Continue with remaining steps
+            setTimeout(() => {
+                if (!isInitialized) {
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                    enableChat();
+                    showStatus('🎉 System ready! (Some features may be limited)', 'success');
+                }
+            }, 1000);
+        }
+
+        // Main initialization
+        document.addEventListener('DOMContentLoaded', async () => {
+            debugLog('DOM loaded, starting initialization', 'info');
+            updateDebugStatus('init', false, 'Starting');
+            
+            try {
+                await initializeApp();
+            } catch (error) {
+                debugError('Main initialization failed', error);
+                showInitializationError(error.message);
+            }
+        });
+
+        async function initializeApp() {
+            try {
+                debugLog('Starting EmailJS initialization', 'info');
+                updateLoadingText('Initializing EmailJS...');
+                await initializeEmailJS();
+                updateDebugStatus('emailjs', true);
+                
+                debugLog('Starting Firebase initialization', 'info');
+                updateLoadingText('Connecting to Firebase...');
+                await initializeFirebase();
+                updateDebugStatus('firebase', true);
+                
+                debugLog('Starting Puter.js initialization', 'info');
+                updateLoadingText('Loading Puter.js AI...');
+                await initializePuter();
+                updateDebugStatus('puter', true);
+                
+                debugLog('Generating device fingerpr
