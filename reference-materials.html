@@ -52,50 +52,6 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative;
-        }
-
-        /* Simple Loading Screen that auto-hides */
-        .loading-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--white);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-            opacity: 1;
-            transition: opacity 0.5s ease;
-        }
-
-        .loading-screen.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            color: var(--primary);
-            font-size: 1.1rem;
-            margin-bottom: 10px;
         }
 
         /* Chat Header */
@@ -117,18 +73,49 @@
             font-size: 0.9rem;
         }
 
-        .debug-btn {
+        .status-info {
             position: absolute;
-            top: 15px;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .admin-btn {
+            position: absolute;
             right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 0.8rem;
         }
+
+        .admin-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Status Messages */
+        .status-message {
+            padding: 12px 20px;
+            margin: 10px 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .status-message.show { display: block; }
+        .status-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status-message.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
 
         /* Chat Messages */
         .chat-messages {
@@ -215,6 +202,12 @@
             color: var(--dark);
             border: 1px solid #e0e0e0;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-top: 5px;
         }
 
         /* Typing Indicator */
@@ -310,37 +303,104 @@
             transform: translateY(-50%) scale(1.1);
         }
 
-        .status-message {
-            padding: 12px 20px;
-            margin: 10px 20px;
-            border-radius: 8px;
-            text-align: center;
+        /* Ban Screen */
+        .ban-screen {
             display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(231, 76, 60, 0.95);
+            color: var(--white);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
         }
 
-        .status-message.show { display: block; }
-        .status-message.success { background: #d4edda; color: #155724; }
-        .status-message.error { background: #f8d7da; color: #721c24; }
-        .status-message.warning { background: #fff3cd; color: #856404; }
+        .ban-screen.show {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ban-content h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .ban-content p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .unban-section {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            max-width: 500px;
+        }
+
+        .unban-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .unban-input {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .unban-btn {
+            background: var(--success);
+            color: var(--white);
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .unban-btn:hover {
+            background: #27ae60;
+        }
+
+        .admin-code-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .code-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
 
         @media (max-width: 768px) {
             .example-questions { grid-template-columns: 1fr; }
+            .status-info { display: none; }
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <!-- Simple Loading Screen (auto-hides in 2 seconds) -->
-        <div class="loading-screen" id="loadingScreen">
-            <div class="spinner"></div>
-            <div class="loading-text">Setting up your AI assistant...</div>
-        </div>
-
         <!-- Chat Header -->
         <div class="chat-header">
+            <div class="status-info" id="statusInfo">
+                <div>Status: Ready</div>
+                <div>Violations: 0/10</div>
+            </div>
             <h1>🎓 NCERT Study Assistant</h1>
             <p>AI-powered learning companion for Indian students</p>
-            <button class="debug-btn" onclick="showDebugInfo()">Debug</button>
+            <button class="admin-btn" onclick="showAdminPanel()">⚙️ Admin</button>
         </div>
 
         <!-- Status Messages -->
@@ -398,6 +458,31 @@
                 </button>
             </div>
         </div>
+
+        <!-- Ban Screen -->
+        <div class="ban-screen" id="banScreen">
+            <div class="ban-content">
+                <h2>🚫 Account Temporarily Suspended</h2>
+                <p>Your account has been suspended for violating community guidelines.</p>
+                
+                <div class="unban-section">
+                    <h3>Request Early Unban</h3>
+                    <form class="unban-form" onsubmit="sendUnbanRequest(event)">
+                        <input type="email" class="unban-input" id="unbanEmail" placeholder="Your email" required>
+                        <textarea class="unban-input" id="unbanReason" placeholder="Reason for unban..." rows="3" required></textarea>
+                        <button type="submit" class="unban-btn">Send Request</button>
+                    </form>
+                    
+                    <div class="admin-code-section">
+                        <p><small>Admin Override:</small></p>
+                        <div class="code-input">
+                            <input type="password" class="unban-input" id="adminCode" placeholder="Admin Code" style="width: 150px;">
+                            <button type="button" class="unban-btn" onclick="checkAdminCode()">Verify</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -418,37 +503,32 @@
             publicKey: "rpRk2Ug-KURSyDb5U"
         };
 
+        const SYSTEM_CONFIG = {
+            MAX_VIOLATIONS: 10,
+            BAN_DURATION: 3 * 24 * 60 * 60 * 1000,
+            ADMIN_CODE: "290965"
+        };
+
+        // Profanity filter
+        const BANNED_WORDS = [
+            'stupid', 'idiot', 'fool', 'dumb', 'moron', 'loser', 'hate',
+            'kill', 'die', 'death', 'murder', 'violence', 'fight', 'attack',
+            'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'bastard'
+        ];
+
         // Global variables
         let db, deviceId, currentUser = null;
 
-        // Initialize everything when page loads
+        // Initialize immediately when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Starting NCERT Assistant...');
-            
-            // Auto-hide loading screen after 2 seconds regardless
-            setTimeout(() => {
-                hideLoadingScreen();
-                setupChat();
-                initializeServices();
-            }, 2000);
+            console.log('🚀 NCERT Assistant started');
+            setupChat();
+            initializeServices();
+            showStatus('🎉 Welcome! Your AI assistant is ready to help!', 'success');
         });
-
-        function hideLoadingScreen() {
-            const loadingScreen = document.getElementById('loadingScreen');
-            loadingScreen.classList.add('fade-out');
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 500);
-            console.log('✅ Loading screen hidden');
-        }
 
         function setupChat() {
             const messageInput = document.getElementById('messageInput');
-            const sendBtn = document.getElementById('sendBtn');
-            
-            // Enable input
-            messageInput.disabled = false;
-            sendBtn.disabled = false;
             
             // Auto-resize textarea
             messageInput.addEventListener('input', function() {
@@ -464,40 +544,35 @@
                 }
             });
             
-            console.log('✅ Chat setup complete');
-            showStatus('🎉 AI Assistant is ready! Start asking questions!', 'success');
+            console.log('✅ Chat ready');
         }
 
-        // Initialize services in background (non-blocking)
+        // Initialize services in background
         async function initializeServices() {
             try {
                 // Initialize EmailJS
                 if (typeof emailjs !== 'undefined') {
                     emailjs.init(emailConfig.publicKey);
-                    console.log('✅ EmailJS initialized');
+                    console.log('✅ EmailJS ready');
                 }
 
                 // Initialize Firebase
                 if (typeof firebase !== 'undefined') {
                     const app = firebase.initializeApp(firebaseConfig);
                     db = firebase.firestore();
-                    await db.enableNetwork();
-                    console.log('✅ Firebase connected');
+                    console.log('✅ Firebase ready');
                     
                     // Setup user
                     deviceId = generateDeviceId();
                     await setupUser();
                 }
-
-                console.log('✅ All services initialized');
             } catch (error) {
-                console.warn('⚠️ Some services failed to initialize:', error);
-                // Don't block the chat - it still works without these services
+                console.warn('⚠️ Some services unavailable:', error);
             }
         }
 
         function generateDeviceId() {
-            const data = navigator.userAgent + screen.width + navigator.language;
+            const data = navigator.userAgent + screen.width + navigator.language + Date.now();
             let hash = 0;
             for (let i = 0; i < data.length; i++) {
                 const char = data.charCodeAt(i);
@@ -519,13 +594,35 @@
                         deviceId: deviceId,
                         violations: [],
                         totalViolations: 0,
+                        banExpiry: null,
                         createdAt: firebase.firestore.Timestamp.now()
                     };
                     await userRef.set(currentUser);
                 }
-                console.log('✅ User setup complete');
+                
+                updateStatusInfo();
+                await checkBanStatus();
+                console.log('✅ User ready');
             } catch (error) {
                 console.warn('⚠️ User setup failed:', error);
+            }
+        }
+
+        function updateStatusInfo() {
+            document.getElementById('statusInfo').innerHTML = `
+                <div>Status: Ready</div>
+                <div>Violations: ${currentUser?.totalViolations || 0}/${SYSTEM_CONFIG.MAX_VIOLATIONS}</div>
+            `;
+        }
+
+        async function checkBanStatus() {
+            if (!currentUser || !currentUser.banExpiry) return;
+            
+            const now = new Date();
+            const banExpiry = currentUser.banExpiry.toDate();
+            
+            if (now < banExpiry) {
+                showBanScreen();
             }
         }
 
@@ -534,73 +631,4 @@
             const message = input.value.trim();
             if (!message) return;
 
-            console.log('📤 Sending message:', message.substring(0, 50) + '...');
-            
-            // Hide welcome screen and add user message
-            document.querySelector('.welcome-screen').style.display = 'none';
-            addMessage('user', message);
-            input.value = '';
-            input.style.height = 'auto';
-
-            // Show typing and get AI response
-            showTyping();
-            
-            try {
-                const response = await getAIResponse(message);
-                hideTyping();
-                addMessage('assistant', response);
-            } catch (error) {
-                hideTyping();
-                console.error('❌ AI response failed:', error);
-                addMessage('assistant', '❌ Sorry, I encountered an error. Please try again in a moment.');
-            }
-        }
-
-        async function getAIResponse(message) {
-            try {
-                // Try Puter.js AI
-                if (typeof window.puter !== 'undefined') {
-                    console.log('🤖 Using Puter.js AI');
-                    const response = await puter.ai.chat(
-                        `You are a helpful NCERT study assistant for Indian students. Answer this question clearly and educationally: ${message}`
-                    );
-                    return response.message || response;
-                }
-            } catch (error) {
-                console.warn('⚠️ Puter.js failed, using fallback:', error);
-            }
-            
-            // Fallback response
-            return `Thank you for asking about "${message.substring(0, 50)}...". While I'm currently experiencing some technical difficulties with my AI capabilities, I recommend checking your NCERT textbook or asking your teacher for detailed information on this topic. I should be back to full functionality soon!`;
-        }
-
-        function askQuestion(question) {
-            document.getElementById('messageInput').value = question;
-            sendMessage();
-        }
-
-        function addMessage(sender, content) {
-            const container = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = 'message-bubble';
-            bubble.textContent = content;
-            
-            messageDiv.appendChild(bubble);
-            container.appendChild(messageDiv);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function showTyping() {
-            document.getElementById('typingIndicator').style.display = 'block';
-            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
-        }
-
-        function hideTyping() {
-            document.getElementById('typingIndicator').style.display = 'none';
-        }
-
-        function showStatus(message, type) {
-    
+            // C
