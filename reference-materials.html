@@ -9,7 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     
-    <!-- Puter.js -->
+    <!-- Puter.js - No initialization needed! -->
     <script src="https://js.puter.com/v2/"></script>
     
     <!-- EmailJS -->
@@ -97,10 +97,9 @@
             font-weight: 600;
         }
 
-        .loading-subtext {
+        .loading-progress {
             color: var(--secondary);
             font-size: 0.9rem;
-            text-align: center;
             margin-bottom: 20px;
         }
 
@@ -109,12 +108,23 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 20px;
-            height: 20px;
-            background: transparent;
-            border: none;
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
             cursor: pointer;
             z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+        }
+
+        .debug-trigger:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
         }
 
         .debug-panel {
@@ -124,7 +134,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             color: #00ff00;
             font-family: 'Courier New', monospace;
             z-index: 1002;
@@ -243,6 +253,18 @@
             font-size: 0.9rem;
         }
 
+        .status-info {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
         .chat-messages {
             flex: 1;
             padding: 20px;
@@ -259,179 +281,325 @@
             padding: 40px;
         }
 
+        .welcome-content h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .welcome-content p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .example-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .example-question {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .example-question:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
         .chat-input {
             padding: 20px;
             background: var(--white);
             border-top: 1px solid #e0e0e0;
             display: flex;
-            gap: 10px;
+            gap: 15px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
         }
 
         .chat-textarea {
-            flex: 1;
-            padding: 12px;
+            width: 100%;
+            padding: 15px 60px 15px 20px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 25px;
             resize: none;
             font-size: 1rem;
+            line-height: 1.4;
+            max-height: 120px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+        }
+
+        .chat-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .chat-textarea:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            background: #f5f5f5;
         }
 
         .send-btn {
-            background: var(--primary);
-            color: white;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--white);
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-50%) scale(1.05);
         }
 
         .send-btn:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
         }
 
+        .message {
+            margin-bottom: 15px;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.assistant {
+            text-align: left;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 75%;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--white);
+        }
+
+        .message.assistant .message-bubble {
+            background: var(--white);
+            color: var(--dark);
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .typing-indicator {
+            display: none;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .typing-bubble {
+            display: inline-block;
+            padding: 12px 18px;
+            background: var(--white);
+            border: 1px solid #e0e0e0;
+            border-radius: 18px;
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: typingDots 1.5s infinite;
+            opacity: 0.5;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingDots {
+            0%, 60%, 100% { opacity: 0.5; transform: scale(1); }
+            30% { opacity: 1; transform: scale(1.2); }
+        }
+
         .status-message {
-            padding: 10px 20px;
+            padding: 12px 20px;
             margin: 10px 20px;
             border-radius: 8px;
             text-align: center;
             display: none;
         }
 
-        .status-message.show {
-            display: block;
-        }
+        .status-message.show { display: block; }
+        .status-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status-message.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
 
-        .status-message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .status-message.warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
+        @media (max-width: 768px) {
+            .example-questions { grid-template-columns: 1fr; }
+            .status-info { display: none; }
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <!-- Hidden Debug Trigger (click to access) -->
-        <button class="debug-trigger" onclick="showDebugPanel()" title="Debug Panel"></button>
+        <!-- Debug Trigger -->
+        <div class="debug-trigger" onclick="showDebugPanel()" title="Click for debug info">🔧</div>
 
         <!-- Loading Screen -->
         <div class="loading-screen" id="loadingScreen">
             <div class="spinner"></div>
-            <div class="loading-text" id="loadingText">Initializing System...</div>
-            <div class="loading-subtext" id="loadingSubtext">Please wait while we set up the services</div>
+            <div class="loading-text" id="loadingText">Initializing...</div>
+            <div class="loading-progress" id="loadingProgress">Starting system check...</div>
         </div>
 
-        <!-- Debug Panel (Hidden by default) -->
+        <!-- Debug Panel -->
         <div class="debug-panel" id="debugPanel">
             <button class="close-debug" onclick="hideDebugPanel()">✕ CLOSE</button>
             
             <div class="debug-header">
                 <h2>🔧 ADMIN DEBUG SYSTEM</h2>
-                <p>Real-time initialization monitoring and system diagnostics</p>
+                <p>Real-time system monitoring</p>
             </div>
 
             <div class="debug-section">
-                <h3>📊 System Status</h3>
-                <div id="systemStatus">
-                    <div>🔄 Initialization: <span id="initStatus">Not Started</span></div>
-                    <div>🔥 Firebase: <span id="firebaseStatus">Not Connected</span></div>
-                    <div>🤖 Puter.js: <span id="puterStatus">Not Loaded</span></div>
-                    <div>📧 EmailJS: <span id="emailjsStatus">Not Initialized</span></div>
+                <h3>📊 Services Status</h3>
+                <div id="servicesStatus">
+                    <div>🔥 Firebase: <span id="firebaseStatus">Checking...</span></div>
+                    <div>🤖 Puter.js: <span id="puterStatus">Checking...</span></div>
+                    <div>📧 EmailJS: <span id="emailjsStatus">Checking...</span></div>
                     <div>🆔 Device ID: <span id="deviceIdStatus">Not Generated</span></div>
                     <div>👤 User Data: <span id="userDataStatus">Not Loaded</span></div>
                 </div>
             </div>
 
             <div class="debug-section">
-                <h3>📋 Initialization Log</h3>
-                <div class="debug-log" id="debugLog">
-                    <div class="log-entry log-info">[INFO] Debug panel initialized</div>
-                </div>
+                <h3>📋 Live Log</h3>
+                <div class="debug-log" id="debugLog"></div>
             </div>
 
             <div class="debug-section">
-                <h3>🌐 Network & Environment</h3>
-                <div id="networkInfo">
-                    <div>📡 Online: <span id="onlineStatus">Checking...</span></div>
-                    <div>🌐 User Agent: <span id="userAgent">Loading...</span></div>
-                    <div>📍 Location: <span id="locationInfo">Detecting...</span></div>
-                    <div>🔒 HTTPS: <span id="httpsStatus">Checking...</span></div>
-                </div>
-            </div>
-
-            <div class="debug-section">
-                <h3>❌ Error Details</h3>
+                <h3>❌ Errors</h3>
                 <div class="debug-log" id="errorLog">
-                    <div class="log-info">No errors yet...</div>
+                    <div class="log-info">No errors detected</div>
                 </div>
             </div>
 
             <div class="debug-controls">
                 <h3>🎮 Debug Controls</h3>
-                <button class="debug-btn" onclick="retryInitialization()">🔄 Retry Init</button>
-                <button class="debug-btn" onclick="skipFirebase()">⏭️ Skip Firebase</button>
-                <button class="debug-btn" onclick="skipPuter()">⏭️ Skip Puter</button>
-                <button class="debug-btn" onclick="forceEnable()">⚡ Force Enable</button>
+                <button class="debug-btn" onclick="testPuter()">🧪 Test Puter</button>
+                <button class="debug-btn" onclick="testFirebase()">🧪 Test Firebase</button>
+                <button class="debug-btn" onclick="skipAll()">⏭️ Skip All</button>
                 <button class="debug-btn" onclick="clearStorage()">🗑️ Clear Storage</button>
-                <button class="debug-btn danger" onclick="simulateError()">💥 Test Error</button>
+                <button class="debug-btn danger" onclick="location.reload()">🔄 Reload</button>
             </div>
         </div>
 
-        <!-- Main Chat Interface -->
+        <!-- Chat Interface -->
         <div class="chat-header">
+            <div class="status-info" id="statusInfo">
+                <div>Status: Loading...</div>
+                <div>Violations: 0/10</div>
+            </div>
             <h1>🎓 NCERT Study Assistant</h1>
-            <p>AI-powered educational support system</p>
+            <p>Free AI-powered learning assistant</p>
         </div>
 
         <div class="status-message" id="statusMessage"></div>
 
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-screen">
-                <div>
-                    <h2>Welcome to your Study Assistant!</h2>
-                    <p>Ask me anything about your studies and I'll help explain concepts clearly.</p>
+                <div class="welcome-content">
+                    <h2>Welcome to your AI Study Assistant!</h2>
+                    <p>Ask me anything about your studies - I can explain concepts, solve problems, and help you understand any topic!</p>
+                    
+                    <div class="example-questions">
+                        <div class="example-question" onclick="askQuestion('Explain photosynthesis in simple terms for class 8')">
+                            <strong>🌱 Photosynthesis</strong><br>
+                            <small>How do plants make their own food?</small>
+                        </div>
+                        <div class="example-question" onclick="askQuestion('What is the water cycle?')">
+                            <strong>💧 Water Cycle</strong><br>
+                            <small>How water moves in nature</small>
+                        </div>
+                        <div class="example-question" onclick="askQuestion('Explain Newton laws of motion with examples')">
+                            <strong>🚀 Physics Laws</strong><br>
+                            <small>Newton's laws made simple</small>
+                        </div>
+                        <div class="example-question" onclick="askQuestion('How does human digestion work?')">
+                            <strong>🫁 Human Body</strong><br>
+                            <small>Digestive system explained</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-bubble">
+                    🤖 AI is thinking
+                    <div class="typing-dots">
+                        <span></span><span></span><span></span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="chat-input">
-            <textarea id="messageInput" class="chat-textarea" placeholder="Type your question here..." disabled></textarea>
-            <button id="sendBtn" class="send-btn" disabled>Send</button>
+            <div class="input-wrapper">
+                <textarea 
+                    id="messageInput" 
+                    class="chat-textarea" 
+                    placeholder="Ask me anything about your studies..." 
+                    rows="1"
+                    disabled></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2 21L23 12 2 3V10L17 12 2 14V21Z"/>
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Debug System
-        const DEBUG = {
-            log: [],
-            errors: [],
-            status: {
-                init: false,
-                firebase: false,
-                puter: false,
-                emailjs: false,
-                deviceId: false,
-                userData: false
-            }
-        };
-
         // Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
@@ -449,170 +617,29 @@
             publicKey: "rpRk2Ug-KURSyDb5U"
         };
 
-        const SYSTEM_CONFIG = {
-            MAX_VIOLATIONS: 10,
-            BAN_DURATION: 3 * 24 * 60 * 60 * 1000,
-            ADMIN_CODE: "290965"
-        };
+        // Global state
+        let firebase_app, db, deviceId, currentUser = null;
+        let initStep = 0;
+        const totalSteps = 4;
 
-        // Global variables
-        let firebase_app, db, puter, deviceId, currentUser = null;
-        let isInitialized = false;
-
-        // Debug Functions
-        function debugLog(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const entry = { timestamp, message, type };
-            DEBUG.log.push(entry);
-            
-            console.log(`[${type.toUpperCase()}] ${message}`);
-            
-            // Update debug panel if open
-            const debugLogEl = document.getElementById('debugLog');
-            if (debugLogEl) {
-                const logEntry = document.createElement('div');
-                logEntry.className = `log-entry log-${type}`;
-                logEntry.textContent = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
-                debugLogEl.appendChild(logEntry);
-                debugLogEl.scrollTop = debugLogEl.scrollHeight;
-            }
-        }
-
-        function debugError(message, error) {
-            const errorInfo = {
-                message,
-                error: error?.message || error,
-                stack: error?.stack,
-                timestamp: new Date().toISOString()
-            };
-            DEBUG.errors.push(errorInfo);
-            
-            debugLog(`ERROR: ${message} - ${error?.message || error}`, 'error');
-            
-            // Update error log
-            const errorLogEl = document.getElementById('errorLog');
-            if (errorLogEl) {
-                const errorEntry = document.createElement('div');
-                errorEntry.className = 'log-entry log-error';
-                errorEntry.innerHTML = `
-                    <strong>[${errorInfo.timestamp}] ${message}</strong><br>
-                    Error: ${errorInfo.error}<br>
-                    ${errorInfo.stack ? `Stack: ${errorInfo.stack.substring(0, 200)}...` : ''}
-                `;
-                errorLogEl.appendChild(errorEntry);
-                errorLogEl.scrollTop = errorLogEl.scrollHeight;
-            }
-        }
-
-        function updateDebugStatus(service, status, details = '') {
-            DEBUG.status[service] = status;
-            
-            const statusEl = document.getElementById(`${service}Status`);
-            if (statusEl) {
-                statusEl.textContent = status ? `✅ ${details || 'Connected'}` : `❌ ${details || 'Failed'}`;
-                statusEl.style.color = status ? '#238636' : '#f85149';
-            }
-        }
-
-        function showDebugPanel() {
-            document.getElementById('debugPanel').classList.add('show');
-            updateNetworkInfo();
-            debugLog('Debug panel opened', 'info');
-        }
-
-        function hideDebugPanel() {
-            document.getElementById('debugPanel').classList.remove('show');
-        }
-
-        function updateNetworkInfo() {
-            document.getElementById('onlineStatus').textContent = navigator.onLine ? '✅ Online' : '❌ Offline';
-            document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 100) + '...';
-            document.getElementById('httpsStatus').textContent = location.protocol === 'https:' ? '✅ Secure' : '⚠️ HTTP';
-            
-            // Get timezone
-            try {
-                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                document.getElementById('locationInfo').textContent = timezone;
-            } catch (e) {
-                document.getElementById('locationInfo').textContent = 'Unknown';
-            }
-        }
-
-        // Debug Controls
-        function retryInitialization() {
-            debugLog('Manual retry triggered', 'warning');
-            location.reload();
-        }
-
-        function skipFirebase() {
-            debugLog('Skipping Firebase initialization', 'warning');
-            updateDebugStatus('firebase', true, 'Skipped');
-            continueInitialization();
-        }
-
-        function skipPuter() {
-            debugLog('Skipping Puter.js initialization', 'warning');
-            updateDebugStatus('puter', true, 'Skipped');
-            continueInitialization();
-        }
-
-        function forceEnable() {
-            debugLog('Force enabling chat interface', 'warning');
-            document.getElementById('loadingScreen').classList.add('hidden');
-            enableChat();
-            showStatus('⚡ Chat force-enabled by admin', 'warning');
-        }
-
-        function clearStorage() {
-            localStorage.clear();
-            sessionStorage.clear();
-            debugLog('All storage cleared', 'warning');
-            showStatus('🗑️ Storage cleared', 'success');
-        }
-
-        function simulateError() {
-            debugError('Simulated error for testing', new Error('Test error from debug panel'));
-        }
-
-        function continueInitialization() {
-            // Continue with remaining steps
-            setTimeout(() => {
-                if (!isInitialized) {
-                    document.getElementById('loadingScreen').classList.add('hidden');
-                    enableChat();
-                    showStatus('🎉 System ready! (Some features may be limited)', 'success');
+        // Debug system
+        const DEBUG = {
+            logs: [],
+            addLog: function(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
+                this.logs.push(entry);
+                console.log(entry);
+                
+                const logEl = document.getElementById('debugLog');
+                if (logEl) {
+                    const div = document.createElement('div');
+                    div.className = `log-entry log-${type}`;
+                    div.textContent = entry;
+                    logEl.appendChild(div);
+                    logEl.scrollTop = logEl.scrollHeight;
                 }
-            }, 1000);
-        }
-
-        // Main initialization
-        document.addEventListener('DOMContentLoaded', async () => {
-            debugLog('DOM loaded, starting initialization', 'info');
-            updateDebugStatus('init', false, 'Starting');
-            
-            try {
-                await initializeApp();
-            } catch (error) {
-                debugError('Main initialization failed', error);
-                showInitializationError(error.message);
-            }
-        });
-
-        async function initializeApp() {
-            try {
-                debugLog('Starting EmailJS initialization', 'info');
-                updateLoadingText('Initializing EmailJS...');
-                await initializeEmailJS();
-                updateDebugStatus('emailjs', true);
-                
-                debugLog('Starting Firebase initialization', 'info');
-                updateLoadingText('Connecting to Firebase...');
-                await initializeFirebase();
-                updateDebugStatus('firebase', true);
-                
-                debugLog('Starting Puter.js initialization', 'info');
-                updateLoadingText('Loading Puter.js AI...');
-                await initializePuter();
-                updateDebugStatus('puter', true);
-                
-                debugLog('Generating device fingerpr
+            },
+            addError: function(message, error) {
+                const errorInfo = `${message}: ${error?.message || error}`;
+                this
