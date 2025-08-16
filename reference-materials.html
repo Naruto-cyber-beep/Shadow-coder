@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NCERT Study Assistant</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <!-- Firebase SDK - Latest stable version -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     
-    <!-- Other SDKs -->
+    <!-- Puter.js for AI -->
     <script src="https://js.puter.com/v2/"></script>
-    <script src="https://cdn.emailjs.com/sdk/2.6.4/email.min.js"></script>
+    
+    <!-- EmailJS for unban requests -->
+    <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
     
     <style>
         :root {
@@ -56,6 +57,83 @@
             position: relative;
         }
 
+        /* Loading Screen */
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .loading-screen.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--light);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .loading-subtext {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .error-text {
+            color: var(--danger);
+            font-size: 1rem;
+            max-width: 500px;
+            text-align: center;
+            line-height: 1.6;
+            background: #ffe6e6;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .retry-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .retry-btn:hover {
+            background: var(--secondary);
+        }
+
         /* Header */
         .chat-header {
             background: linear-gradient(45deg, var(--primary), var(--secondary));
@@ -81,7 +159,10 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 0.8rem;
-            opacity: 0.8;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
         }
 
         .admin-btn {
@@ -96,44 +177,11 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 0.8rem;
+            transition: background 0.3s;
         }
 
         .admin-btn:hover {
             background: rgba(255,255,255,0.3);
-        }
-
-        /* Loading Screen */
-        .loading-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--white);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-        }
-
-        .loading-screen.hidden {
-            display: none;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--light);
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         /* Chat Messages */
@@ -173,13 +221,14 @@
             display: inline-block;
             padding: 12px 18px;
             border-radius: 18px;
-            max-width: 70%;
+            max-width: 75%;
             word-wrap: break-word;
             line-height: 1.5;
+            position: relative;
         }
 
         .message.user .message-bubble {
-            background: var(--primary);
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: var(--white);
         }
 
@@ -187,6 +236,7 @@
             background: var(--white);
             color: var(--dark);
             border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .message-time {
@@ -195,6 +245,7 @@
             margin-top: 5px;
         }
 
+        /* Typing Indicator */
         .typing-indicator {
             display: none;
             text-align: left;
@@ -208,13 +259,20 @@
             border: 1px solid #e0e0e0;
             border-radius: 18px;
             color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .typing-dots {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
             animation: typingDots 1.5s infinite;
             opacity: 0.5;
         }
@@ -230,9 +288,11 @@
         @keyframes typingDots {
             0%, 60%, 100% {
                 opacity: 0.5;
+                transform: scale(1);
             }
             30% {
                 opacity: 1;
+                transform: scale(1.2);
             }
         }
 
@@ -252,51 +312,118 @@
 
         .chat-textarea {
             width: 100%;
-            padding: 12px 50px 12px 15px;
+            padding: 15px 60px 15px 20px;
             border: 2px solid #e0e0e0;
             border-radius: 25px;
             resize: none;
             font-size: 1rem;
             line-height: 1.4;
             max-height: 120px;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
         }
 
         .chat-textarea:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .chat-textarea:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            background: #f5f5f5;
         }
 
         .send-btn {
             position: absolute;
-            right: 8px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
-            background: var(--primary);
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
             color: var(--white);
             border: none;
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
         }
 
-        .send-btn:hover {
-            background: var(--secondary);
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
         }
 
         .send-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: translateY(-50%) scale(1);
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .welcome-content h2 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .welcome-content p {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .example-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+            max-width: 800px;
+        }
+
+        .example-question {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .example-question:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .example-question strong {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .example-question small {
+            color: #666;
+            display: block;
+            margin-top: 5px;
+            line-height: 1.4;
         }
 
         /* Ban Screen */
@@ -322,25 +449,26 @@
         }
 
         .ban-content h2 {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 20px;
         }
 
         .ban-content p {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             margin-bottom: 20px;
             line-height: 1.6;
         }
 
         .violation-info {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            max-width: 500px;
         }
 
         .unban-section {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.15);
             padding: 30px;
             border-radius: 15px;
             margin-top: 30px;
@@ -351,23 +479,25 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .unban-input {
-            padding: 12px;
+            padding: 15px;
             border: none;
             border-radius: 8px;
             font-size: 1rem;
+            font-family: inherit;
         }
 
         .unban-btn {
             background: var(--success);
             color: var(--white);
-            padding: 12px 30px;
+            padding: 15px 30px;
             border: none;
             border-radius: 8px;
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
             transition: background 0.3s;
         }
@@ -376,9 +506,14 @@
             background: #27ae60;
         }
 
+        .unban-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         .admin-code-section {
-            margin-top: 20px;
-            padding-top: 20px;
+            margin-top: 25px;
+            padding-top: 25px;
             border-top: 1px solid rgba(255,255,255,0.3);
         }
 
@@ -387,60 +522,20 @@
             gap: 10px;
             align-items: center;
             justify-content: center;
-        }
-
-        /* Welcome Screen */
-        .welcome-screen {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-            background: #f8f9fa;
-        }
-
-        .welcome-content h2 {
-            color: var(--primary);
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        .welcome-content p {
-            color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-        }
-
-        .example-questions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .example-question {
-            background: var(--white);
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .example-question:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
+            flex-wrap: wrap;
         }
 
         /* Status Messages */
         .status-message {
-            padding: 10px 15px;
+            padding: 12px 20px;
             border-radius: 8px;
             margin: 10px 20px;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 500;
             display: none;
+            position: relative;
+            z-index: 10;
         }
 
         .status-message.success {
@@ -466,19 +561,25 @@
             animation: messageSlide 0.3s ease;
         }
 
-        /* Responsive */
+        /* Responsive Design */
         @media (max-width: 768px) {
             .chat-container {
                 height: 100vh;
                 border-radius: 0;
+                max-width: 100%;
             }
 
             .example-questions {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
 
             .ban-screen {
                 padding: 20px;
+            }
+
+            .ban-content h2 {
+                font-size: 2rem;
             }
 
             .message-bubble {
@@ -488,182 +589,111 @@
             .status-info {
                 display: none;
             }
+
+            .welcome-content h2 {
+                font-size: 1.8rem;
+            }
+
+            .welcome-content p {
+                font-size: 1rem;
+            }
+
+            .code-input {
+                flex-direction: column;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <!-- Loading Screen -->
+        <!-- Enhanced Loading Screen -->
         <div class="loading-screen" id="loadingScreen">
-            <div class="spinner"></div>
-            <p>Initializing Firebase...</p>
+            <div class="spinner" id="spinner"></div>
+            <div class="loading-text" id="loadingText">Initializing System...</div>
+            <div class="loading-subtext" id="loadingSubtext">Setting up Firebase, Puter.js, and AI capabilities</div>
+            <div class="error-text" id="errorText" style="display: none;"></div>
+            <button class="retry-btn" id="retryBtn" onclick="initializeApp()" style="display: none;">🔄 Retry Initialization</button>
         </div>
 
+        <!-- Main Chat Header -->
         <div class="chat-header">
             <div class="status-info" id="statusInfo">
-                Device ID: Loading...<br>
-                Violations: Loading...
+                <div>ID: Loading...</div>
+                <div>Violations: Loading...</div>
             </div>
             <h1>🎓 NCERT Study Assistant</h1>
-            <p>Ask me anything about your studies - I'm here to help!</p>
-            <button class="admin-btn" onclick="showAdminPanel()">Admin</button>
+            <p>Powered by Puter.js AI • Ask me anything about your studies!</p>
+            <button class="admin-btn" onclick="showAdminPanel()">⚙️ Admin</button>
         </div>
 
+        <!-- Status Messages -->
         <div class="status-message" id="statusMessage"></div>
 
+        <!-- Chat Messages Area -->
         <div class="chat-messages" id="chatMessages">
             <div class="welcome-screen" id="welcomeScreen">
                 <div class="welcome-content">
-                    <h2>Welcome to your Study Assistant!</h2>
-                    <p>I can help you understand any topic, solve problems, and explain concepts in simple terms.</p>
+                    <h2>Welcome to your AI Study Assistant!</h2>
+                    <p>I can help you understand any topic, solve problems, and explain concepts in simple terms suitable for your grade level.</p>
                     
                     <div class="example-questions">
-                        <div class="example-question" onclick="askQuestion('Explain photosynthesis in simple terms for class 8')">
-                            <strong>🌱 Photosynthesis</strong><br>
-                            <small>How do plants make food?</small>
+                        <div class="example-question" onclick="askQuestion('Explain photosynthesis process in simple terms for class 8 students')">
+                            <strong>🌱 Photosynthesis Process</strong><br>
+                            <small>How do plants make their own food using sunlight?</small>
                         </div>
-                        <div class="example-question" onclick="askQuestion('What is the water cycle and its steps?')">
+                        <div class="example-question" onclick="askQuestion('What is the water cycle and explain its steps with examples')">
                             <strong>💧 Water Cycle</strong><br>
-                            <small>How does water move in nature?</small>
+                            <small>Learn about evaporation, condensation, and precipitation</small>
                         </div>
-                        <div class="example-question" onclick="askQuestion('Explain Newton\'s three laws of motion with examples')">
-                            <strong>🚀 Physics</strong><br>
-                            <small>Newton's laws made simple</small>
+                        <div class="example-question" onclick="askQuestion('Explain Newton\'s three laws of motion with real life examples')">
+                            <strong>🚀 Physics - Motion Laws</strong><br>
+                            <small>Newton's laws made simple with everyday examples</small>
                         </div>
-                        <div class="example-question" onclick="askQuestion('How does human digestion work step by step?')">
-                            <strong>🫁 Biology</strong><br>
-                            <small>Human body systems</small>
+                        <div class="example-question" onclick="askQuestion('How does human digestive system work step by step')">
+                            <strong>🫁 Human Biology</strong><br>
+                            <small>Journey of food through our digestive system</small>
+                        </div>
+                        <div class="example-question" onclick="askQuestion('What are acids and bases? Give examples we use daily')">
+                            <strong>🧪 Chemistry Basics</strong><br>
+                            <small>Understanding acids and bases in everyday life</small>
+                        </div>
+                        <div class="example-question" onclick="askQuestion('Explain the structure of an atom in simple words')">
+                            <strong>⚛️ Atomic Structure</strong><br>
+                            <small>Protons, neutrons, and electrons made easy</small>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Typing Indicator -->
             <div class="typing-indicator" id="typingIndicator">
                 <div class="typing-bubble">
-                    <span>Assistant is typing</span>
-                    <span class="typing-dots">
-                        <span>.</span><span>.</span><span>.</span>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="chat-input">
-            <div class="input-wrapper">
-                <textarea 
-                    id="messageInput" 
-                    class="chat-textarea" 
-                    placeholder="Type your question here..." 
-                    rows="1"
-                    maxlength="500"
-                    disabled></textarea>
-                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2 21L23 12 2 3V10L17 12 2 14V21Z"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Ban Screen -->
-        <div class="ban-screen" id="banScreen">
-            <div class="ban-content">
-                <h2>🚫 Account Temporarily Suspended</h2>
-                <p>Your account has been suspended for violating our community guidelines by using inappropriate language multiple times.</p>
-                
-                <div class="violation-info">
-                    <h3>Violation Details:</h3>
-                    <p><strong>Total Violations:</strong> <span id="totalViolations"></span></p>
-                    <p><strong>Suspension Period:</strong> <span id="banTimeRemaining"></span></p>
-                    <p><strong>Device ID:</strong> <span id="bannedDeviceId"></span></p>
-                </div>
-                
-                <div class="unban-section">
-                    <h3>Request Early Unban</h3>
-                    <p>If you believe this was a mistake, you can send an unban request:</p>
-                    
-                    <form class="unban-form" onsubmit="sendUnbanRequest(event)">
-                        <input type="email" class="unban-input" id="unbanEmail" placeholder="Your email address" required>
-                        <textarea class="unban-input" id="unbanReason" placeholder="Reason for unban request..." rows="3" required></textarea>
-                        <button type="submit" class="unban-btn" id="submitUnbanBtn">Send Request</button>
-                    </form>
-                    
-                    <div class="admin-code-section">
-                        <p><small>Admin Override:</small></p>
-                        <div class="code-input">
-                            <input type="password" class="unban-input" id="adminCode" placeholder="Admin Code" style="width: 150px;">
-                            <button type="button" class="unban-btn" onclick="checkAdminCode()">Verify</button>
-                        </div>
+                    <span>🤖 Assistant is thinking</span>
+                    <div class="typing-dots">
+                        <span></span><span></span><span></span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
-            authDomain: "learn-code-with-anay.firebaseapp.com",
-            projectId: "learn-code-with-anay",
-            storageBucket: "learn-code-with-anay.firebasestorage.app",
-            messagingSenderId: "197075143711",
-            appId: "1:197075143711:web:64fc5d83528f907d38d92a",
-            measurementId: "G-F01VRZK4ZL"
-        };
-
-        // EmailJS configuration
-        const serviceID = "service_fnfsdzb";
-        const templateID = "template_t87ngjb";
-        const publicKey = "rpRk2Ug-KURSyDb5U";
-
-        // Global variables
-        let firebase_app;
-        let db;
-        let puter;
-        let deviceId;
-        let userDoc;
-        let currentUser = null;
-        
-        const MAX_VIOLATIONS = 10;
-        const BAN_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
-        const ADMIN_CODE = "290965";
-
-        // Enhanced profanity filter
-        const BANNED_WORDS = [
-            // Basic profanity
-            'stupid', 'idiot', 'fool', 'dumb', 'moron', 'loser', 'freak',
-            'hate', 'kill', 'die', 'death', 'murder', 'suicide', 'violence',
-            'fight', 'attack', 'hurt', 'pain', 'blood', 'weapon', 'bomb',
-            // Strong profanity
-            'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'bastard',
-            'crap', 'piss', 'whore', 'slut', 'retard', 'gay', 'lesbian',
-            // Variations and bypass attempts
-            'f*ck', 'sh*t', 'b*tch', 'f**k', 'sh**', 'a**', 'wtf', 'stfu'
-        ];
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', async () => {
-            await initializeApp();
-        });
-
-        async function initializeApp() {
-            try {
-                // Initialize EmailJS
-                emailjs.init(publicKey);
-                
-                // Initialize Firebase
-                firebase_app = firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                
-                // Generate device fingerprint
-                deviceId = await generateDeviceFingerprint();
-                
-                // Initialize Puter
-                await initializePuter();
-                
-                // Load user data
-                await loadUserData();
-                
-                // Setup event listeners
-                setupEventListeners(
+        <!-- Chat Input Area -->
+        <d
