@@ -1,428 +1,463 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCERT Study Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Professional NCERT Study Assistant - AI-powered educational platform for Indian students">
+    <meta name="keywords" content="NCERT, Study Assistant, AI, Education, Indian Curriculum">
+    <meta name="author" content="Educational Technology Solutions">
+    <meta name="robots" content="index, follow">
     
-    <!-- Tailwind CSS -->
+    <!-- Progressive Web App -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NCERT Assistant">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="NCERT Study Assistant - Professional AI Learning Platform">
+    <meta property="og:description" content="Advanced AI-powered educational assistant for NCERT curriculum">
+    <meta property="og:type" content="website">
+    
+    <title>NCERT Study Assistant | Professional AI Educational Platform</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-performance-compat.js"></script>
     
-    <!-- Puter.js -->
+    <!-- Puter.js AI -->
     <script src="https://js.puter.com/v2/"></script>
     
     <!-- EmailJS -->
     <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        secondary: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            200: '#e9d5ff',
+                            300: '#d8b4fe',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                            700: '#7c3aed',
+                            800: '#6b21a8',
+                            900: '#581c87',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'slide-down': 'slideDown 0.3s ease-out',
+                        'scale-in': 'scaleIn 0.2s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'typing': 'typing 1.5s steps(40, end) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        slideDown: {
+                            '0%': { transform: 'translateY(-10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        scaleIn: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        typing: {
+                            '0%, 50%': { opacity: '1' },
+                            '51%, 100%': { opacity: '0' },
+                        }
+                    },
+                    screens: {
+                        'xs': '475px',
+                        '3xl': '1600px',
+                    },
+                    fontFamily: {
+                        'professional': ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+            border-radius: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #5a67d8, #6b46c1);
+        }
+        
+        /* Glass Morphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Message Bubble Animations */
+        .message-enter {
+            animation: messageSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Typing Animation */
+        .typing-dot {
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(3) { animation-delay: 0s; }
+        
+        @keyframes typingBounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Advanced Button Effects */
+        .btn-premium {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-premium:hover::before {
+            left: 100%;
+        }
+        
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Professional Card Hover Effects */
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Advanced Loading Spinner */
+        .spinner-professional {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Professional Status Indicators */
+        .status-online {
+            position: relative;
+        }
+        
+        .status-online::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Mobile Touch Feedback */
+        .touch-feedback {
+            transition: all 0.1s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .touch-feedback:active {
+            transform: scale(0.98);
+            opacity: 0.8;
+        }
+        
+        /* Professional Form Styling */
+        .form-professional {
+            position: relative;
+        }
+        
+        .form-professional input:focus + .form-label,
+        .form-professional input:not(:placeholder-shown) + .form-label {
+            transform: translateY(-24px) scale(0.8);
+            color: #667eea;
+        }
+        
+        .form-label {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            color: #6b7280;
+        }
+        
+        /* Advanced Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Professional Shadows */
+        .shadow-professional {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .shadow-professional-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .shadow-professional-xl {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* Advanced Responsive Text */
+        @media (max-width: 640px) {
+            .text-responsive-xl {
+                font-size: 1.5rem;
+                line-height: 2rem;
+            }
+        }
+        
+        @media (min-width: 641px) {
+            .text-responsive-xl {
+                font-size: 2.25rem;
+                line-height: 2.5rem;
+            }
+        }
+        
+        /* Professional Loading States */
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+        
+        /* Advanced Mobile Optimizations */
+        @supports (-webkit-touch-callout: none) {
+            .ios-safe-area {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+        
+        /* Professional Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            .auto-dark {
+                background: #1f2937;
+                color: #f9fafb;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen">
-    <div class="container mx-auto px-4 py-4 h-screen flex items-center justify-center">
-        <div class="w-full max-w-4xl h-[95vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen font-professional antialiased overflow-hidden">
+    <!-- Professional Noise Texture Overlay -->
+    <div class="fixed inset-0 opacity-[0.02] pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23000000" fill-opacity="1"%3E%3Ccircle cx="7" cy="7" r="1"/%3E%3Ccircle cx="27" cy="7" r="1"/%3E%3Ccircle cx="47" cy="7" r="1"/%3E%3Ccircle cx="7" cy="27" r="1"/%3E%3Ccircle cx="27" cy="27" r="1"/%3E%3Ccircle cx="47" cy="27" r="1"/%3E%3Ccircle cx="7" cy="47" r="1"/%3E%3Ccircle cx="27" cy="47" r="1"/%3E%3Ccircle cx="47" cy="47" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    
+    <!-- Main Application Container -->
+    <div class="relative h-screen flex items-center justify-center p-2 sm:p-4 lg:p-6">
+        <div class="w-full max-w-7xl h-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-professional-xl border border-white/50 flex flex-col overflow-hidden" x-data="chatApp()">
             
-            <!-- Header -->
-            <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 md:p-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex-1">
-                        <h1 class="text-xl md:text-2xl font-bold mb-1">🎓 NCERT Study Assistant</h1>
-                        <p class="text-sm md:text-base opacity-90">AI-powered learning companion</p>
-                    </div>
-                    <div class="text-xs bg-white/20 px-3 py-1 rounded-full">
-                        <span id="statusInfo">Ready</span>
-                    </div>
+            <!-- Professional Header Section -->
+            <header class="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white overflow-hidden">
+                <!-- Animated Background Pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, #ffffff 2px, transparent 2px), radial-gradient(circle at 75% 75%, #ffffff 2px, transparent 2px); background-size: 50px 50px;"></div>
                 </div>
-            </div>
-
-            <!-- Status Messages -->
-            <div id="statusMessage" class="hidden mx-4 mt-4 p-3 rounded-lg text-sm font-medium"></div>
-
-            <!-- Chat Messages -->
-            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-                <!-- Welcome Screen -->
-                <div id="welcomeScreen" class="text-center py-8">
-                    <div class="max-w-2xl mx-auto">
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-                            Welcome to your AI Study Assistant!
-                        </h2>
-                        <p class="text-gray-600 mb-8 text-sm md:text-base">
-                            Ask me anything about your studies - I can explain concepts, solve problems, and help with homework!
-                        </p>
+                
+                <!-- Header Content -->
+                <div class="relative z-10 p-4 sm:p-6 lg:p-8">
+                    <div class="flex items-center justify-between">
+                        <!-- Logo and Title Section -->
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                                    <span class="text-2xl sm:text-3xl">🎓</span>
+                                </div>
+                                <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+                            </div>
+                            <div>
+                                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                                    NCERT Study Assistant
+                                </h1>
+                                <p class="text-xs sm:text-sm lg:text-base text-blue-100 font-medium">
+                                    Professional AI Educational Platform
+                                </p>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <div class="flex items-center space-x-1">
+                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                        <span class="text-xs text-green-200">Online</span>
+                                    </div>
+                                    <div class="w-1 h-1 bg-white/40 rounded-full"></div>
+                                    <span class="text-xs text-blue-200" x-text="'Active Users: ' + activeUsers"></span>
+                                </div>
+                            </div>
+                        </div>
                         
-                        <!-- Example Questions -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-white p-4 rounded-xl border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all transform hover:scale-105" onclick="askQuestion('Explain photosynthesis in simple terms')">
-                                <div class="text-lg font-semibold text-blue-600 mb-2">🌱 Photosynthesis</div>
-                                <div class="text-sm text-gray-600">How do plants make food?</div>
+                        <!-- Status and Controls -->
+                        <div class="flex items-center space-x-3">
+                            <!-- Violation Counter -->
+                            <div class="hidden sm:flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5">
+                                <div class="w-2 h-2 rounded-full" :class="violationStatus.color"></div>
+                                <span class="text-xs font-medium" x-text="violationStatus.text"></span>
                             </div>
                             
-                            <div class="bg-white p-4 rounded-xl border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all transform hover:scale-105" onclick="askQuestion('What is the water cycle?')">
-                                <div class="text-lg font-semibold text-blue-600 mb-2">💧 Water Cycle</div>
-                                <div class="text-sm text-gray-600">Water movement in nature</div>
-                            </div>
-                            
-                            <div class="bg-white p-4 rounded-xl border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all transform hover:scale-105" onclick="askQuestion('Explain Newton laws of motion')">
-                                <div class="text-lg font-semibold text-blue-600 mb-2">🚀 Physics</div>
-                                <div class="text-sm text-gray-600">Motion and forces</div>
-                            </div>
-                            
-                            <div class="bg-white p-4 rounded-xl border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all transform hover:scale-105" onclick="askQuestion('How does human digestion work?')">
-                                <div class="text-lg font-semibold text-blue-600 mb-2">🫁 Biology</div>
-                                <div class="text-sm text-gray-600">Digestive system</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Typing Indicator -->
-                <div id="typingIndicator" class="hidden flex items-start space-x-3">
-                    <div class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">
-                        🤖
-                    </div>
-                    <div class="bg-white p-3 rounded-2xl rounded-bl-none shadow-sm border">
-                        <div class="flex items-center space-x-1">
-                            <span class="text-gray-600 text-sm">AI is thinking</span>
-                            <div class="flex space-x-1">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chat Input -->
-            <div class="p-4 bg-white border-t border-gray-200">
-                <div class="flex items-end space-x-3">
-                    <div class="flex-1">
-                        <div class="relative">
-                            <textarea 
-                                id="messageInput"
-                                rows="1"
-                                placeholder="Ask me anything about your studies..."
-                                class="w-full p-3 pr-12 border-2 border-gray-300 rounded-2xl resize-none focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors text-sm md:text-base"
-                                style="max-height: 120px;"
-                            ></textarea>
-                            <button 
-                                id="sendBtn"
-                                onclick="sendMessage()"
-                                class="absolute right-2 bottom-2 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors"
-                            >
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M2 21L23 12 2 3V10L17 12 2 14V21Z"/>
-                                </svg>
+                            <!-- Professional Menu Button -->
+                            <button @click="showAdminPanel = !showAdminPanel" class="relative group">
+                                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all duration-200">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
                             </button>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Ban Screen -->
-    <div id="banScreen" class="hidden fixed inset-0 bg-red-600 bg-opacity-95 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl p-6 md:p-8 max-w-md w-full text-center">
-            <div class="text-4xl mb-4">🚫</div>
-            <h2 class="text-2xl font-bold text-red-600 mb-4">Account Suspended</h2>
-            <p class="text-gray-600 mb-6">Your account has been suspended for violating community guidelines.</p>
-            
-            <div class="space-y-4">
-                <input type="email" id="unbanEmail" placeholder="Your email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200">
-                <textarea id="unbanReason" placeholder="Reason for unban..." rows="3" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none"></textarea>
-                <button onclick="sendUnbanRequest()" class="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-colors">
-                    Send Unban Request
-                </button>
-                
-                <div class="pt-4 border-t">
-                    <p class="text-sm text-gray-500 mb-2">Admin Override:</p>
-                    <div class="flex space-x-2">
-                        <input type="password" id="adminCode" placeholder="Admin Code" class="flex-1 p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
-                        <button onclick="checkAdminCode()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
-                            Verify
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
-            authDomain: "learn-code-with-anay.firebaseapp.com",
-            projectId: "learn-code-with-anay",
-            storageBucket: "learn-code-with-anay.firebasestorage.app",
-            messagingSenderId: "197075143711",
-            appId: "1:197075143711:web:64fc5d83528f907d38d92a",
-            measurementId: "G-F01VRZK4ZL"
-        };
-
-        const emailConfig = {
-            serviceID: "service_fnfsdzb",
-            templateID: "template_t87ngjb",
-            publicKey: "rpRk2Ug-KURSyDb5U"
-        };
-
-        const ADMIN_CODE = "290965";
-        const MAX_VIOLATIONS = 10;
-        const BAN_DURATION = 3 * 24 * 60 * 60 * 1000;
-
-        // Banned words
-        const BANNED_WORDS = [
-            'stupid', 'idiot', 'fool', 'dumb', 'moron', 'loser', 'hate',
-            'kill', 'die', 'death', 'murder', 'violence', 'fight', 'attack',
-            'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'bastard'
-        ];
-
-        // Global variables
-        let db, deviceId, currentUser = null;
-
-        // Initialize immediately
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 NCERT Assistant starting...');
-            setupChat();
-            initializeServices();
-            showStatus('🎉 AI Assistant is ready to help!', 'success');
-        });
-
-        function setupChat() {
-            const messageInput = document.getElementById('messageInput');
-            
-            // Auto-resize textarea
-            messageInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-            });
-
-            // Send on Enter (mobile-friendly)
-            messageInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
-            
-            console.log('✅ Chat ready');
-        }
-
-        // Initialize services in background
-        async function initializeServices() {
-            try {
-                // EmailJS
-                if (typeof emailjs !== 'undefined') {
-                    emailjs.init(emailConfig.publicKey);
-                    console.log('✅ EmailJS ready');
-                }
-
-                // Firebase
-                if (typeof firebase !== 'undefined') {
-                    firebase.initializeApp(firebaseConfig);
-                    db = firebase.firestore();
-                    console.log('✅ Firebase ready');
                     
-                    deviceId = generateDeviceId();
-                    await setupUser();
-                }
-            } catch (error) {
-                console.warn('⚠️ Some services failed:', error);
-            }
-        }
-
-        function generateDeviceId() {
-            const data = navigator.userAgent + screen.width + navigator.language + Date.now();
-            let hash = 0;
-            for (let i = 0; i < data.length; i++) {
-                const char = data.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash;
-            }
-            return Math.abs(hash).toString(16).substring(0, 16);
-        }
-
-        async function setupUser() {
-            try {
-                const userRef = db.collection('users').doc(deviceId);
-                const doc = await userRef.get();
-                
-                if (doc.exists) {
-                    currentUser = doc.data();
-                } else {
-                    currentUser = {
-                        deviceId: deviceId,
-                        violations: [],
-                        totalViolations: 0,
-                        banExpiry: null,
-                        createdAt: firebase.firestore.Timestamp.now()
-                    };
-                    await userRef.set(currentUser);
-                }
-                
-                updateStatusInfo();
-                await checkBanStatus();
-                console.log('✅ User ready');
-            } catch (error) {
-                console.warn('⚠️ User setup failed:', error);
-            }
-        }
-
-        function updateStatusInfo() {
-            document.getElementById('statusInfo').textContent = 
-                `${currentUser?.totalViolations || 0}/${MAX_VIOLATIONS} warnings`;
-        }
-
-        async function checkBanStatus() {
-            if (!currentUser?.banExpiry) return;
-            
-            const now = new Date();
-            const banExpiry = currentUser.banExpiry.toDate();
-            
-            if (now < banExpiry) {
-                document.getElementById('banScreen').classList.remove('hidden');
-            }
-        }
-
-        // SEND MESSAGE FUNCTION - THIS IS THE KEY PART
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            console.log('📤 Attempting to send message:', message);
-            
-            if (!message) {
-                console.log('❌ Empty message');
-                return;
-            }
-
-            // Check for profanity
-            const isAllowed = await checkMessage(message);
-            if (!isAllowed) {
-                input.value = '';
-                return;
-            }
-
-            // Hide welcome screen
-            document.getElementById('welcomeScreen').style.display = 'none';
-            
-            // Add user message
-            addMessage('user', message);
-            
-            // Clear input
-            input.value = '';
-            input.style.height = 'auto';
-
-            // Show typing and get AI response
-            showTyping();
-            
-            try {
-                const response = await getAIResponse(message);
-                hideTyping();
-                addMessage('assistant', response);
-                console.log('✅ Message sent successfully');
-            } catch (error) {
-                hideTyping();
-                console.error('❌ AI response failed:', error);
-                addMessage('assistant', '❌ Sorry, I encountered an error. Please try again.');
-            }
-        }
-
-        async function checkMessage(message) {
-            const words = message.toLowerCase().split(/\s+/);
-            const badWords = words.filter(word => 
-                BANNED_WORDS.some(banned => word.includes(banned))
-            );
-            
-            if (badWords.length > 0) {
-                await recordViolation(badWords, message);
-                return false;
-            }
-            return true;
-        }
-
-        async function recordViolation(badWords, message) {
-            try {
-                if (!currentUser || !db) {
-                    showStatus(`⚠️ Warning: Inappropriate language (${badWords.join(', ')})`, 'warning');
-                    return;
-                }
-
-                const userRef = db.collection('users').doc(deviceId);
-                const violation = {
-                    timestamp: firebase.firestore.Timestamp.now(),
-                    words: badWords,
-                    message: message.substring(0, 100)
-                };
-                
-                const updatedViolations = [...currentUser.violations, violation];
-                const totalViolations = updatedViolations.length;
-                
-                let updateData = {
-                    violations: updatedViolations,
-                    totalViolations: totalViolations,
-                    lastViolation: firebase.firestore.Timestamp.now()
-                };
-                
-                if (totalViolations >= MAX_VIOLATIONS) {
-                    const banExpiry = new Date(Date.now() + BAN_DURATION);
-                    updateData.banExpiry = firebase.firestore.Timestamp.fromDate(banExpiry);
-                }
-                
-                await userRef.update(updateData);
-                Object.assign(currentUser, updateData);
-                updateStatusInfo();
-                
-                if (totalViolations >= MAX_VIOLATIONS) {
-                    document.getElementById('banScreen').classList.remove('hidden');
-                } else {
-                    const remaining = MAX_VIOLATIONS - totalViolations;
-                    showStatus(`⚠️ Warning: Inappropriate language (${badWords.join(', ')}). ${remaining} warnings left.`, 'warning');
-                }
-                
-            } catch (error) {
-                console.error('❌ Failed to record violation:', error);
-                showStatus(`⚠️ Warning: Inappropriate language (${badWords.join(', ')})`, 'warning');
-            }
-        }
-
-        async function getAIResponse(message) {
-            try {
-                // Try Puter.js AI
-                if (typeof window.puter !== 'undefined') {
-                    console.log('🤖 Using Puter.js AI');
-                    const response = await puter.ai.chat(
-                        `You are a helpful NCERT study assistant for Indian students. Answer this question clearly and educationally: ${message}`
-                    );
-                    return response.message || response;
-                }
-            } catch (error) {
-                console.warn('⚠️ Puter.js failed:', error);
-            }
-            
-            // Fallback response
-            return `Thank you for asking about "${message.substring(0, 50)}...". I'm currently experiencing some technical difficulties with my AI capabilities. Please check your NCERT textbook or ask your teacher for detailed information on this topic.`;
-        }
-
-        function askQuestion(question) {
-            document.getElementById('messageInput').value = question;
-            sendMessage();
-        }
-
-        function addMessage(sender, content) {
-            const container = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            
-            if (sender === 'user') {
-                messageDiv.className = 'flex items-start space-x-3 justify-end';
-                messageDiv.innerHTML = `
-                    <div class="bg-blue-500 text-white p-3 rounded-2xl rounded-br-none shadow-sm max-w-xs md:max-w-md break-words">
-                        <p class="text-sm md:text-base">${content}</p>
-                        <div class="text-xs opacity-75 mt-1">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    <!-- Advanced Status Bar -->
+                    <div class="mt-4 flex items-center justify-between text-xs sm:text-sm">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                <span>AI Connected</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2" :class="firebaseStatus ? 'bg-green-400' : 'bg-red-400'" class="rounded-full"></div>
+                                <span x-text="firebaseStatus ? 'Database Online' : 'Database Offline'"></span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2" :class="puterStatus ? 'bg-green-400' : 'bg-yellow-400'" class="rounded-full"></div>
+                                <span x-text="puterStatus ? 'AI Ready' : 'AI Limited'"></span>
+                            </div>
+                        </div>
+                        <div class="text-blue-200">
+                            <span x-text="'Session: ' + sessionId.substring(0, 8)"></span>
+                        </div>
                     </div>
-                    <div class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">
-                        👤
-                    </div>
-                `;
-            } else {
-                messageDiv.className = 'flex items-star
+                </div>
+                
+                <!-- Professional Progress Wave -->
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 opacity-60">
+                    <div class="h-full bg-white/30 animate-pulse"></div>
+                </div>
+            </header>
+
+            <!-- Professional Status Message System -->
+            <div x-show="statusMessage.show" 
+                 x-transition:enter="transition ease-out duration-300"
+               
