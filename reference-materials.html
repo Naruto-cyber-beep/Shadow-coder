@@ -3,37 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCERT Diagram Generator</title>
+    <title>NCERT Study Assistant</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    
+    <!-- Other SDKs -->
     <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.emailjs.com/sdk/2.6.4/email.min.js"></script>
+    
     <style>
-        /* CSS Variables for theme support */
         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-card: #ffffff;
-            --text-primary: #212529;
-            --text-secondary: #6c757d;
-            --border-color: #dee2e6;
-            --accent-color: #0d6efd;
-            --accent-hover: #0b5ed7;
-            --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            --success-color: #198754;
-            --warning-color: #fd7e14;
-            --danger-color: #dc3545;
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #212529;
-            --bg-secondary: #343a40;
-            --bg-card: #495057;
-            --text-primary: #f8f9fa;
-            --text-secondary: #adb5bd;
-            --border-color: #495057;
-            --accent-color: #0d6efd;
-            --accent-hover: #0b5ed7;
-            --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
         * {
@@ -43,535 +34,636 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        /* Header */
-        .header {
-            background-color: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1.5rem 0;
-            margin-bottom: 2rem;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--accent-color);
-        }
-
-        .header p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        /* Controls */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            min-width: 150px;
-        }
-
-        .control-group label {
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .control-group select,
-        .control-group input {
-            padding: 0.5rem 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .control-group select:focus,
-        .control-group input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
-        }
-
-        .control-group select:disabled,
-        .control-group input:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background-color: var(--bg-secondary);
-        }
-
-        .toggle-btn {
-            background: none;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 0.5rem 0.75rem;
-            cursor: pointer;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            align-self: flex-end;
-        }
-
-        .toggle-btn:hover {
-            background-color: var(--bg-secondary);
-        }
-
-        /* Main Grid */
-        .main-content {
-            min-height: 400px;
-        }
-
-        .gate-message {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-        }
-
-        .diagram-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .diagram-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            min-height: 200px;
-        }
-
-        .diagram-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--accent-color);
-        }
-
-        .diagram-card:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
-        }
-
-        .card-thumbnail {
-            width: 100%;
-            height: 120px;
-            background-color: var(--bg-secondary);
-            border-radius: 4px;
-            margin-bottom: 0.75rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            padding: 20px;
         }
 
-        .card-thumbnail img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .card-thumbnail .placeholder {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .card-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
-
-        .card-subject {
-            background-color: var(--accent-color);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            display: inline-block;
-            margin-bottom: 0.5rem;
-        }
-
-        .generate-btn {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease;
+        .chat-container {
             width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
 
-        .generate-btn:hover {
-            background-color: var(--accent-hover);
+        /* Header */
+        .chat-header {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+            position: relative;
         }
 
-        .generate-btn:disabled {
+        .chat-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .status-info {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .admin-btn {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .admin-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .loading-screen.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.assistant {
+            text-align: left;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .message.user .message-bubble {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .message.assistant .message-bubble {
+            background: var(--white);
+            color: var(--dark);
+            border: 1px solid #e0e0e0;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        .typing-indicator {
+            display: none;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .typing-bubble {
+            display: inline-block;
+            padding: 12px 18px;
+            background: var(--white);
+            border: 1px solid #e0e0e0;
+            border-radius: 18px;
+            color: var(--primary);
+        }
+
+        .typing-dots {
+            display: inline-block;
+        }
+
+        .typing-dots span {
+            animation: typingDots 1.5s infinite;
+            opacity: 0.5;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingDots {
+            0%, 60%, 100% {
+                opacity: 0.5;
+            }
+            30% {
+                opacity: 1;
+            }
+        }
+
+        /* Input Area */
+        .chat-input {
+            padding: 20px;
+            background: var(--white);
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-textarea {
+            width: 100%;
+            padding: 12px 50px 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            resize: none;
+            font-size: 1rem;
+            line-height: 1.4;
+            max-height: 120px;
+            transition: border-color 0.3s;
+        }
+
+        .chat-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .chat-textarea:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
 
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid transparent;
-            border-top: 2px solid currentColor;
+        .send-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 0.5rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .modal.active {
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            transition: background 0.3s;
         }
 
-        .modal-content {
-            background-color: var(--bg-card);
-            border-radius: 8px;
-            max-width: 800px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
+        .send-btn:hover {
+            background: var(--secondary);
         }
 
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Ban Screen */
+        .ban-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(231, 76, 60, 0.95);
+            color: var(--white);
+            z-index: 1000;
             align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
         }
 
-        .modal-header h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
+        .ban-screen.show {
+            display: flex;
+            flex-direction: column;
         }
 
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-            padding: 0.25rem;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
+        .ban-content h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
         }
 
-        .close-btn:hover {
-            background-color: var(--bg-secondary);
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .modal-diagram {
-            width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            background-color: var(--bg-secondary);
-        }
-
-        .modal-description {
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
+        .ban-content p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
             line-height: 1.6;
         }
 
-        .modal-actions {
+        .violation-info {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .unban-section {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            max-width: 500px;
+        }
+
+        .unban-form {
             display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
+        .unban-input {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .unban-btn {
+            background: var(--success);
+            color: var(--white);
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
+            transition: background 0.3s;
+        }
+
+        .unban-btn:hover {
+            background: #27ae60;
+        }
+
+        .admin-code-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .code-input {
+            display: flex;
+            gap: 10px;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
         }
 
-        .btn-primary {
-            background-color: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            color: var(--text-primary);
-        }
-
-        .btn-secondary:hover {
-            background-color: var(--bg-secondary);
-        }
-
-        /* Footer */
-        .footer {
-            background-color: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            padding: 2rem 0;
-            margin-top: 3rem;
+        /* Welcome Screen */
+        .welcome-screen {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            color: var(--text-secondary);
+            padding: 40px;
+            background: #f8f9fa;
         }
 
-        .footer p {
-            margin-bottom: 0.5rem;
+        .welcome-content h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 15px;
         }
 
-        /* Error states */
-        .error-message {
-            background-color: var(--danger-color);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
+        .welcome-content p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .example-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .example-question {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-question:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Status Messages */
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 20px;
+            text-align: center;
+            font-size: 0.9rem;
             display: none;
         }
 
-        .error-message.show {
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-message.show {
             display: block;
+            animation: messageSlide 0.3s ease;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
+            .chat-container {
+                height: 100vh;
+                border-radius: 0;
             }
-            
-            .control-group {
-                min-width: auto;
-            }
-            
-            .diagram-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 1rem;
-            }
-            
-            .modal {
-                padding: 1rem;
-            }
-            
-            .modal-actions {
-                flex-direction: column;
-            }
-        }
 
-        /* Print styles */
-        @media print {
-            body * {
-                visibility: hidden;
+            .example-questions {
+                grid-template-columns: 1fr;
             }
-            
-            .print-content,
-            .print-content * {
-                visibility: visible;
-            }
-            
-            .print-content {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-            }
-        }
 
-        /* Skeleton loading */
-        .skeleton {
-            background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--border-color) 50%, var(--bg-secondary) 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
-        }
+            .ban-screen {
+                padding: 20px;
+            }
 
-        @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            .message-bubble {
+                max-width: 85%;
+            }
+
+            .status-info {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Developer Note: To swap Puter for another provider, replace the generateDiagram() and 
-         storage functions in the Puter API section. The interface expects:
-         - generateDiagram(topic) returns Promise<{url, content}>
-         - saveToStorage(key, data) and loadFromStorage(key) for caching
-         - listStorageFiles(classNum) for checking existing diagrams -->
+    <div class="chat-container">
+        <!-- Loading Screen -->
+        <div class="loading-screen" id="loadingScreen">
+            <div class="spinner"></div>
+            <p>Initializing Firebase...</p>
+        </div>
 
-    <div class="container">
-        <header class="header">
-            <h1>NCERT Diagram Generator</h1>
-            <p>Interactive educational diagrams for classes 6-10 • Generated on-demand with AI</p>
-        </header>
+        <div class="chat-header">
+            <div class="status-info" id="statusInfo">
+                Device ID: Loading...<br>
+                Violations: Loading...
+            </div>
+            <h1>🎓 NCERT Study Assistant</h1>
+            <p>Ask me anything about your studies - I'm here to help!</p>
+            <button class="admin-btn" onclick="showAdminPanel()">Admin</button>
+        </div>
 
-        <div class="error-message" id="errorMessage" role="alert"></div>
+        <div class="status-message" id="statusMessage"></div>
 
-        <div class="controls">
-            <div class="control-group">
-                <label for="classSelect">Class *</label>
-                <select id="classSelect" aria-label="Select your class">
-                    <option value="">Select Class</option>
-                    <option value="6">Class 6</option>
-                    <option value="7">Class 7</option>
-                    <option value="8">Class 8</option>
-                    <option value="9">Class 9</option>
-                    <option value="10">Class 10</option>
-                </select>
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <h2>Welcome to your Study Assistant!</h2>
+                    <p>I can help you understand any topic, solve problems, and explain concepts in simple terms.</p>
+                    
+                    <div class="example-questions">
+                        <div class="example-question" onclick="askQuestion('Explain photosynthesis in simple terms for class 8')">
+                            <strong>🌱 Photosynthesis</strong><br>
+                            <small>How do plants make food?</small>
+                        </div>
+                        <div class="example-question" onclick="askQuestion('What is the water cycle and its steps?')">
+                            <strong>💧 Water Cycle</strong><br>
+                            <small>How does water move in nature?</small>
+                        </div>
+                        <div class="example-question" onclick="askQuestion('Explain Newton\'s three laws of motion with examples')">
+                            <strong>🚀 Physics</strong><br>
+                            <small>Newton's laws made simple</small>
+                        </div>
+                        <div class="example-question" onclick="askQuestion('How does human digestion work step by step?')">
+                            <strong>🫁 Biology</strong><br>
+                            <small>Human body systems</small>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div class="control-group">
-                <label for="subjectFilter">Subject</label>
-                <select id="subjectFilter" disabled aria-label="Filter by subject">
-                    <option value="">All Subjects</option>
-                </select>
-            </div>
-            
-            <div class="control-group">
-                <label for="searchBox">Search</label>
-                <input type="text" id="searchBox" placeholder="Search diagrams..." disabled aria-label="Search diagrams">
-            </div>
-            
-            <div class="control-group">
-                <label>&nbsp;</label>
-                <button class="toggle-btn" id="themeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-bubble">
+                    <span>Assistant is typing</span>
+                    <span class="typing-dots">
+                        <span>.</span><span>.</span><span>.</span>
+                    </span>
+                </div>
             </div>
         </div>
 
-        <main class="main-content">
-            <div class="gate-message" id="gateMessage">
-                Please select your class to view diagrams.
+        <div class="chat-input">
+            <div class="input-wrapper">
+                <textarea 
+                    id="messageInput" 
+                    class="chat-textarea" 
+                    placeholder="Type your question here..." 
+                    rows="1"
+                    maxlength="500"
+                    disabled></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2 21L23 12 2 3V10L17 12 2 14V21Z"/>
+                    </svg>
+                </button>
             </div>
-            
-            <div class="diagram-grid" id="diagramGrid" style="display: none;"></div>
-        </main>
-    </div>
+        </div>
 
-    <!-- Modal -->
-    <div class="modal" id="diagramModal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Diagram Title</h2>
-                <button class="close-btn" id="closeModal" aria-label="Close modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <img class="modal-diagram" id="modalDiagram" alt="Diagram">
-                <div class="modal-description" id="modalDescription"></div>
-                <div class="modal-actions">
-                    <button class="btn btn-primary" id="printBtn">🖨️ Print Diagram</button>
-                    <button class="btn btn-secondary" id="downloadBtn">⬇️ Download SVG</button>
-                    <button class="btn btn-secondary" id="regenerateBtn">🔄 Regenerate</button>
+        <!-- Ban Screen -->
+        <div class="ban-screen" id="banScreen">
+            <div class="ban-content">
+                <h2>🚫 Account Temporarily Suspended</h2>
+                <p>Your account has been suspended for violating our community guidelines by using inappropriate language multiple times.</p>
+                
+                <div class="violation-info">
+                    <h3>Violation Details:</h3>
+                    <p><strong>Total Violations:</strong> <span id="totalViolations"></span></p>
+                    <p><strong>Suspension Period:</strong> <span id="banTimeRemaining"></span></p>
+                    <p><strong>Device ID:</strong> <span id="bannedDeviceId"></span></p>
+                </div>
+                
+                <div class="unban-section">
+                    <h3>Request Early Unban</h3>
+                    <p>If you believe this was a mistake, you can send an unban request:</p>
+                    
+                    <form class="unban-form" onsubmit="sendUnbanRequest(event)">
+                        <input type="email" class="unban-input" id="unbanEmail" placeholder="Your email address" required>
+                        <textarea class="unban-input" id="unbanReason" placeholder="Reason for unban request..." rows="3" required></textarea>
+                        <button type="submit" class="unban-btn" id="submitUnbanBtn">Send Request</button>
+                    </form>
+                    
+                    <div class="admin-code-section">
+                        <p><small>Admin Override:</small></p>
+                        <div class="code-input">
+                            <input type="password" class="unban-input" id="adminCode" placeholder="Admin Code" style="width: 150px;">
+                            <button type="button" class="unban-btn" onclick="checkAdminCode()">Verify</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="container">
-            <p><strong>Tips:</strong> Click any diagram to view full-size • Use keyboard navigation (Tab, Enter, Esc)</p>
-            <p>Powered by <strong>Puter.js</strong> • Educational content aligned with NCERT curriculum</p>
-        </div>
-    </footer>
-
-    <div class="print-content" style="display: none;">
-        <h1 id="printTitle"></h1>
-        <img id="printDiagram" style="max-width: 100%; height: auto; margin: 1rem 0;">
-        <div id="printDescription" style="font-size: 14px; line-height: 1.6;"></div>
-    </div>
-
     <script>
-        // ============= STATE =============
-        let state = {
-            selectedClass: null,
-            topics: [],
-            filteredTopics: [],
-            generatedDiagrams: new Map(),
-            selectedTopic: null,
-            puterInitialized: false
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
+            authDomain: "learn-code-with-anay.firebaseapp.com",
+            projectId: "learn-code-with-anay",
+            storageBucket: "learn-code-with-anay.firebasestorage.app",
+            messagingSenderId: "197075143711",
+            appId: "1:197075143711:web:64fc5d83528f907d38d92a",
+            measurementId: "G-F01VRZK4ZL"
         };
 
-        // ============= DATA MODEL =============
-        const TOPICS = {
-            6: [
-                { id: 'food-sources', title: 'Food Sources', subject: 'Science', prompt: 'Create a labeled diagram showing different food sources - plants (fruits, vegetables, grains) and animals (milk, eggs, meat), with clear illustrations and labels', description: 'Different sources of food from plants and animals that provide essential nutrients for human body.' },
-                { id: 'plant-parts', title: 'Parts of a Plant', subject: 'Science', prompt: 'Draw a complete plant diagram with labeled parts: roots, stem, leaves, flowers, fruits, and seeds, showing their functions', description: 'Basic structure of a flowering plant showing roots for absorption, stem for transport, leaves for photosynthesis.' },
-                { id: 'human-body', title: 'Human Body Systems', subject: 'Science', prompt: 'Simple diagram of human body showing major organ systems - digestive, respiratory, circulatory with basic labels', description: 'Overview of major body systems working together to maintain life and health.' },
-                { id: 'water-cycle', title: 'Water Cycle', subject: 'Science', prompt: 'Illustrate the water cycle with sun, clouds, rain, rivers, ocean, evaporation, condensation, precipitation labeled clearly', description: 'Continuous movement of water through evaporation, condensation, and precipitation in nature.' },
-                { id: 'solar-system', title: 'Solar System', subject: 'Science', prompt: 'Draw the solar system with sun at center and 8 planets in order with their relative sizes and names labeled', description: 'Our solar system with the Sun and eight planets orbiting around it in elliptical paths.' },
-                { id: 'fiber-to-fabric', title: 'Fiber to Fabric', subject: 'Science', prompt: 'Show the process from cotton plant to cotton fiber to thread to fabric with step-by-step illustrations', description: 'Process of making fabric from natural fibers like cotton through spinning and weaving.' },
-                { id: 'simple-machines', title: 'Simple Machines', subject: 'Science', prompt: 'Diagram showing 6 simple machines: lever, pulley, wheel and axle, inclined plane, screw, wedge with examples', description: 'Basic machines that make work easier by changing the direction or magnitude of force.' },
-                { id: 'animal-habitats', title: 'Animal Habitats', subject: 'Science', prompt: 'Show different habitats (forest, desert, ocean, grassland) with animals that live in each environment', description: 'Different environments where animals live and adaptations that help them survive.' }
-            ],
-            7: [
-                { id: 'nutrition-plants', title: 'Nutrition in Plants', subject: 'Science', prompt: 'Detailed diagram of photosynthesis showing leaf cross-section, chloroplasts, sunlight, CO2, water, and oxygen production', description: 'Process by which green plants make their own food using sunlight, carbon dioxide, and water.' },
-                { id: 'nutrition-animals', title: 'Nutrition in Animals', subject: 'Science', prompt: 'Human digestive system diagram with mouth, esophagus, stomach, small intestine, large intestine, liver, pancreas labeled', description: 'Complete digestive system showing the journey of food and breakdown into nutrients.' },
-                { id: 'respiration', title: 'Respiration in Organisms', subj
+        // EmailJS configuration
+        const serviceID = "service_fnfsdzb";
+        const templateID = "template_t87ngjb";
+        const publicKey = "rpRk2Ug-KURSyDb5U";
+
+        // Global variables
+        let firebase_app;
+        let db;
+        let puter;
+        let deviceId;
+        let userDoc;
+        let currentUser = null;
+        
+        const MAX_VIOLATIONS = 10;
+        const BAN_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+        const ADMIN_CODE = "290965";
+
+        // Enhanced profanity filter
+        const BANNED_WORDS = [
+            // Basic profanity
+            'stupid', 'idiot', 'fool', 'dumb', 'moron', 'loser', 'freak',
+            'hate', 'kill', 'die', 'death', 'murder', 'suicide', 'violence',
+            'fight', 'attack', 'hurt', 'pain', 'blood', 'weapon', 'bomb',
+            // Strong profanity
+            'damn', 'hell', 'shit', 'fuck', 'bitch', 'ass', 'bastard',
+            'crap', 'piss', 'whore', 'slut', 'retard', 'gay', 'lesbian',
+            // Variations and bypass attempts
+            'f*ck', 'sh*t', 'b*tch', 'f**k', 'sh**', 'a**', 'wtf', 'stfu'
+        ];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                // Initialize EmailJS
+                emailjs.init(publicKey);
+                
+                // Initialize Firebase
+                firebase_app = firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                
+                // Generate device fingerprint
+                deviceId = await generateDeviceFingerprint();
+                
+                // Initialize Puter
+                await initializePuter();
+                
+                // Load user data
+                await loadUserData();
+                
+                // Setup event listeners
+                setupEventListeners(
