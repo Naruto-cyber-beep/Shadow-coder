@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NCERT Study Assistant</title>
     
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -14,471 +17,131 @@
     
     <!-- EmailJS -->
     <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
-    
-    <style>
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --warning: #f39c12;
-            --dark: #2c3e50;
-            --white: #ffffff;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .chat-container {
-            width: 100%;
-            max-width: 900px;
-            height: 90vh;
-            background: var(--white);
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* Chat Header */
-        .chat-header {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: var(--white);
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-
-        .chat-header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-
-        .chat-header p {
-            opacity: 0.9;
-            font-size: 0.9rem;
-        }
-
-        .status-info {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.8rem;
-            opacity: 0.9;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-
-        .admin-btn {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .admin-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* Status Messages */
-        .status-message {
-            padding: 12px 20px;
-            margin: 10px 20px;
-            border-radius: 8px;
-            text-align: center;
-            display: none;
-        }
-
-        .status-message.show { display: block; }
-        .status-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status-message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .status-message.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
-
-        /* Chat Messages */
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f8f9fa;
-            scroll-behavior: smooth;
-        }
-
-        .welcome-screen {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .welcome-screen h2 {
-            color: var(--primary);
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        .welcome-screen p {
-            color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-        }
-
-        .example-questions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .example-question {
-            background: var(--white);
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .example-question:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .message {
-            margin-bottom: 15px;
-            animation: messageSlide 0.3s ease;
-        }
-
-        @keyframes messageSlide {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .message.user {
-            text-align: right;
-        }
-
-        .message.assistant {
-            text-align: left;
-        }
-
-        .message-bubble {
-            display: inline-block;
-            padding: 12px 18px;
-            border-radius: 18px;
-            max-width: 75%;
-            word-wrap: break-word;
-            line-height: 1.5;
-        }
-
-        .message.user .message-bubble {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: var(--white);
-        }
-
-        .message.assistant .message-bubble {
-            background: var(--white);
-            color: var(--dark);
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .message-time {
-            font-size: 0.7rem;
-            opacity: 0.6;
-            margin-top: 5px;
-        }
-
-        /* Typing Indicator */
-        .typing-indicator {
-            display: none;
-            text-align: left;
-            margin-bottom: 15px;
-        }
-
-        .typing-bubble {
-            display: inline-block;
-            padding: 12px 18px;
-            background: var(--white);
-            border: 1px solid #e0e0e0;
-            border-radius: 18px;
-            color: var(--primary);
-        }
-
-        .typing-dots {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-        }
-
-        .typing-dots span {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--primary);
-            animation: typingDots 1.5s infinite;
-        }
-
-        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typingDots {
-            0%, 60%, 100% { opacity: 0.4; transform: scale(1); }
-            30% { opacity: 1; transform: scale(1.2); }
-        }
-
-        /* Chat Input */
-        .chat-input {
-            padding: 20px;
-            background: var(--white);
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            gap: 15px;
-        }
-
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-
-        .chat-textarea {
-            width: 100%;
-            padding: 15px 60px 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            resize: none;
-            font-size: 1rem;
-            line-height: 1.4;
-            max-height: 120px;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-
-        .chat-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .send-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: var(--white);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .send-btn:hover {
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        /* Ban Screen */
-        .ban-screen {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(231, 76, 60, 0.95);
-            color: var(--white);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-        }
-
-        .ban-screen.show {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .ban-content h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        .ban-content p {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-        }
-
-        .unban-section {
-            background: rgba(255,255,255,0.1);
-            padding: 30px;
-            border-radius: 15px;
-            margin-top: 30px;
-            max-width: 500px;
-        }
-
-        .unban-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .unban-input {
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .unban-btn {
-            background: var(--success);
-            color: var(--white);
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .unban-btn:hover {
-            background: #27ae60;
-        }
-
-        .admin-code-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .code-input {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        @media (max-width: 768px) {
-            .example-questions { grid-template-columns: 1fr; }
-            .status-info { display: none; }
-        }
-    </style>
 </head>
-<body>
-    <div class="chat-container">
-        <!-- Chat Header -->
-        <div class="chat-header">
-            <div class="status-info" id="statusInfo">
-                <div>Status: Ready</div>
-                <div>Violations: 0/10</div>
-            </div>
-            <h1>🎓 NCERT Study Assistant</h1>
-            <p>AI-powered learning companion for Indian students</p>
-            <button class="admin-btn" onclick="showAdminPanel()">⚙️ Admin</button>
-        </div>
-
-        <!-- Status Messages -->
-        <div class="status-message" id="statusMessage"></div>
-
-        <!-- Chat Messages -->
-        <div class="chat-messages" id="chatMessages">
-            <div class="welcome-screen">
-                <h2>Welcome to your AI Study Assistant!</h2>
-                <p>Ask me anything about your studies - I can explain concepts, solve problems, and help with homework!</p>
-                
-                <div class="example-questions">
-                    <div class="example-question" onclick="askQuestion('Explain photosynthesis in simple terms')">
-                        <strong>🌱 Photosynthesis</strong><br>
-                        <small>How do plants make food?</small>
+<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen">
+    <div class="container mx-auto px-4 py-4 h-screen flex items-center justify-center">
+        <div class="w-full max-w-4xl h-[95vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 md:p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <h1 class="text-xl md:text-2xl font-bold mb-1">🎓 NCERT Study Assistant</h1>
+                        <p class="text-sm md:text-base opacity-90">AI-powered learning companion</p>
                     </div>
-                    <div class="example-question" onclick="askQuestion('What is the water cycle?')">
-                        <strong>💧 Water Cycle</strong><br>
-                        <small>Water movement in nature</small>
-                    </div>
-                    <div class="example-question" onclick="askQuestion('Explain Newton laws of motion')">
-                        <strong>🚀 Physics</strong><br>
-                        <small>Motion and forces</small>
-                    </div>
-                    <div class="example-question" onclick="askQuestion('How does human digestion work?')">
-                        <strong>🫁 Biology</strong><br>
-                        <small>Digestive system</small>
+                    <div class="text-xs bg-white/20 px-3 py-1 rounded-full">
+                        <span id="statusInfo">Ready</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Typing Indicator -->
-            <div class="typing-indicator" id="typingIndicator">
-                <div class="typing-bubble">
-                    🤖 AI is thinking
-                    <div class="typing-dots">
-                        <span></span><span></span><span></span>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <!-- Status Messages -->
+            <div id="statusMessage" class="hidden mx-4 mt-4 p-3 rounded-lg text-sm font-medium"></div>
 
-        <!-- Chat Input -->
-        <div class="chat-input">
-            <div class="input-wrapper">
-                <textarea 
-                    id="messageInput" 
-                    class="chat-textarea" 
-                    placeholder="Ask me anything about your studies..." 
-                    rows="1"></textarea>
-                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2 21L23 12 2 3V10L17 12 2 14V21Z"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Ban Screen -->
-        <div class="ban-screen" id="banScreen">
-            <div class="ban-content">
-                <h2>🚫 Account Temporarily Suspended</h2>
-                <p>Your account has been suspended for violating community guidelines.</p>
-                
-                <div class="unban-section">
-                    <h3>Request Early Unban</h3>
-                    <form class="unban-form" onsubmit="sendUnbanRequest(event)">
-                        <input type="email" class="unban-input" id="unbanEmail" placeholder="Your email" required>
-                        <textarea class="unban-input" id="unbanReason" placeholder="Reason for unban..." rows="3" required></textarea>
-                        <button type="submit" class="unban-btn">Send Request</button>
-                    </form>
-                    
-                    <div class="admin-code-section">
-                        <p><small>Admin Override:</small></p>
-                        <div class="code-input">
-                            <input type="password" class="unban-input" id="adminCode" placeholder="Admin Code" style="width: 150px;">
-                            <button type="button" class="unban-btn" onclick="checkAdminCode()">Verify</button>
+            <!-- Chat Messages -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                <!-- Welcome Screen -->
+                <div id="welcomeScreen" class="text-center py-8">
+                    <div class="max-w-2xl mx-auto">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+                            Welcome to your AI Study Assistant!
+                        </h2>
+                        <p class="text-gray-600 mb-8 text-sm md:text-base">
+                            Ask me anything about your studies - I can explain concepts, solve problems, and help with homework!
+                        </p>
+                        
+                        <!-- Example Questions -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-xl border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all transform hover:scale-105" onclick="askQuestion('Explain photosynthesis in simple terms')">
+                                <div class="text-lg font-semibold text-blue-600 mb-2">🌱 Photosynthesis</div>
+                                <div class="text-sm text-gray-600">How do plants make food?</div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-xl border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all transform hover:scale-105" onclick="askQuestion('What is the water cycle?')">
+                                <div class="text-lg font-semibold text-blue-600 mb-2">💧 Water Cycle</div>
+                                <div class="text-sm text-gray-600">Water movement in nature</div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-xl border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all transform hover:scale-105" onclick="askQuestion('Explain Newton laws of motion')">
+                                <div class="text-lg font-semibold text-blue-600 mb-2">🚀 Physics</div>
+                                <div class="text-sm text-gray-600">Motion and forces</div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-xl border-2 border-transparent hover:border-blue-500 cursor-pointer transition-all transform hover:scale-105" onclick="askQuestion('How does human digestion work?')">
+                                <div class="text-lg font-semibold text-blue-600 mb-2">🫁 Biology</div>
+                                <div class="text-sm text-gray-600">Digestive system</div>
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div id="typingIndicator" class="hidden flex items-start space-x-3">
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">
+                        🤖
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl rounded-bl-none shadow-sm border">
+                        <div class="flex items-center space-x-1">
+                            <span class="text-gray-600 text-sm">AI is thinking</span>
+                            <div class="flex space-x-1">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="p-4 bg-white border-t border-gray-200">
+                <div class="flex items-end space-x-3">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <textarea 
+                                id="messageInput"
+                                rows="1"
+                                placeholder="Ask me anything about your studies..."
+                                class="w-full p-3 pr-12 border-2 border-gray-300 rounded-2xl resize-none focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors text-sm md:text-base"
+                                style="max-height: 120px;"
+                            ></textarea>
+                            <button 
+                                id="sendBtn"
+                                onclick="sendMessage()"
+                                class="absolute right-2 bottom-2 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-colors"
+                            >
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M2 21L23 12 2 3V10L17 12 2 14V21Z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ban Screen -->
+    <div id="banScreen" class="hidden fixed inset-0 bg-red-600 bg-opacity-95 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 md:p-8 max-w-md w-full text-center">
+            <div class="text-4xl mb-4">🚫</div>
+            <h2 class="text-2xl font-bold text-red-600 mb-4">Account Suspended</h2>
+            <p class="text-gray-600 mb-6">Your account has been suspended for violating community guidelines.</p>
+            
+            <div class="space-y-4">
+                <input type="email" id="unbanEmail" placeholder="Your email" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200">
+                <textarea id="unbanReason" placeholder="Reason for unban..." rows="3" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none"></textarea>
+                <button onclick="sendUnbanRequest()" class="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-colors">
+                    Send Unban Request
+                </button>
+                
+                <div class="pt-4 border-t">
+                    <p class="text-sm text-gray-500 mb-2">Admin Override:</p>
+                    <div class="flex space-x-2">
+                        <input type="password" id="adminCode" placeholder="Admin Code" class="flex-1 p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        <button onclick="checkAdminCode()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                            Verify
+                        </button>
                     </div>
                 </div>
             </div>
@@ -503,13 +166,11 @@
             publicKey: "rpRk2Ug-KURSyDb5U"
         };
 
-        const SYSTEM_CONFIG = {
-            MAX_VIOLATIONS: 10,
-            BAN_DURATION: 3 * 24 * 60 * 60 * 1000,
-            ADMIN_CODE: "290965"
-        };
+        const ADMIN_CODE = "290965";
+        const MAX_VIOLATIONS = 10;
+        const BAN_DURATION = 3 * 24 * 60 * 60 * 1000;
 
-        // Profanity filter
+        // Banned words
         const BANNED_WORDS = [
             'stupid', 'idiot', 'fool', 'dumb', 'moron', 'loser', 'hate',
             'kill', 'die', 'death', 'murder', 'violence', 'fight', 'attack',
@@ -519,12 +180,12 @@
         // Global variables
         let db, deviceId, currentUser = null;
 
-        // Initialize immediately when page loads
+        // Initialize immediately
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 NCERT Assistant started');
+            console.log('🚀 NCERT Assistant starting...');
             setupChat();
             initializeServices();
-            showStatus('🎉 Welcome! Your AI assistant is ready to help!', 'success');
+            showStatus('🎉 AI Assistant is ready to help!', 'success');
         });
 
         function setupChat() {
@@ -536,8 +197,8 @@
                 this.style.height = Math.min(this.scrollHeight, 120) + 'px';
             });
 
-            // Send on Enter
-            messageInput.addEventListener('keypress', function(e) {
+            // Send on Enter (mobile-friendly)
+            messageInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
@@ -550,24 +211,23 @@
         // Initialize services in background
         async function initializeServices() {
             try {
-                // Initialize EmailJS
+                // EmailJS
                 if (typeof emailjs !== 'undefined') {
                     emailjs.init(emailConfig.publicKey);
                     console.log('✅ EmailJS ready');
                 }
 
-                // Initialize Firebase
+                // Firebase
                 if (typeof firebase !== 'undefined') {
-                    const app = firebase.initializeApp(firebaseConfig);
+                    firebase.initializeApp(firebaseConfig);
                     db = firebase.firestore();
                     console.log('✅ Firebase ready');
                     
-                    // Setup user
                     deviceId = generateDeviceId();
                     await setupUser();
                 }
             } catch (error) {
-                console.warn('⚠️ Some services unavailable:', error);
+                console.warn('⚠️ Some services failed:', error);
             }
         }
 
@@ -609,26 +269,160 @@
         }
 
         function updateStatusInfo() {
-            document.getElementById('statusInfo').innerHTML = `
-                <div>Status: Ready</div>
-                <div>Violations: ${currentUser?.totalViolations || 0}/${SYSTEM_CONFIG.MAX_VIOLATIONS}</div>
-            `;
+            document.getElementById('statusInfo').textContent = 
+                `${currentUser?.totalViolations || 0}/${MAX_VIOLATIONS} warnings`;
         }
 
         async function checkBanStatus() {
-            if (!currentUser || !currentUser.banExpiry) return;
+            if (!currentUser?.banExpiry) return;
             
             const now = new Date();
             const banExpiry = currentUser.banExpiry.toDate();
             
             if (now < banExpiry) {
-                showBanScreen();
+                document.getElementById('banScreen').classList.remove('hidden');
             }
         }
 
+        // SEND MESSAGE FUNCTION - THIS IS THE KEY PART
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
-            if (!message) return;
+            
+            console.log('📤 Attempting to send message:', message);
+            
+            if (!message) {
+                console.log('❌ Empty message');
+                return;
+            }
 
-            // C
+            // Check for profanity
+            const isAllowed = await checkMessage(message);
+            if (!isAllowed) {
+                input.value = '';
+                return;
+            }
+
+            // Hide welcome screen
+            document.getElementById('welcomeScreen').style.display = 'none';
+            
+            // Add user message
+            addMessage('user', message);
+            
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+
+            // Show typing and get AI response
+            showTyping();
+            
+            try {
+                const response = await getAIResponse(message);
+                hideTyping();
+                addMessage('assistant', response);
+                console.log('✅ Message sent successfully');
+            } catch (error) {
+                hideTyping();
+                console.error('❌ AI response failed:', error);
+                addMessage('assistant', '❌ Sorry, I encountered an error. Please try again.');
+            }
+        }
+
+        async function checkMessage(message) {
+            const words = message.toLowerCase().split(/\s+/);
+            const badWords = words.filter(word => 
+                BANNED_WORDS.some(banned => word.includes(banned))
+            );
+            
+            if (badWords.length > 0) {
+                await recordViolation(badWords, message);
+                return false;
+            }
+            return true;
+        }
+
+        async function recordViolation(badWords, message) {
+            try {
+                if (!currentUser || !db) {
+                    showStatus(`⚠️ Warning: Inappropriate language (${badWords.join(', ')})`, 'warning');
+                    return;
+                }
+
+                const userRef = db.collection('users').doc(deviceId);
+                const violation = {
+                    timestamp: firebase.firestore.Timestamp.now(),
+                    words: badWords,
+                    message: message.substring(0, 100)
+                };
+                
+                const updatedViolations = [...currentUser.violations, violation];
+                const totalViolations = updatedViolations.length;
+                
+                let updateData = {
+                    violations: updatedViolations,
+                    totalViolations: totalViolations,
+                    lastViolation: firebase.firestore.Timestamp.now()
+                };
+                
+                if (totalViolations >= MAX_VIOLATIONS) {
+                    const banExpiry = new Date(Date.now() + BAN_DURATION);
+                    updateData.banExpiry = firebase.firestore.Timestamp.fromDate(banExpiry);
+                }
+                
+                await userRef.update(updateData);
+                Object.assign(currentUser, updateData);
+                updateStatusInfo();
+                
+                if (totalViolations >= MAX_VIOLATIONS) {
+                    document.getElementById('banScreen').classList.remove('hidden');
+                } else {
+                    const remaining = MAX_VIOLATIONS - totalViolations;
+                    showStatus(`⚠️ Warning: Inappropriate language (${badWords.join(', ')}). ${remaining} warnings left.`, 'warning');
+                }
+                
+            } catch (error) {
+                console.error('❌ Failed to record violation:', error);
+                showStatus(`⚠️ Warning: Inappropriate language (${badWords.join(', ')})`, 'warning');
+            }
+        }
+
+        async function getAIResponse(message) {
+            try {
+                // Try Puter.js AI
+                if (typeof window.puter !== 'undefined') {
+                    console.log('🤖 Using Puter.js AI');
+                    const response = await puter.ai.chat(
+                        `You are a helpful NCERT study assistant for Indian students. Answer this question clearly and educationally: ${message}`
+                    );
+                    return response.message || response;
+                }
+            } catch (error) {
+                console.warn('⚠️ Puter.js failed:', error);
+            }
+            
+            // Fallback response
+            return `Thank you for asking about "${message.substring(0, 50)}...". I'm currently experiencing some technical difficulties with my AI capabilities. Please check your NCERT textbook or ask your teacher for detailed information on this topic.`;
+        }
+
+        function askQuestion(question) {
+            document.getElementById('messageInput').value = question;
+            sendMessage();
+        }
+
+        function addMessage(sender, content) {
+            const container = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            
+            if (sender === 'user') {
+                messageDiv.className = 'flex items-start space-x-3 justify-end';
+                messageDiv.innerHTML = `
+                    <div class="bg-blue-500 text-white p-3 rounded-2xl rounded-br-none shadow-sm max-w-xs md:max-w-md break-words">
+                        <p class="text-sm md:text-base">${content}</p>
+                        <div class="text-xs opacity-75 mt-1">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">
+                        👤
+                    </div>
+                `;
+            } else {
+                messageDiv.className = 'flex items-star
