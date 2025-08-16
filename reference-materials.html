@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCERT Diagram Generator</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        /* CSS Variables for theme support */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --accent-color: #0d6efd;
+            --accent-hover: #0b5ed7;
+            --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --success-color: #198754;
+            --warning-color: #fd7e14;
+            --danger-color: #dc3545;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #212529;
+            --bg-secondary: #343a40;
+            --bg-card: #495057;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --border-color: #495057;
+            --accent-color: #0d6efd;
+            --accent-hover: #0b5ed7;
+            --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 150px;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+        }
+
+        .control-group select:disabled,
+        .control-group input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: var(--bg-secondary);
+        }
+
+        .toggle-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            align-self: flex-end;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        /* Main Grid */
+        .main-content {
+            min-height: 400px;
+        }
+
+        .gate-message {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .diagram-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 200px;
+        }
+
+        .diagram-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-color);
+        }
+
+        .diagram-card:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+        }
+
+        .card-thumbnail {
+            width: 100%;
+            height: 120px;
+            background-color: var(--bg-secondary);
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .card-thumbnail img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .card-thumbnail .placeholder {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .card-subject {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .generate-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .generate-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-diagram {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            background-color: var(--bg-secondary);
+        }
+
+        .modal-description {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Error states */
+        .error-message {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .control-group {
+                min-width: auto;
+            }
+            
+            .diagram-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+            
+            .modal {
+                padding: 1rem;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            .print-content,
+            .print-content * {
+                visibility: visible;
+            }
+            
+            .print-content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+
+        /* Skeleton loading */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--border-color) 50%, var(--bg-secondary) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Developer Note: To swap Puter for another provider, replace the generateDiagram() and 
+         storage functions in the Puter API section. The interface expects:
+         - generateDiagram(topic) returns Promise<{url, content}>
+         - saveToStorage(key, data) and loadFromStorage(key) for caching
+         - listStorageFiles(classNum) for checking existing diagrams -->
+
+    <div class="container">
+        <header class="header">
+            <h1>NCERT Diagram Generator</h1>
+            <p>Interactive educational diagrams for classes 6-10 • Generated on-demand with AI</p>
+        </header>
+
+        <div class="error-message" id="errorMessage" role="alert"></div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="classSelect">Class *</label>
+                <select id="classSelect" aria-label="Select your class">
+                    <option value="">Select Class</option>
+                    <option value="6">Class 6</option>
+                    <option value="7">Class 7</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="subjectFilter">Subject</label>
+                <select id="subjectFilter" disabled aria-label="Filter by subject">
+                    <option value="">All Subjects</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="searchBox">Search</label>
+                <input type="text" id="searchBox" placeholder="Search diagrams..." disabled aria-label="Search diagrams">
+            </div>
+            
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button class="toggle-btn" id="themeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <div class="gate-message" id="gateMessage">
+                Please select your class to view diagrams.
+            </div>
+            
+            <div class="diagram-grid" id="diagramGrid" style="display: none;"></div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="diagramModal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Diagram Title</h2>
+                <button class="close-btn" id="closeModal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img class="modal-diagram" id="modalDiagram" alt="Diagram">
+                <div class="modal-description" id="modalDescription"></div>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="printBtn">🖨️ Print Diagram</button>
+                    <button class="btn btn-secondary" id="downloadBtn">⬇️ Download SVG</button>
+                    <button class="btn btn-secondary" id="regenerateBtn">🔄 Regenerate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><strong>Tips:</strong> Click any diagram to view full-size • Use keyboard navigation (Tab, Enter, Esc)</p>
+            <p>Powered by <strong>Puter.js</strong> • Educational content aligned with NCERT curriculum</p>
+        </div>
+    </footer>
+
+    <div class="print-content" style="display: none;">
+        <h1 id="printTitle"></h1>
+        <img id="printDiagram" style="max-width: 100%; height: auto; margin: 1rem 0;">
+        <div id="printDescription" style="font-size: 14px; line-height: 1.6;"></div>
+    </div>
+
+    <script>
+        // ============= STATE =============
+        let state = {
+            selectedClass: null,
+            topics: [],
+            filteredTopics: [],
+            generatedDiagrams: new Map(),
+            selectedTopic: null,
+            puterInitialized: false
+        };
+
+        // ============= DATA MODEL =============
+        const TOPICS = {
+            6: [
+                { id: 'food-sources', title: 'Food Sources', subject: 'Science', prompt: 'Create a labeled diagram showing different food sources - plants (fruits, vegetables, grains) and animals (milk, eggs, meat), with clear illustrations and labels', description: 'Different sources of food from plants and animals that provide essential nutrients for human body.' },
+                { id: 'plant-parts', title: 'Parts of a Plant', subject: 'Science', prompt: 'Draw a complete plant diagram with labeled parts: roots, stem, leaves, flowers, fruits, and seeds, showing their functions', description: 'Basic structure of a flowering plant showing roots for absorption, stem for transport, leaves for photosynthesis.' },
+                { id: 'human-body', title: 'Human Body Systems', subject: 'Science', prompt: 'Simple diagram of human body showing major organ systems - digestive, respiratory, circulatory with basic labels', description: 'Overview of major body systems working together to maintain life and health.' },
+                { id: 'water-cycle', title: 'Water Cycle', subject: 'Science', prompt: 'Illustrate the water cycle with sun, clouds, rain, rivers, ocean, evaporation, condensation, precipitation labeled clearly', description: 'Continuous movement of water through evaporation, condensation, and precipitation in nature.' },
+                { id: 'solar-system', title: 'Solar System', subject: 'Science', prompt: 'Draw the solar system with sun at center and 8 planets in order with their relative sizes and names labeled', description: 'Our solar system with the Sun and eight planets orbiting around it in elliptical paths.' },
+                { id: 'fiber-to-fabric', title: 'Fiber to Fabric', subject: 'Science', prompt: 'Show the process from cotton plant to cotton fiber to thread to fabric with step-by-step illustrations', description: 'Process of making fabric from natural fibers like cotton through spinning and weaving.' },
+                { id: 'simple-machines', title: 'Simple Machines', subject: 'Science', prompt: 'Diagram showing 6 simple machines: lever, pulley, wheel and axle, inclined plane, screw, wedge with examples', description: 'Basic machines that make work easier by changing the direction or magnitude of force.' },
+                { id: 'animal-habitats', title: 'Animal Habitats', subject: 'Science', prompt: 'Show different habitats (forest, desert, ocean, grassland) with animals that live in each environment', description: 'Different environments where animals live and adaptations that help them survive.' }
+            ],
+            7: [
+                { id: 'nutrition-plants', title: 'Nutrition in Plants', subject: 'Science', prompt: 'Detailed diagram of photosynthesis showing leaf cross-section, chloroplasts, sunlight, CO2, water, and oxygen production', description: 'Process by which green plants make their own food using sunlight, carbon dioxide, and water.' },
+                { id: 'nutrition-animals', title: 'Nutrition in Animals', subject: 'Science', prompt: 'Human digestive system diagram with mouth, esophagus, stomach, small intestine, large intestine, liver, pancreas labeled', description: 'Complete digestive system showing the journey of food and breakdown into nutrients.' },
+                { id: 'respiration', title: 'Respiration in Organisms', subj
