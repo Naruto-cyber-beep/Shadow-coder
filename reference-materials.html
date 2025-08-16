@@ -1,463 +1,350 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="description" content="Professional NCERT Study Assistant - AI-powered educational platform for Indian students">
-    <meta name="keywords" content="NCERT, Study Assistant, AI, Education, Indian Curriculum">
-    <meta name="author" content="Educational Technology Solutions">
-    <meta name="robots" content="index, follow">
-    
-    <!-- Progressive Web App -->
-    <meta name="theme-color" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="NCERT Assistant">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="NCERT Study Assistant - Professional AI Learning Platform">
-    <meta property="og:description" content="Advanced AI-powered educational assistant for NCERT curriculum">
-    <meta property="og:type" content="website">
-    
-    <title>NCERT Study Assistant | Professional AI Educational Platform</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
-    
-    <!-- External Libraries -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-performance-compat.js"></script>
-    
-    <!-- Puter.js AI -->
-    <script src="https://js.puter.com/v2/"></script>
-    
-    <!-- EmailJS -->
-    <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
-    
-    <!-- Custom Tailwind Configuration -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        },
-                        secondary: {
-                            50: '#faf5ff',
-                            100: '#f3e8ff',
-                            200: '#e9d5ff',
-                            300: '#d8b4fe',
-                            400: '#c084fc',
-                            500: '#a855f7',
-                            600: '#9333ea',
-                            700: '#7c3aed',
-                            800: '#6b21a8',
-                            900: '#581c87',
-                        }
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-up': 'slideUp 0.3s ease-out',
-                        'slide-down': 'slideDown 0.3s ease-out',
-                        'scale-in': 'scaleIn 0.2s ease-out',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'bounce-slow': 'bounce 2s infinite',
-                        'typing': 'typing 1.5s steps(40, end) infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(10px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        slideDown: {
-                            '0%': { transform: 'translateY(-10px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        scaleIn: {
-                            '0%': { transform: 'scale(0.95)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' },
-                        },
-                        typing: {
-                            '0%, 50%': { opacity: '1' },
-                            '51%, 100%': { opacity: '0' },
-                        }
-                    },
-                    screens: {
-                        'xs': '475px',
-                        '3xl': '1600px',
-                    },
-                    fontFamily: {
-                        'professional': ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Custom Styles -->
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
-        
-        * {
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 6px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: linear-gradient(to bottom, #667eea, #764ba2);
-            border-radius: 6px;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(to bottom, #5a67d8, #6b46c1);
-        }
-        
-        /* Glass Morphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        
-        .glass-dark {
-            background: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        /* Message Bubble Animations */
-        .message-enter {
-            animation: messageSlideIn 0.3s ease-out;
-        }
-        
-        @keyframes messageSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        /* Typing Animation */
-        .typing-dot {
-            animation: typingBounce 1.4s infinite ease-in-out;
-        }
-        
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        .typing-dot:nth-child(3) { animation-delay: 0s; }
-        
-        @keyframes typingBounce {
-            0%, 80%, 100% {
-                transform: scale(0);
-                opacity: 0.5;
-            }
-            40% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        
-        /* Advanced Button Effects */
-        .btn-premium {
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .btn-premium::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-        
-        .btn-premium:hover::before {
-            left: 100%;
-        }
-        
-        .btn-premium:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-        
-        /* Professional Card Hover Effects */
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Advanced Loading Spinner */
-        .spinner-professional {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Professional Status Indicators */
-        .status-online {
-            position: relative;
-        }
-        
-        .status-online::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 12px;
-            height: 12px;
-            background: #10b981;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        
-        /* Mobile Touch Feedback */
-        .touch-feedback {
-            transition: all 0.1s ease;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        .touch-feedback:active {
-            transform: scale(0.98);
-            opacity: 0.8;
-        }
-        
-        /* Professional Form Styling */
-        .form-professional {
-            position: relative;
-        }
-        
-        .form-professional input:focus + .form-label,
-        .form-professional input:not(:placeholder-shown) + .form-label {
-            transform: translateY(-24px) scale(0.8);
-            color: #667eea;
-        }
-        
-        .form-label {
-            position: absolute;
-            left: 12px;
-            top: 12px;
-            transition: all 0.2s ease;
-            pointer-events: none;
-            color: #6b7280;
-        }
-        
-        /* Advanced Gradient Text */
-        .gradient-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        /* Professional Shadows */
-        .shadow-professional {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
-        .shadow-professional-lg {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .shadow-professional-xl {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        /* Advanced Responsive Text */
-        @media (max-width: 640px) {
-            .text-responsive-xl {
-                font-size: 1.5rem;
-                line-height: 2rem;
-            }
-        }
-        
-        @media (min-width: 641px) {
-            .text-responsive-xl {
-                font-size: 2.25rem;
-                line-height: 2.5rem;
-            }
-        }
-        
-        /* Professional Loading States */
-        .loading-skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-        
-        @keyframes loading {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-        
-        /* Advanced Mobile Optimizations */
-        @supports (-webkit-touch-callout: none) {
-            .ios-safe-area {
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-        }
-        
-        /* Professional Dark Mode Support */
-        @media (prefers-color-scheme: dark) {
-            .auto-dark {
-                background: #1f2937;
-                color: #f9fafb;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <title>Study Assistant — NCERT Summarizer & Explainer (Puter.js)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg: #0b1020; --card:#11172b; --text:#e8ecf3; --muted:#9fb0c6; --accent:#6aa9ff; --accent-2:#00d4a6; --danger:#ff6a7a;
+      --border:#1c2542; --chip:#1a2a48; --shadow:0 8px 24px rgba(0,0,0,.35);
+    }
+    @media (prefers-color-scheme: light) {
+      :root{ --bg:#f7f9ff; --card:#ffffff; --text:#0c1326; --muted:#475569; --accent:#2b6ef7; --accent-2:#10b981; --border:#e5e9f5; --chip:#eef2ff; --shadow:0 8px 24px rgba(15,23,42,.08) }
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:500 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    .wrap{max-width:1000px;margin:24px auto;padding:0 16px}
+    header{display:flex;gap:14px;align-items:center;justify-content:space-between;margin:6px 0 16px}
+    h1{font-size:22px;margin:0}
+    .badge{background:var(--chip);color:var(--accent);padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;border:1px solid var(--border)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
+    .controls .row{display:flex;gap:8px;flex-wrap:wrap}
+    label{font-size:12px;color:var(--muted)}
+    select,input[type="text"],textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);outline:none}
+    textarea{min-height:140px;resize:vertical}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:13px;cursor:pointer}
+    .chip[data-active="true"]{outline:2px solid var(--accent)}
+    .btns{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);cursor:pointer;background:linear-gradient(0deg,transparent,transparent);color:var(--text)}
+    .btn.primary{background:linear-gradient(180deg,var(--accent),#4b7df6);border:none;color:white}
+    .btn.ghost{background:transparent}
+    .btn.warn{background:linear-gradient(180deg,#ff758f,#ff5975);border:none;color:#fff}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .status{font-size:13px;color:var(--muted);padding:8px 14px;border-top:1px dashed var(--border)}
+    .chat{margin-top:16px}
+    .msg{padding:16px 18px;border-bottom:1px dashed var(--border)}
+    .msg.u{background:linear-gradient(180deg,rgba(106,169,255,.08),transparent)}
+    .msg.ai{background:linear-gradient(180deg,rgba(16,185,129,.08),transparent)}
+    .msg h4{margin:0 0 8px 0;font-size:13px;color:var(--muted)}
+    .msg pre{white-space:pre-wrap;word-wrap:break-word;margin:0}
+    .foot{margin:18px 0 40px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;color:var(--muted)}
+    .right{display:flex;gap:10px;align-items:center}
+    .kbd{border:1px solid var(--border);padding:2px 6px;border-radius:6px;background:var(--chip);font-size:12px}
+    .tiny{font-size:12px;color:var(--muted)}
+    .save-dot{width:8px;height:8px;border-radius:999px;background:var(--accent-2);display:inline-block;margin-left:6px}
+    .danger{color:var(--danger)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .flex{display:flex;gap:10px;flex-wrap:wrap}
+    .grow{flex:1}
+  </style>
 </head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>📘 Study Assistant</h1>
+        <div class="tiny">Summarize • Explain • NCERT-style Q&A — Powered by <span class="mono">Puter.js</span></div>
+      </div>
+      <span class="badge">Client-only · No API keys</span>
+    </header>
 
-<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen font-professional antialiased overflow-hidden">
-    <!-- Professional Noise Texture Overlay -->
-    <div class="fixed inset-0 opacity-[0.02] pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23000000" fill-opacity="1"%3E%3Ccircle cx="7" cy="7" r="1"/%3E%3Ccircle cx="27" cy="7" r="1"/%3E%3Ccircle cx="47" cy="7" r="1"/%3E%3Ccircle cx="7" cy="27" r="1"/%3E%3Ccircle cx="27" cy="27" r="1"/%3E%3Ccircle cx="47" cy="27" r="1"/%3E%3Ccircle cx="7" cy="47" r="1"/%3E%3Ccircle cx="27" cy="47" r="1"/%3E%3Ccircle cx="47" cy="47" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
-    
-    <!-- Main Application Container -->
-    <div class="relative h-screen flex items-center justify-center p-2 sm:p-4 lg:p-6">
-        <div class="w-full max-w-7xl h-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-professional-xl border border-white/50 flex flex-col overflow-hidden" x-data="chatApp()">
-            
-            <!-- Professional Header Section -->
-            <header class="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white overflow-hidden">
-                <!-- Animated Background Pattern -->
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, #ffffff 2px, transparent 2px), radial-gradient(circle at 75% 75%, #ffffff 2px, transparent 2px); background-size: 50px 50px;"></div>
-                </div>
-                
-                <!-- Header Content -->
-                <div class="relative z-10 p-4 sm:p-6 lg:p-8">
-                    <div class="flex items-center justify-between">
-                        <!-- Logo and Title Section -->
-                        <div class="flex items-center space-x-4">
-                            <div class="relative">
-                                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                                    <span class="text-2xl sm:text-3xl">🎓</span>
-                                </div>
-                                <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
-                            </div>
-                            <div>
-                                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                                    NCERT Study Assistant
-                                </h1>
-                                <p class="text-xs sm:text-sm lg:text-base text-blue-100 font-medium">
-                                    Professional AI Educational Platform
-                                </p>
-                                <div class="flex items-center space-x-2 mt-1">
-                                    <div class="flex items-center space-x-1">
-                                        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                        <span class="text-xs text-green-200">Online</span>
-                                    </div>
-                                    <div class="w-1 h-1 bg-white/40 rounded-full"></div>
-                                    <span class="text-xs text-blue-200" x-text="'Active Users: ' + activeUsers"></span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Status and Controls -->
-                        <div class="flex items-center space-x-3">
-                            <!-- Violation Counter -->
-                            <div class="hidden sm:flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5">
-                                <div class="w-2 h-2 rounded-full" :class="violationStatus.color"></div>
-                                <span class="text-xs font-medium" x-text="violationStatus.text"></span>
-                            </div>
-                            
-                            <!-- Professional Menu Button -->
-                            <button @click="showAdminPanel = !showAdminPanel" class="relative group">
-                                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-all duration-200">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                                    </svg>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Advanced Status Bar -->
-                    <div class="mt-4 flex items-center justify-between text-xs sm:text-sm">
-                        <div class="flex items-center space-x-4">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                <span>AI Connected</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-2 h-2" :class="firebaseStatus ? 'bg-green-400' : 'bg-red-400'" class="rounded-full"></div>
-                                <span x-text="firebaseStatus ? 'Database Online' : 'Database Offline'"></span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-2 h-2" :class="puterStatus ? 'bg-green-400' : 'bg-yellow-400'" class="rounded-full"></div>
-                                <span x-text="puterStatus ? 'AI Ready' : 'AI Limited'"></span>
-                            </div>
-                        </div>
-                        <div class="text-blue-200">
-                            <span x-text="'Session: ' + sessionId.substring(0, 8)"></span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Professional Progress Wave -->
-                <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 opacity-60">
-                    <div class="h-full bg-white/30 animate-pulse"></div>
-                </div>
-            </header>
+    <!-- Controls -->
+    <section class="card">
+      <div class="controls">
+        <div class="row">
+          <div class="grow">
+            <label for="mode">Mode</label>
+            <select id="mode">
+              <option value="summarize">Summarize Text</option>
+              <option value="explain">Explain a Concept</option>
+              <option value="qa" selected>Ask a Question</option>
+            </select>
+          </div>
+          <div class="grow">
+            <label for="class">Class (NCERT focus)</label>
+            <select id="class">
+              <option value="">— Optional —</option>
+              <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+            </select>
+          </div>
+        </div>
 
-            <!-- Professional Status Message System -->
-            <div x-show="statusMessage.show" 
-                 x-transition:enter="transition ease-out duration-300"
-               
+        <div class="row">
+          <div class="grow">
+            <label for="subject">Subject</label>
+            <select id="subject">
+              <option>General</option><option>Science</option><option>Biology</option><option>Physics</option><option>Chemistry</option>
+              <option>Maths</option><option>History</option><option>Geography</option><option>Civics</option><option>Hindi</option><option>English</option>
+            </select>
+          </div>
+          <div class="grow">
+            <label for="tone">Style</label>
+            <select id="tone">
+              <option value="simple" selected>Simple student-friendly</option>
+              <option value="exam">Exam-focused (points)</option>
+              <option value="teacher">Teacher explanation</option>
+              <option value="flash">Flashcards (Q→A)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="grow">
+            <label for="query">Your prompt / text</label>
+            <textarea id="query" placeholder="Type your question, concept, or paste a passage to summarize..."></textarea>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="chips" id="quick">
+            <span class="chip" data-t="Define with examples">Define + examples</span>
+            <span class="chip" data-t="Give key formulas and units">Key formulas</span>
+            <span class="chip" data-t="Make 10 MCQs with answers">10 MCQs</span>
+            <span class="chip" data-t="Explain step by step with analogy">Step-by-step</span>
+            <span class="chip" data-t="Give past-year style questions">PYQ-style</span>
+            <span class="chip" data-t="Create a 1-page revision sheet">1-page notes</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="btns">
+            <button id="ask" class="btn primary">Generate Answer</button>
+            <button id="clear" class="btn ghost">Clear</button>
+            <button id="export" class="btn ghost">Export .txt</button>
+            <button id="save" class="btn ghost">Save to Puter <span id="saved" class="save-dot" style="opacity:0"></span></button>
+            <button id="load" class="btn ghost">Load Last</button>
+            <button id="newChat" class="btn warn">New Chat</button>
+          </div>
+        </div>
+      </div>
+      <div class="status" id="status">Ready.</div>
+    </section>
+
+    <!-- Chat -->
+    <section id="chat" class="chat card" aria-live="polite"></section>
+
+    <footer class="foot">
+      <div>Tip: Press <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to send. Responses are generated on-device via Puter’s AI bridge.</div>
+      <div class="right tiny">Puter storage used for transcripts only. <span class="danger">Don’t paste private data.</span></div>
+    </footer>
+  </div>
+
+  <!-- Puter.js -->
+  <script src="https://js.puter.com/v2/"></script>
+  <script>
+    // ---------- basic state ----------
+    const els = {
+      mode: document.getElementById('mode'),
+      class: document.getElementById('class'),
+      subject: document.getElementById('subject'),
+      tone: document.getElementById('tone'),
+      query: document.getElementById('query'),
+      chat: document.getElementById('chat'),
+      status: document.getElementById('status'),
+      ask: document.getElementById('ask'),
+      clear: document.getElementById('clear'),
+      export: document.getElementById('export'),
+      save: document.getElementById('save'),
+      load: document.getElementById('load'),
+      newChat: document.getElementById('newChat'),
+      quick: document.getElementById('quick'),
+      saved: document.getElementById('saved'),
+    };
+    let conversation = [];
+
+    // ---------- helpers ----------
+    const nowISO = () => new Date().toISOString().replace('T',' ').split('.')[0];
+    function setStatus(t){ els.status.textContent = t; }
+    function addMsg(role, text){
+      const div = document.createElement('div');
+      div.className = `msg ${role==='user'?'u':'ai'}`;
+      div.innerHTML = `<h4>${role==='user'?'You':'Assistant'} • <span class="tiny">${nowISO()}</span></h4><pre>${escapeHTML(text)}</pre>`;
+      els.chat.prepend(div);
+      conversation.push({role, text, t: Date.now()});
+    }
+    function escapeHTML(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+    function buildSystemPrompt(){
+      const cls = els.class.value ? `Class ${els.class.value}` : `appropriate class level`;
+      const subj = els.subject.value;
+      const tone = els.tone.value;
+      const mode = els.mode.value;
+
+      const base = [
+        `You are a patient NCERT-aligned study tutor.`,
+        `Write in simple, exam-friendly language. Use short paragraphs and bullet points.`,
+        `When useful, add tiny examples or analogies. Avoid fluff.`,
+        `If formulas appear, include correct SI units.`,
+        `If asked to summarize pasted text, keep key ideas and definitions; remove filler.`,
+        `If the user requests MCQs, include an answer key at the end.`,
+        `If the user requests steps/derivations, show them in order.`,
+        `Avoid unsafe or adult content. If a request is off-topic or unsafe, say so briefly and suggest a safe, study-related alternative.`
+      ].join('\n');
+
+      const modeLine = ({
+        summarize: `Task: Summarize the provided passage for ${cls} (${subj}). Keep headings and bullet points.`,
+        explain:   `Task: Explain the concept clearly for ${cls} (${subj}). Include definition, key points, and a quick example.`,
+        qa:        `Task: Answer the user's question for ${cls} (${subj}) with precision.`
+      })[mode];
+
+      const toneLine = ({
+        simple: `Style: Simple student-friendly.`,
+        exam:   `Style: Exam-focused points with bolded keywords where helpful.`,
+        teacher:`Style: Teacher talk-through with steps and checks.`,
+        flash:  `Style: Flashcards (Q: … A: …) for each key point.`
+      })[tone];
+
+      return `${base}\n\n${modeLine}\n${toneLine}\nAlways verify calculations carefully.`;
+    }
+
+    async function aiReply(userText){
+      // Compose a single prompt; Puter exposes a high-level chat helper.
+      // From docs: puter.ai.chat("prompt").then(...)
+      const sys = buildSystemPrompt();
+      const prompt = `${sys}\n\nUser:\n${userText}`;
+
+      // basic profanity guard (client-side only; optional)
+      if (/[^\w](sex|porn|nude|suicide|kill|terror|bomb)[^\w]/i.test(userText)) {
+        return "I can’t help with that. Please ask a study-related question aligned to NCERT.";
+      }
+
+      try{
+        setStatus("Thinking… (Puter.ai)");
+        // NOTE: We call a single-shot chat. If streaming is added later, you can upgrade this.
+        const out = await puter.ai.chat(prompt);
+        setStatus("Ready.");
+        return String(out ?? "").trim();
+      }catch(err){
+        console.error(err);
+        setStatus("AI error — using fallback explanation.");
+        // graceful fallback if AI unavailable
+        return [
+          "⚠️ AI is temporarily unavailable. Here’s a structured outline you can expand:",
+          "",
+          "• Definition:",
+          "• Key points (3–6 bullets):",
+          "• Example:",
+          "• Common mistakes:",
+          "• Quick recap:"
+        ].join("\n");
+      }
+    }
+
+    // ---------- events ----------
+    els.ask.addEventListener('click', async ()=>{
+      const q = els.query.value.trim();
+      if (!q){ setStatus("Type your question/text first."); return; }
+      addMsg('user', renderHeaderLine() + "\n" + q);
+      els.ask.disabled = true; setStatus("Sending…");
+      const a = await aiReply(q);
+      addMsg('assistant', a);
+      els.ask.disabled = false; setStatus("Ready.");
+      pulseSaved(false);
+    });
+
+    els.clear.addEventListener('click', ()=>{ els.query.value = ""; setStatus("Cleared input."); });
+    els.newChat.addEventListener('click', ()=>{ conversation = []; els.chat.innerHTML = ""; setStatus("Started a new chat."); });
+    els.export.addEventListener('click', ()=>{
+      const txt = conversation.map(m => `${m.role.toUpperCase()} @ ${new Date(m.t).toLocaleString()}\n${m.text}\n`).join('\n---\n');
+      const blob = new Blob([txt], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), {href:url, download:`study-assistant-${Date.now()}.txt`});
+      a.click(); URL.revokeObjectURL(url);
+    });
+
+    function pulseSaved(isSaved){
+      els.saved.style.opacity = isSaved ? 1 : 0;
+    }
+
+    // Save/load transcript to Puter storage
+    els.save.addEventListener('click', async ()=>{
+      try{
+        setStatus("Saving transcript to Puter…");
+        const path = `/study-assistant/chats/${Date.now()}-${(els.subject.value||'General').toLowerCase()}.json`;
+        const body = JSON.stringify({meta:getMeta(), conversation}, null, 2);
+        await puter.fs.write(path, body); // Puter filesystem write
+        setStatus(`Saved: ${path}`); pulseSaved(true);
+      }catch(e){ console.error(e); setStatus("Save failed."); pulseSaved(false); }
+    });
+
+    els.load.addEventListener('click', async ()=>{
+      try{
+        setStatus("Loading last transcript…");
+        const dir = `/study-assistant/chats`;
+        const items = await puter.fs.list(dir); // list directory
+        if (!items || !items.length){ setStatus("No saved chats yet."); return; }
+        items.sort((a,b)=> b.mtime - a.mtime);
+        const latest = items[0];
+        const data = await puter.fs.read(latest.path);
+        const parsed = JSON.parse(data||'{}');
+        conversation = parsed.conversation || [];
+        els.chat.innerHTML = "";
+        for (const m of conversation.slice().reverse()){
+          addMsg(m.role==='user'?'user':'assistant', m.text);
+        }
+        setStatus("Loaded last chat.");
+      }catch(e){ console.error(e); setStatus("Load failed."); }
+    });
+
+    // quick chips → append helper text
+    els.quick.addEventListener('click', e=>{
+      const chip = e.target.closest('.chip'); if(!chip) return;
+      const t = chip.getAttribute('data-t');
+      els.query.value = (els.query.value.trim() ? els.query.value+"\n" : "") + t + ".";
+      chip.dataset.active = chip.dataset.active === "true" ? "false" : "true";
+      setTimeout(()=> chip.dataset.active = "false", 400);
+    });
+
+    // keyboard: Ctrl+Enter to send
+    document.addEventListener('keydown', e=>{
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ els.ask.click(); }
+    });
+
+    // ---------- UI utils ----------
+    function renderHeaderLine(){
+      const parts = [];
+      if (els.class.value) parts.push(`Class ${els.class.value}`);
+      if (els.subject.value && els.subject.value !== 'General') parts.push(els.subject.value);
+      if (els.mode.value) parts.push(els.mode.value.charAt(0).toUpperCase()+els.mode.value.slice(1));
+      if (els.tone.value) parts.push(els.tone.options[els.tone.selectedIndex].text);
+      return parts.length ? `[${parts.join(' • ')}]` : "[General]";
+    }
+    function getMeta(){
+      return {
+        class: els.class.value || null,
+        subject: els.subject.value,
+        mode: els.mode.value,
+        tone: els.tone.value,
+        ts: Date.now()
+      };
+    }
+
+    // ---------- Safety note ----------
+    // For serious moderation, add a server rule or Puter Function that screens prompts before calling puter.ai.chat.
+
+    // ---------- Minimal Puter feature checks ----------
+    (async function init(){
+      try{
+        // Optional: create base folder if missing (no error if exists)
+        await puter.fs.mkdir('/study-assistant/chats').catch(()=>{});
+        setStatus("Ready.");
+      }catch(e){
+        console.warn("Puter init warning:", e);
+        setStatus("Ready (limited: storage may be unavailable).");
+      }
+    })();
+  </script>
+</body>
+                                                                                                         </html>
