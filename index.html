@@ -1,124 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!------- META & FONTS ------->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ShadowEd • The Future of Learning</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-  <!------- ORIGINAL STYLES (unaltered) ------->
   <style>
-    :root{--primary:#4250ea;--accent:#15d4c8;--shadow:#372987;--soft:#f7faff;--coin:#ffd600;--gaming:#ea43a5;--server:#19a9ee;--dark:#111733;}
-    body{margin:0;background:#f7faff;min-height:100vh;color:var(--dark);font-family:'Inter',Arial,sans-serif;}
-    header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:2rem 4vw;background:#fff;box-shadow:0 2px 9px 0 #6e93fa13;border-radius:0 0 24px 24px;min-height:85px;gap:2vw;}
-    .logo{font-family:'Montserrat',Arial,sans-serif;font-size:2rem;font-weight:800;letter-spacing:1.5px;color:var(--primary);display:flex;align-items:center;gap:.55em;user-select:none;}
-    .coins-display{background:var(--coin);color:#252107;padding:.45em 1em;border-radius:50px;font-weight:800;display:flex;align-items:center;font-size:1.1rem;box-shadow:0 2px 7px 0 rgba(255,201,50,0.08);gap:.8em;margin:0 1vw;}
-    .coins-icon{font-size:1.5em;color:#ffd700;}
-    .nav-main{display:flex;flex-wrap:wrap;gap:1vw;align-items:center;justify-content:flex-end;min-width:255px;}
-    .nav-main a{font-size:1.09em;color:#23316b;text-decoration:none;font-weight:700;border-radius:1em;box-sizing:border-box;transition:color .15s,background .18s;padding:.32em 1em;background:none;outline:none;display:inline-block;}
-    .nav-main a.gaming-btn,.nav-main a.server-btn{padding:.38em 1.22em;font-size:1.09em;font-weight:900;background:linear-gradient(92deg,var(--gaming) 60%,var(--primary) 100%);color:#fff;border:none;border-radius:32px;box-shadow:0 2px 13px #ea43a522;cursor:pointer;}
-    .nav-main a.server-btn{background:linear-gradient(90deg,var(--server) 60%,var(--primary) 100%);box-shadow:0 2px 9px #19a9ee33;}
-    .nav-main a:hover,.nav-main a:focus{background:#e5eaff;color:var(--primary);text-decoration:none;}
-    .gaming-btn:hover{background:linear-gradient(90deg,#4250ea,#ea43a5 70%);}
-    .server-btn:hover{background:linear-gradient(90deg,#4250ea 30%,#19a9ee 100%);}
-    .menu-btn{display:none;}
-    main{max-width:1240px;margin:0 auto;padding:2.9rem 2vw 2.1rem 2vw;}
-    .hero-content{margin-bottom:2.2rem;}
-    .hero-content h1{font-family:'Montserrat',sans-serif;font-size:2.25rem;font-weight:900;line-height:1.12em;color:var(--primary);margin-bottom:.2em;}
-    .hero-content p{font-size:1.13rem;color:#1f3554d7;font-weight:600;margin-bottom:.73em;}
-    .hero-buttons{display:flex;gap:1.1em;flex-wrap:wrap;}
-    .section-resources{width:100%;margin:2.1em 0;display:flex;flex-wrap:wrap;gap:1.4em 2vw;justify-content:center;}
-    .resource-card{background:#fff;box-shadow:0 2px 10px #4250ea09;border-radius:15px;padding:1.7em 1.13em 1.13em;min-width:160px;max-width:250px;flex:1 1 200px;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;position:relative;margin-bottom:.5em;transition:box-shadow .13s,transform .13s,background .16s;}
-    .resource-card:hover{box-shadow:0 7px 19px #19a9ee1a;background:linear-gradient(134deg,#eaf3ff 92%,#fff 100%);transform:translateY(-2px) scale(1.01);}
-    .resource-icon{font-size:2em;margin-bottom:.32em;color:var(--primary);}
+    :root {
+      --primary: #4250ea;
+      --accent: #15d4c8;
+      --shadow: #372987;
+      --soft: #f7faff;
+      --coin: #ffd600;
+      --gaming: #ea43a5;
+      --server: #19a9ee;
+      --dark: #111733;
+    }
+    body {
+      margin: 0;
+      background: #f7faff;
+      min-height: 100vh;
+      color: var(--dark);
+      font-family: 'Inter', Arial, sans-serif;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      padding: 2rem 4vw;
+      background: #fff;
+      box-shadow: 0 2px 9px 0 #6e93fa13;
+      border-radius: 0 0 24px 24px;
+      min-height: 85px;
+      gap: 2vw;
+    }
+    .logo {
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: var(--primary);
+      display: flex; align-items: center; gap: .55em; user-select: none;
+    }
+    .coins-display {
+      background: var(--coin);
+      color: #252107;
+      padding: .45em 1em;
+      border-radius: 50px;
+      font-weight: 800;
+      display: flex; align-items: center;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 7px 0 rgba(255,201,50,0.08);
+      gap: .8em;
+      margin: 0 1vw;
+    }
+    .coins-icon { font-size: 1.5em; color: #ffd700; }
+    .nav-main {
+      display: flex; flex-wrap: wrap; gap: 1vw;
+      align-items: center; justify-content: flex-end;
+      min-width: 255px;
+    }
+    .nav-main a {
+      font-size: 1.09em; color: #23316b; text-decoration: none;
+      font-weight: 700; border-radius: 1em; box-sizing: border-box;
+      transition: color .15s, background .18s;
+      padding: .32em 1em;
+      background: none; outline: none; display: inline-block;
+    }
+    .nav-main a.gaming-btn,
+    .nav-main a.server-btn {
+      padding: .38em 1.22em;
+      font-size: 1.09em;
+      font-weight: 900;
+      background: linear-gradient(92deg, var(--gaming) 60%, var(--primary) 100%);
+      color: #fff; border: none; border-radius: 32px;
+      box-shadow: 0 2px 13px #ea43a522;
+      cursor: pointer;
+    }
+    .nav-main a.server-btn {
+      background: linear-gradient(90deg, var(--server) 60%, var(--primary) 100%);
+      box-shadow: 0 2px 9px #19a9ee33;
+    }
+    .nav-main a:hover, .nav-main a:focus {
+      background: #e5eaff;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .gaming-btn:hover { background: linear-gradient(90deg,#4250ea,#ea43a5 70%); }
+    .server-btn:hover { background: linear-gradient(90deg,#4250ea 30%,#19a9ee 100%); }
+    .menu-btn { display: none; }
+    main { max-width: 1240px; margin: 0 auto; padding: 2.9rem 2vw 2.1rem 2vw; }
+    .hero-content { margin-bottom:2.2rem;}
+    .hero-content h1 {
+      font-family: 'Montserrat',sans-serif;
+      font-size: 2.25rem;
+      font-weight: 900;
+      line-height:1.12em;
+      color: var(--primary);
+      margin-bottom: .2em;
+    }
+    .hero-content p { font-size:1.13rem; color:#1f3554d7; font-weight:600; margin-bottom:.73em; }
+    .hero-buttons { display:flex; gap:1.1em; flex-wrap:wrap; }
+    .section-resources {
+      width:100%; margin:2.1em 0 2.1em 0; display: flex; flex-wrap:wrap; gap:1.4em 2vw; justify-content: center;
+    }
+    .resource-card {
+      background: #fff;
+      box-shadow: 0 2px 10px #4250ea09;
+      border-radius: 15px;
+      padding: 1.7em 1.13em 1.13em 1.13em;
+      min-width:160px;max-width:250px;flex:1 1 200px;
+      display:flex;flex-direction:column;align-items:center;
+      text-align:center;
+      cursor:pointer; position:relative; margin-bottom: .5em;
+      transition:box-shadow .13s,transform .13s,background .16s;
+    }
+    .resource-card:hover {
+      box-shadow:0 7px 19px #19a9ee1a;
+      background:linear-gradient(134deg, #eaf3ff 92%, #fff 100%);
+      transform:translateY(-2px) scale(1.01);
+    }
+    .resource-icon { font-size:2em;margin-bottom:.32em;color:var(--primary); }
     .resource-card:hover .resource-icon{color:var(--gaming);}
-    .resource-title{font-size:.97em;font-weight:800;margin-bottom:.23em;color:var(--shadow);}
-    .resource-desc{font-size:.97em;color:#293148a3;}
-    .footer{text-align:center;padding:2rem 2px 1.4rem;color:var(--primary);font-size:1rem;margin-top:2.2rem;letter-spacing:.07em;font-weight:700;}
-    @media(max-width:1100px){main{max-width:98vw;}header{padding:2.2rem 1vw;}}
-    @media(max-width:800px){.section-resources{gap:.6em 1vw;}}
-    @media(max-width:600px){header{padding:1.05rem 1vw;}.logo{font-size:1.12em;}.main-content{padding:.7em .3em;}.hero-content h1{font-size:1.2em;}.section-resources{gap:.4em 1vw;}.resource-card{padding:.9em .4em;}}
+    .resource-title {font-size:.97em;font-weight:800;margin-bottom:0.23em;color:var(--shadow);}
+    .resource-desc {font-size:.97em;color:#293148a3;}
+    .footer { text-align: center;padding: 2rem 2px 1.4rem;color: var(--primary);font-size: 1rem;margin-top: 2.2rem; letter-spacing: .07em; font-weight:700;}
+    @media (max-width:1100px){main {max-width:98vw;}header { padding: 2.2rem 1vw; }}
+    @media (max-width:800px){.section-resources{gap:.6em 1vw;}}
+    @media (max-width:600px){
+      header{padding: 1.05rem 1vw;}
+      .logo{font-size:1.12em;}
+      .main-content{padding:.7em .3em;}
+      .hero-content h1{font-size:1.2em;}
+      .section-resources{gap:.4em 1vw;}
+      .resource-card{padding:.9em 0.4em;}
+    }
   </style>
 </head>
-
 <body>
-<!------- Firebase SDKs ------->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-/*-- 1.  CONFIG  --*/
 const firebaseConfig = {
   apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
   authDomain: "learn-code-with-anay.firebaseapp.com",
   projectId: "learn-code-with-anay",
-  storageBucket: "learn-code-with-anay.appspot.com",
+  storageBucket: "learn-code-with-anay.firebasestorage.app",
   messagingSenderId: "197075143711",
-  appId: "1:197075143711:web:64fc5d83528f907d38d92a"
+  appId: "1:197075143711:web:64fc5d83528f907d38d92a",
+  measurementId: "G-F01VRZK4ZL"
 };
-
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.firestore();
-
-/*-- 2.  UI ELEMENTS  --*/
-const coinsEl   = document.getElementById("shadow-coins-value");
-let   uid,resRef,userSnap;
-
-/*-- 3.  ANON / REDIRECT LOGIN  --*/
-auth.onAuthStateChanged(async user=>{
-  if(!user){ window.location.href="login.html"; return; }
-  uid=user.uid; resRef=db.collection("users").doc(uid);
-
-  /* bootstrap wallet if first visit */
-  await db.runTransaction(async tx=>{
-    const snap=await tx.get(resRef);
-    if(!snap.exists){
-      tx.set(resRef,{coins:0,rupees:100000});
-    }else if(snap.data().rupees===undefined){
-      tx.update(resRef,{rupees:100000});
-    }
-  });
-
-  /* live listener */
-  resRef.onSnapshot(snap=>{
-    userSnap=snap; 
-    const d=snap.data()||{};
-    coinsEl.textContent = d.coins ?? 0;
-    coinsEl.parentElement.title = `₹${(d.rupees??0).toLocaleString("en-IN")}`;
-  });
+const db = firebase.firestore();
+window.addEventListener('DOMContentLoaded', function(){
+  if(window.firebase && window.firebase.auth){
+    firebase.auth().onAuthStateChanged(function(user){
+      if(!user){
+        window.location.href = "login.html";
+      }
+    });
+  }
 });
-
-/*-- 4.  ATOMIC WALLET DEDUCTION  --*/
-async function deductRupees(amount){
-  if(!uid) throw "NOT_AUTH";
-  return db.runTransaction(async tx=>{
-    const snap=await tx.get(resRef);
-    const bal =(snap.data().rupees||0);
-    if(bal<amount) throw "INSUFFICIENT_FUNDS";
-    tx.update(resRef,{rupees:firebase.firestore.FieldValue.increment(-amount)});
+function fetchShadowCoins() {
+  const shadowCoinsElem = document.getElementById("shadow-coins-value");
+  const customUID = "shadow-anayupadhyay4138"; // replace with your user's UID for real installs
+  db.collection("users").doc(customUID).onSnapshot(doc=>{
+    let coins = doc.exists && doc.data().coins!==undefined ? doc.data().coins : 0;
+    shadowCoinsElem.textContent = coins;
+    shadowCoinsElem.parentElement.classList.add("coins-anim");
+    setTimeout(()=>shadowCoinsElem.parentElement.classList.remove("coins-anim"), 300);
   });
 }
-
-/*-- 5.  COIN ADD PAGE REDIRECT  --*/
-function goAddCoins(){ window.location.href="add-coins.html"; }
+window.addEventListener('DOMContentLoaded', fetchShadowCoins);
 </script>
-
-<!------- HEADER (plus icon added, nothing else touched) ------->
 <header>
-  <div class="logo"><i class="fa-solid fa-graduation-cap"></i> ShadowEd</div>
-
-  <div class="coins-display" title="Your current Shadow Coins">
-    <i class="fas fa-coins coins-icon"></i>
-    <span id="shadow-coins-value">0</span>
-    <i class="fa-solid fa-plus" id="addCoinsBtn"
-       style="cursor:pointer;font-size:1rem;margin-left:.4em;"
-       title="Add Shadow Coins"></i>
+  <div class="logo">
+    <i class="fa-solid fa-graduation-cap"></i> ShadowEd
   </div>
-
+  <div class="coins-display" title="Your current Shadow Coins">
+    <i class="fas fa-coins coins-icon"></i> 
+    <span id="shadow-coins-value">0</span>
+  </div>
   <nav class="nav-main">
     <a href="#about">About Us</a>
     <a href="#resources">Resources</a>
@@ -126,20 +191,93 @@ function goAddCoins(){ window.location.href="add-coins.html"; }
     <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
     <a href="server.html"><i class="fa-solid fa-server"></i> Server</a>
     <a href="games.html" class="gaming-btn"><i class="fa-solid fa-gamepad"></i> Play Games</a>
-    <a href="javascript:void(0);" class="server-btn" onclick="location.href='server.html'">
-       <i class="fa-solid fa-network-wired"></i> Join/Create Server</a>
+    <a href="javascript:void(0);" class="server-btn" onclick="location.href='server.html'"><i class="fa-solid fa-network-wired"></i> Join/Create Server</a>
   </nav>
 </header>
-
-<script>
-document.getElementById("addCoinsBtn").onclick = goAddCoins;
-</script>
-
-<!--------------  ORIGINAL PAGE CONTENT UNCHANGED BELOW  -------------->
 <main>
-  <!-- hero, cards, etc. untouched -->
+  <section class="hero-content">
+    <h1>Unlock Learning, Gaming & Growth on <span style="color:var(--gaming)">ShadowEd</span></h1>
+    <p>
+      Where high-level education meets gaming fun.<br>
+      Practice with real sample papers, engage in smart competitive games, climb the server-based leaderboards, and watch your Shadow Coins stack up in real time!
+    </p>
+    <div class="hero-buttons">
+      <button class="gaming-btn" onclick="location.href='games.html'"><i class="fa-solid fa-gamepad"></i> Play Games</button>
+      <button class="server-btn" onclick="location.href='server.html'"><i class="fa-solid fa-network-wired"></i> Server Lobby</button>
+    </div>
+  </section>
+  <section class="section-resources" id="resources">
+    <div class="resource-card" onclick="location.href='sample-papers.html'"><i class="fas fa-book-open resource-icon"></i><div class="resource-title">Sample Papers</div><div class="resource-desc">Board & Competition sample sets.</div></div>
+    <div class="resource-card" onclick="location.href='mock-tests.html'"><i class="fa-solid fa-laptop-code resource-icon"></i><div class="resource-title">Online Mock Tests</div><div class="resource-desc">Live MCQ exams & analytics.</div></div>
+    <div class="resource-card" onclick="location.href='past-papers.html'"><i class="fa-solid fa-archive resource-icon"></i><div class="resource-title">Exam Papers</div><div class="resource-desc">All years, all boards.</div></div>
+    <div class="resource-card" onclick="location.href='mcq-practice.html'"><i class="fa-solid fa-list-ul resource-icon"></i><div class="resource-title">MCQ Practice Sets</div><div class="resource-desc">Sharpen skills with topic-wise quizzes.</div></div>
+    <div class="resource-card" onclick="location.href='revision-notes.html'"><i class="fa-solid fa-note-sticky resource-icon"></i><div class="resource-title">Revision Notes</div><div class="resource-desc">Short & clear revision sheets for exams.</div></div>
+    <div class="resource-card" onclick="location.href='syllabus.html'"><i class="fa-solid fa-road resource-icon"></i><div class="resource-title">Syllabus & Blueprints</div><div class="resource-desc">Always up-to-date, always reliable.</div></div>
+    <div class="resource-card" onclick="location.href='marking-schemes.html'"><i class="fa-solid fa-clipboard-check resource-icon"></i><div class="resource-title">Marking Schemes</div><div class="resource-desc">Master scoring patterns and rubrics.</div></div>
+    <div class="resource-card" onclick="location.href='reference-materials.html'"><i class="fa-solid fa-lightbulb resource-icon"></i><div class="resource-title">Reference Materials</div><div class="resource-desc">Extra support for every subject.</div></div>
+  </section>
 </main>
-
-<!-- the rest of your unchanged HTML follows … -->
+<section id="about" style="max-width: 800px; margin: 3rem auto 2rem auto; background: #fff; border-radius: 17px; padding: 2.1rem 1.3rem; box-shadow: 0 4px 12px #4c89fa07; color: #213c64; text-align: center; line-height: 1.7; font-size:1rem;">
+  <h2 style="font-family:'Montserrat';color:var(--primary);font-weight:900;">About Us</h2>
+  <p>
+    <b>ShadowEd</b> is the next evolution in student-centric learning—blending real academic mastery with the energy of cloud gaming and pro communities.<br>
+    Study, compete, connect and win—on your terms!<br>
+    Every tool and button is crafted for speed, clarity, and pure confidence—from real-time Shadow Coins integration, to a smart server system, to always-on gaming and leaderboard connectivity.
+  </p>
+</section>
+<section id="contact" style="max-width:470px;margin:3rem auto 2rem auto;background:#fff;padding:2rem;border-radius:14px;box-shadow:0 2px 8px #4c89fa05;">
+  <h2 style="color:var(--primary);font-family:'Montserrat',sans-serif;">Contact</h2>
+  <p>
+    Reach us for support or partnership:<br>
+    <b>Email:</b> team@shadowed.com<br>
+    <b>Telegram:</b> <a style="color:var(--primary);" href="#">@shadowed_group</a>
+  </p>
+</section>
+<div class="footer">
+  &copy; 2025 ShadowEd • The new way to Learn + Play.
+</div>
+<script>
+  // Hamburger/Side panel behavior
+  const sidePanel = document.getElementById('sidePanel');
+  const openBtn = document.getElementById('openPanelBtn');
+  const closeBtn = document.getElementById('closePanelBtn');
+  function openPanel() { sidePanel.classList.add('open'); }
+  function closePanel() { sidePanel.classList.remove('open'); }
+  openBtn.onclick = openPanel; aa
+  closeBtn.onclick = closePanel;
+  window.onclick = function(event) {
+    if (event.target === sidePanel) { sidePanel.classList.remove('open'); }
+  };
+</script>
+<!-- Popup Modal for about-u.html (hidden unless needed) -->
+<div id="aboutUPopup" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(44,36,107,0.15);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <iframe id="aboutUIframe" src="about-u.html" style="width:95vw;max-width:455px;height:90vh;border-radius:22px;border:0;box-shadow:0 8px 18px #2a137a12;"></iframe>
+</div>
+<script>
+function showaboutu.htmlPopup() {
+  document.getElementById('aboutUPopup').style.display = 'flex';
+}
+window.addEventListener('message', function(e){
+  if(e.data === 'aboutUComplete') {
+    document.getElementById('aboutUPopup').style.display = 'none';
+    location.reload();
+  }
+});
+window.addEventListener('DOMContentLoaded', function(){
+  if(window.firebase && window.firebase.auth){
+    firebase.auth().onAuthStateChanged(function(user){
+      if(!user) return;
+      firebase.firestore().collection("users").doc(user.uid)
+        .onSnapshot(doc=>{
+          let d=doc.data()||{};
+          if(!d || !d.name || !d.class || !d.location || !d.hobbies || !d.favouriteSubject){
+            showaboutu.htmlPopup();
+          }
+        });
+    });
+  }
+});
+</script>
 </body>
-</html>
+                                                                                                                                </html>
+  
