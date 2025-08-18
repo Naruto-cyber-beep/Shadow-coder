@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Study Assistant — NCERT Summarizer & Explainer (Puter.js)</title>
+  <title>Study Assistant — NCERT Summarizer & Explainer (ShadowAI)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
@@ -49,6 +49,15 @@
     .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
     .flex{display:flex;gap:10px;flex-wrap:wrap}
     .grow{flex:1}
+
+    /* Image generator */
+    .igrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:0 14px 14px}
+    .thumb{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--chip);position:relative}
+    .thumb img{display:block;width:100%;height:auto}
+    .meta{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;padding:8px 0 0}
+    .note{font-size:12px;color:var(--muted);padding:0 14px 14px}
+    .pill{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:var(--chip)}
   </style>
 </head>
 <body>
@@ -56,7 +65,7 @@
     <header>
       <div>
         <h1>📘 Study Assistant</h1>
-        <div class="tiny">Summarize • Explain • NCERT-style Q&A — Powered by <span class="mono">Puter.js</span></div>
+        <div class="tiny">Summarize • Explain • NCERT-style Q&A — Powered by <b>ShadowAI</b></div>
       </div>
       <span class="badge">Client-only · No API keys</span>
     </header>
@@ -124,7 +133,7 @@
             <button id="ask" class="btn primary">Generate Answer</button>
             <button id="clear" class="btn ghost">Clear</button>
             <button id="export" class="btn ghost">Export .txt</button>
-            <button id="save" class="btn ghost">Save to Puter <span id="saved" class="save-dot" style="opacity:0"></span></button>
+            <button id="save" class="btn ghost">Save Transcript <span id="saved" class="save-dot" style="opacity:0"></span></button>
             <button id="load" class="btn ghost">Load Last</button>
             <button id="newChat" class="btn warn">New Chat</button>
           </div>
@@ -136,16 +145,51 @@
     <!-- Chat -->
     <section id="chat" class="chat card" aria-live="polite"></section>
 
+    <!-- IMAGE GENERATOR (ShadowAI + Puter txt2img) -->
+    <section class="card" style="margin-top:16px;">
+      <div class="igrid">
+        <div>
+          <label for="imgPrompt">AI Diagram / Image Prompt</label>
+          <textarea id="imgPrompt" placeholder="e.g., 'Class 8 water cycle diagram, clean labels, flat vector, high contrast'"></textarea>
+          <div class="meta" style="margin-top:8px;">
+            <span>Daily Free: <span id="freeLeft" class="pill">5</span></span>
+            <span>Coins: <span id="coinBal" class="pill">0</span> (10/image after free)</span>
+          </div>
+          <div class="btns" style="margin-top:10px;">
+            <button id="genImg" class="btn primary">Generate Image</button>
+            <button id="dlAll" class="btn ghost">Download All</button>
+            <label class="pill" style="display:inline-flex;align-items:center;gap:6px;">
+              <input type="checkbox" id="testMode"> Test mode
+            </label>
+            <button id="login" class="btn ghost">Login</button>
+            <button id="addCoins" class="btn ghost">Buy 30 Coins (₹10)</button>
+          </div>
+          <div class="note">NSFW & harmful prompts are blocked. After 5 free generations/day, you need to be logged in and will be charged <b>10 Shadow Coins</b> per image. (₹1 = 3 coins)</div>
+        </div>
+        <div>
+          <label>Safety & Limits</label>
+          <ul class="tiny" style="margin:8px 0 0 16px; line-height:1.7;">
+            <li>Blocks nudity, sexual content, graphic violence, hate/abuse, self-harm, illegal content.</li>
+            <li>Prompt length limited to ~300 characters.</li>
+            <li>Max 5 free images/day per device; abuse resets may apply.</li>
+            <li>Images are for educational/personal use; respect copyright.</li>
+          </ul>
+        </div>
+      </div>
+      <div id="imgStatus" class="status">Image generator ready.</div>
+      <div id="gallery" class="gallery"></div>
+    </section>
+
     <footer class="foot">
-      <div>Tip: Press <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to send. Responses are generated on-device via Puter’s AI bridge.</div>
-      <div class="right tiny">Puter storage used for transcripts only. <span class="danger">Don’t paste private data.</span></div>
+      <div>Tip: Press <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to send. Responses are generated via ShadowAI bridge.</div>
+      <div class="right tiny">Transcripts saved to Puter storage (with local fallback). <span class="danger">Don’t paste private data.</span></div>
     </footer>
   </div>
 
   <!-- Puter.js -->
   <script src="https://js.puter.com/v2/"></script>
   <script>
-    // ---------- basic state ----------
+    // ---------- UI Refs ----------
     const els = {
       mode: document.getElementById('mode'),
       class: document.getElementById('class'),
@@ -162,12 +206,26 @@
       newChat: document.getElementById('newChat'),
       quick: document.getElementById('quick'),
       saved: document.getElementById('saved'),
-    };
-    let conversation = [];
 
-    // ---------- helpers ----------
+      // image gen
+      imgPrompt: document.getElementById('imgPrompt'),
+      genImg: document.getElementById('genImg'),
+      testMode: document.getElementById('testMode'),
+      imgStatus: document.getElementById('imgStatus'),
+      gallery: document.getElementById('gallery'),
+      freeLeft: document.getElementById('freeLeft'),
+      coinBal: document.getElementById('coinBal'),
+      login: document.getElementById('login'),
+      addCoins: document.getElementById('addCoins'),
+      dlAll: document.getElementById('dlAll'),
+    };
+
+    // ---------- Chat State ----------
+    let conversation = [];
     const nowISO = () => new Date().toISOString().replace('T',' ').split('.')[0];
     function setStatus(t){ els.status.textContent = t; }
+    function setImgStatus(t){ els.imgStatus.textContent = t; }
+    function escapeHTML(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
     function addMsg(role, text){
       const div = document.createElement('div');
       div.className = `msg ${role==='user'?'u':'ai'}`;
@@ -175,7 +233,8 @@
       els.chat.prepend(div);
       conversation.push({role, text, t: Date.now()});
     }
-    function escapeHTML(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+    // ---------- System Prompt ----------
     function buildSystemPrompt(){
       const cls = els.class.value ? `Class ${els.class.value}` : `appropriate class level`;
       const subj = els.subject.value;
@@ -185,51 +244,47 @@
       const base = [
         `You are a patient NCERT-aligned study tutor.`,
         `Write in simple, exam-friendly language. Use short paragraphs and bullet points.`,
-        `When useful, add tiny examples or analogies. Avoid fluff.`,
-        `If formulas appear, include correct SI units.`,
-        `If asked to summarize pasted text, keep key ideas and definitions; remove filler.`,
-        `If the user requests MCQs, include an answer key at the end.`,
-        `If the user requests steps/derivations, show them in order.`,
-        `Avoid unsafe or adult content. If a request is off-topic or unsafe, say so briefly and suggest a safe, study-related alternative.`
-      ].join('\n');
+        `Include examples/analogies where useful. If formulas appear, use correct SI units.`,
+        `Summaries: keep key ideas/definitions; remove filler.`,
+        `MCQs: include an answer key at the end.`,
+        `Steps/derivations: show them in order.`,
+        `Avoid unsafe/adult content; if off-topic, suggest a safe, study alternative.`
+      ].join('\\n');
 
       const modeLine = ({
-        summarize: `Task: Summarize the provided passage for ${cls} (${subj}). Keep headings and bullet points.`,
-        explain:   `Task: Explain the concept clearly for ${cls} (${subj}). Include definition, key points, and a quick example.`,
-        qa:        `Task: Answer the user's question for ${cls} (${subj}) with precision.`
+        summarize: \`Task: Summarize the provided passage for \${cls} (\${subj}). Keep headings and bullet points.\`,
+        explain:   \`Task: Explain the concept clearly for \${cls} (\${subj}). Include definition, key points, and a quick example.\`,
+        qa:        \`Task: Answer the user's question for \${cls} (\${subj}) with precision.\`
       })[mode];
 
       const toneLine = ({
-        simple: `Style: Simple student-friendly.`,
-        exam:   `Style: Exam-focused points with bolded keywords where helpful.`,
-        teacher:`Style: Teacher talk-through with steps and checks.`,
-        flash:  `Style: Flashcards (Q: … A: …) for each key point.`
+        simple: \`Style: Simple student-friendly.\`,
+        exam:   \`Style: Exam-focused points with bolded keywords where helpful.\`,
+        teacher:\`Style: Teacher talk-through with steps and checks.\`,
+        flash:  \`Style: Flashcards (Q: … A: …) for each key point.\`
       })[tone];
 
-      return `${base}\n\n${modeLine}\n${toneLine}\nAlways verify calculations carefully.`;
+      return \`\${base}\\n\\n\${modeLine}\\n\${toneLine}\\nAlways verify calculations carefully.\`;
     }
 
     async function aiReply(userText){
-      // Compose a single prompt; Puter exposes a high-level chat helper.
-      // From docs: puter.ai.chat("prompt").then(...)
       const sys = buildSystemPrompt();
-      const prompt = `${sys}\n\nUser:\n${userText}`;
+      const prompt = \`\${sys}\\n\\nUser:\\n\${userText}\`;
 
-      // basic profanity guard (client-side only; optional)
-      if (/[^\w](sex|porn|nude|suicide|kill|terror|bomb)[^\w]/i.test(userText)) {
+      // basic moderation
+      const banned = /(\\bsex\\b|porn|nude|nudity|nsfw|gore|rape|child|suicide|self\\s*harm|kill\\s*myself|terror|bomb|extremis|hate\\s*speech)/i;
+      if (banned.test(userText)) {
         return "I can’t help with that. Please ask a study-related question aligned to NCERT.";
       }
 
       try{
-        setStatus("Thinking… (Puter.ai)");
-        // NOTE: We call a single-shot chat. If streaming is added later, you can upgrade this.
+        setStatus("Thinking… (ShadowAI)");
         const out = await puter.ai.chat(prompt);
         setStatus("Ready.");
         return String(out ?? "").trim();
       }catch(err){
         console.error(err);
-        setStatus("AI error — using fallback explanation.");
-        // graceful fallback if AI unavailable
+        setStatus("AI error — using fallback outline.");
         return [
           "⚠️ AI is temporarily unavailable. Here’s a structured outline you can expand:",
           "",
@@ -238,15 +293,24 @@
           "• Example:",
           "• Common mistakes:",
           "• Quick recap:"
-        ].join("\n");
+        ].join("\\n");
       }
     }
 
-    // ---------- events ----------
+    // ---------- Events (Chat) ----------
+    function renderHeaderLine(){
+      const parts = [];
+      if (els.class.value) parts.push(\`Class \${els.class.value}\`);
+      if (els.subject.value && els.subject.value !== 'General') parts.push(els.subject.value);
+      if (els.mode.value) parts.push(els.mode.value.charAt(0).toUpperCase()+els.mode.value.slice(1));
+      if (els.tone.value) parts.push(els.tone.options[els.tone.selectedIndex].text);
+      return parts.length ? \`[\${parts.join(' • ')}]\` : "[General]";
+    }
+
     els.ask.addEventListener('click', async ()=>{
       const q = els.query.value.trim();
       if (!q){ setStatus("Type your question/text first."); return; }
-      addMsg('user', renderHeaderLine() + "\n" + q);
+      addMsg('user', renderHeaderLine() + "\\n" + q);
       els.ask.disabled = true; setStatus("Sending…");
       const a = await aiReply(q);
       addMsg('assistant', a);
@@ -256,95 +320,90 @@
 
     els.clear.addEventListener('click', ()=>{ els.query.value = ""; setStatus("Cleared input."); });
     els.newChat.addEventListener('click', ()=>{ conversation = []; els.chat.innerHTML = ""; setStatus("Started a new chat."); });
+
     els.export.addEventListener('click', ()=>{
-      const txt = conversation.map(m => `${m.role.toUpperCase()} @ ${new Date(m.t).toLocaleString()}\n${m.text}\n`).join('\n---\n');
+      const txt = conversation.map(m => \`\${m.role.toUpperCase()} @ \${new Date(m.t).toLocaleString()}\\n\${m.text}\\n\`).join('\\n---\\n');
       const blob = new Blob([txt], {type:'text/plain'});
       const url = URL.createObjectURL(blob);
-      const a = Object.assign(document.createElement('a'), {href:url, download:`study-assistant-${Date.now()}.txt`});
+      const a = Object.assign(document.createElement('a'), {href:url, download:\`study-assistant-\${Date.now()}.txt\`});
       a.click(); URL.revokeObjectURL(url);
     });
 
-    function pulseSaved(isSaved){
-      els.saved.style.opacity = isSaved ? 1 : 0;
+    // ---------- Save/Load with robust fallback ----------
+    function pulseSaved(isSaved){ els.saved.style.opacity = isSaved ? 1 : 0; }
+    const LS_KEY = "shadowai:lastTranscript";
+
+    async function saveTranscript(){
+      const payload = JSON.stringify({meta:getMeta(), conversation}, null, 2);
+      // try Puter FS
+      try{
+        const dir = `/study-assistant/chats`;
+        await puter.fs.mkdir(dir).catch(()=>{});
+        const path = \`\${dir}/\${Date.now()}-\${(els.subject.value||'General').toLowerCase()}.json\`;
+        await puter.fs.write(path, payload);
+        localStorage.setItem(LS_KEY, payload); // also keep a local copy
+        setStatus(\`Saved: \${path}\`); pulseSaved(true);
+      }catch(e){
+        console.warn("Puter FS save failed, using localStorage.", e);
+        localStorage.setItem(LS_KEY, payload);
+        setStatus("Saved locally (Puter storage unavailable)."); pulseSaved(true);
+      }
     }
 
-    // Save/load transcript to Puter storage
-    els.save.addEventListener('click', async ()=>{
+    async function loadLast(){
+      // try Puter FS newest
       try{
-        setStatus("Saving transcript to Puter…");
-        const path = `/study-assistant/chats/${Date.now()}-${(els.subject.value||'General').toLowerCase()}.json`;
-        const body = JSON.stringify({meta:getMeta(), conversation}, null, 2);
-        await puter.fs.write(path, body); // Puter filesystem write
-        setStatus(`Saved: ${path}`); pulseSaved(true);
-      }catch(e){ console.error(e); setStatus("Save failed."); pulseSaved(false); }
-    });
-
-    els.load.addEventListener('click', async ()=>{
-      try{
-        setStatus("Loading last transcript…");
         const dir = `/study-assistant/chats`;
-        const items = await puter.fs.list(dir); // list directory
-        if (!items || !items.length){ setStatus("No saved chats yet."); return; }
-        items.sort((a,b)=> b.mtime - a.mtime);
-        const latest = items[0];
-        const data = await puter.fs.read(latest.path);
-        const parsed = JSON.parse(data||'{}');
-        conversation = parsed.conversation || [];
-        els.chat.innerHTML = "";
-        for (const m of conversation.slice().reverse()){
-          addMsg(m.role==='user'?'user':'assistant', m.text);
+        const items = await puter.fs.list(dir);
+        if (items && items.length){
+          items.sort((a,b)=> b.mtime - a.mtime);
+          const latest = items[0];
+          const data = await puter.fs.read(latest.path);
+          if (data){ restoreTranscript(JSON.parse(data)); setStatus("Loaded last (Puter)."); return; }
         }
-        setStatus("Loaded last chat.");
-      }catch(e){ console.error(e); setStatus("Load failed."); }
-    });
+      }catch(e){ console.warn("Puter FS load failed, falling back to localStorage.", e); }
+      const local = localStorage.getItem(LS_KEY);
+      if (local){ restoreTranscript(JSON.parse(local)); setStatus("Loaded last (Local)."); }
+      else setStatus("No saved chats found.");
+    }
 
-    // quick chips → append helper text
+    function restoreTranscript(parsed){
+      conversation = parsed.conversation || [];
+      els.chat.innerHTML = "";
+      for (const m of conversation.slice().reverse()){
+        addMsg(m.role==='user'?'user':'assistant', m.text);
+      }
+      pulseSaved(true);
+    }
+
+    function getMeta(){ return { class: els.class.value || null, subject: els.subject.value, mode: els.mode.value, tone: els.tone.value, ts: Date.now() }; }
+
+    els.save.addEventListener('click', saveTranscript);
+    els.load.addEventListener('click', loadLast);
+
+    // quick chips
     els.quick.addEventListener('click', e=>{
       const chip = e.target.closest('.chip'); if(!chip) return;
       const t = chip.getAttribute('data-t');
-      els.query.value = (els.query.value.trim() ? els.query.value+"\n" : "") + t + ".";
-      chip.dataset.active = chip.dataset.active === "true" ? "false" : "true";
+      els.query.value = (els.query.value.trim() ? els.query.value+"\\n" : "") + t + ".";
+      chip.dataset.active = "true";
       setTimeout(()=> chip.dataset.active = "false", 400);
     });
 
-    // keyboard: Ctrl+Enter to send
     document.addEventListener('keydown', e=>{
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ els.ask.click(); }
     });
 
-    // ---------- UI utils ----------
-    function renderHeaderLine(){
-      const parts = [];
-      if (els.class.value) parts.push(`Class ${els.class.value}`);
-      if (els.subject.value && els.subject.value !== 'General') parts.push(els.subject.value);
-      if (els.mode.value) parts.push(els.mode.value.charAt(0).toUpperCase()+els.mode.value.slice(1));
-      if (els.tone.value) parts.push(els.tone.options[els.tone.selectedIndex].text);
-      return parts.length ? `[${parts.join(' • ')}]` : "[General]";
-    }
-    function getMeta(){
-      return {
-        class: els.class.value || null,
-        subject: els.subject.value,
-        mode: els.mode.value,
-        tone: els.tone.value,
-        ts: Date.now()
-      };
-    }
+    // ---------- Image Generation: coins, free tier, moderation ----------
+    const DAILY_FREE_LIMIT = 5;
+    const COST_PER_IMG = 10; // coins
+    const COINS_PER_RUPEE = 3;
 
-    // ---------- Safety note ----------
-    // For serious moderation, add a server rule or Puter Function that screens prompts before calling puter.ai.chat.
-
-    // ---------- Minimal Puter feature checks ----------
-    (async function init(){
-      try{
-        // Optional: create base folder if missing (no error if exists)
-        await puter.fs.mkdir('/study-assistant/chats').catch(()=>{});
-        setStatus("Ready.");
-      }catch(e){
-        console.warn("Puter init warning:", e);
-        setStatus("Ready (limited: storage may be unavailable).");
-      }
-    })();
-  </script>
-</body>
-                                                                                                         </html>
+    function todayKey(){ const d = new Date(); return `y${d.getFullYear()}m${d.getMonth()+1}d${d.getDate()}`; }
+    function getState(){
+      const k = "shadowai:state";
+      const raw = localStorage.getItem(k);
+      if (raw) try { return JSON.parse(raw); } catch {}
+      return { coins: 0, freeUsedByDay: {}, loggedIn: false };
+    }
+    function setState(s){ localStorage.setItem("shadowai:state", 
