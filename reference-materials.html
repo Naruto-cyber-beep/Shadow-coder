@@ -1,444 +1,111 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Study + Diagrams — Mermaid.js + Puter.js</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Explanation Generator</title>
   <style>
-    :root{
-      --bg:#0b1020;--card:#11172b;--text:#e8ecf3;--muted:#9fb0c6;--accent:#6aa9ff;--accent2:#00d4a6;--border:#1c2542;--chip:#162544;--danger:#ff6a7a;
-      --shadow:0 8px 24px rgba(0,0,0,.35);
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
     }
-    @media (prefers-color-scheme: light) {
-      :root{--bg:#f7f9ff;--card:#fff;--text:#0c1326;--muted:#475569;--accent:#2b6ef7;--accent2:#10b981;--border:#e5e9f5;--chip:#eef2ff;--shadow:0 8px 24px rgba(15,23,42,.08)}
+    .container {
+      margin-top: 50px;
+      width: 90%;
+      max-width: 800px;
+      background: #fff;
+      padding: 20px 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font:500 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
-    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-    header{display:flex;align-items:center;justify-content:space-between;margin:6px 0 16px;gap:12px}
-    h1{font-size:22px;margin:0}
-    .badge{background:var(--chip);color:var(--accent);padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;border:1px solid var(--border)}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
-    .card h3{margin:0;padding:14px 16px;border-bottom:1px solid var(--border);font-size:16px}
-    .sec{padding:14px 16px;display:grid;gap:12px}
-    label{font-size:12px;color:var(--muted)}
-    input,select,textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);outline:none}
-    textarea{min-height:120px;resize:vertical}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer}
-    .btn.primary{background:linear-gradient(180deg,var(--accent),#4b7df6);border:none;color:#fff}
-    .btn.green{background:linear-gradient(180deg,var(--accent2),#08a873);border:none;color:#fff}
-    .btn.warn{background:linear-gradient(180deg,#ff758f,#ff5975);border:none;color:#fff}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    .status{font-size:12px;color:var(--muted);padding:10px 16px;border-top:1px dashed var(--border)}
-    .output{background:linear-gradient(180deg,rgba(106,169,255,.08),transparent);padding:12px;border-radius:12px;border:1px dashed var(--border)}
-    .mono{font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-    .muted{color:var(--muted)}
-    .footer{margin:18px 0 40px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;color:var(--muted)}
-    .tiny{font-size:12px}
-    .mermaid-wrap{background:#0b0f1c0d;border:1px dashed var(--border);border-radius:12px;padding:12px;overflow:auto}
-    .chip-row{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer}
-    .ok{color:var(--accent2)}
-    .danger{color:var(--danger)}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      resize: vertical;
+      min-height: 80px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 12px 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .output {
+      margin-top: 25px;
+      padding: 20px;
+      background: #f1f1f1;
+      border-radius: 10px;
+      border-left: 5px solid #007bff;
+      font-size: 16px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
   </style>
-  <!-- Mermaid ES module (works reliably) -->
-  <script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    window.__mermaid = mermaid;
-    mermaid.initialize({ startOnLoad:false, securityLevel:"loose", theme: "default" });
-  </script>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>📘 Study + 🗺️ Diagrams</h1>
-        <div class="tiny muted">Mermaid.js diagrams • Putter.js study helper</div>
-      </div>
-      <span class="badge">Powered by Putter</span>
-    </header>
-
-    <div class="grid">
-      <!-- DIAGRAMS -->
-      <section class="card" id="diagram-card">
-        <h3>Mermaid Diagram Generator</h3>
-        <div class="sec">
-          <div class="row">
-            <div style="flex:2">
-              <label>Describe your diagram (e.g., “Nitrogen cycle”, “ER diagram for library”)</label>
-              <input id="dg-prompt" placeholder="Type your idea…">
-            </div>
-            <div style="flex:1">
-              <label>Mode</label>
-              <select id="dg-mode">
-                <option value="auto" selected>AI Assist → Mermaid</option>
-                <option value="manual">Manual (paste Mermaid code)</option>
-                <option value="template">Template (common school diagrams)</option>
-              </select>
-            </div>
-          </div>
-
-          <div id="manual-box" style="display:none">
-            <label>Mermaid code</label>
-            <textarea id="dg-code" class="mono" placeholder="graph TD
-  A-->B
-  B-->C"></textarea>
-          </div>
-
-          <div id="template-box" style="display:none">
-            <label>Pick a template</label>
-            <div class="chip-row">
-              <span class="chip" data-tpl="water">Water Cycle</span>
-              <span class="chip" data-tpl="nitrogen">Nitrogen Cycle</span>
-              <span class="chip" data-tpl="carbon">Carbon Cycle</span>
-              <span class="chip" data-tpl="foodchain">Food Chain</span>
-              <span class="chip" data-tpl="digestive">Human Digestive (simplified)</span>
-            </div>
-          </div>
-
-          <div class="row">
-            <button class="btn primary" id="dg-generate">Generate Diagram</button>
-            <button class="btn" id="dg-clear">Clear</button>
-            <button class="btn" id="dg-download">Download SVG</button>
-            <span class="tiny muted" id="dg-status">Ready.</span>
-          </div>
-
-          <div class="mermaid-wrap">
-            <div id="dg-render" class="mermaid">graph TD; A[Start]-->B[Your diagram will render here];</div>
-          </div>
-
-          <div class="output tiny">
-            <div class="muted">Mermaid source (read-only after render):</div>
-            <pre id="dg-source" class="mono" style="white-space:pre-wrap;word-break:break-word;margin:6px 0 0"></pre>
-          </div>
-        </div>
-        <div class="status">Tips: Use <span class="mono">flowchart/graph</span>, <span class="mono">sequenceDiagram</span>, <span class="mono">classDiagram</span>, <span class="mono">erDiagram</span>, <span class="mono">stateDiagram</span>.</div>
-      </section>
-
-      <!-- STUDY -->
-      <section class="card" id="study-card">
-        <h3>Study Assistant (NCERT-friendly)</h3>
-        <div class="sec">
-          <div class="row">
-            <div style="flex:1">
-              <label>Task</label>
-              <select id="st-mode">
-                <option value="summarize">Summarize</option>
-                <option value="explain" selected>Explain</option>
-                <option value="qa">Q&A</option>
-              </select>
-            </div>
-            <div style="flex:1">
-              <label>Class</label>
-              <select id="st-class">
-                <option value="">— Any —</option>
-                <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
-              </select>
-            </div>
-            <div style="flex:1">
-              <label>Subject</label>
-              <select id="st-subj">
-                <option>General</option><option>Science</option><option>Biology</option><option>Physics</option><option>Chemistry</option>
-                <option>Maths</option><option>History</option><option>Geography</option><option>Civics</option><option>Hindi</option><option>English</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label>Your question / text</label>
-            <textarea id="st-input" placeholder="Ask a study question, paste text to summarize, or name a concept to explain."></textarea>
-          </div>
-
-          <div class="row">
-            <button class="btn green" id="st-generate">Generate Answer</button>
-            <button class="btn" id="st-clear">Clear</button>
-            <button class="btn" id="st-save">Save Chat</button>
-            <button class="btn" id="st-load">Load Last</button>
-            <span class="tiny muted" id="st-status">Ready.</span>
-          </div>
-
-          <div class="output" id="st-chat" aria-live="polite" style="min-height:120px">
-            <div class="tiny muted">Your answers will appear here.</div>
-          </div>
-        </div>
-        <div class="status tiny">Basic safety filter active. Avoid sensitive/NSFW terms. Stored locally in your Puter drive.</div>
-      </section>
-    </div>
-
-    <footer class="footer tiny">
-      <div>Press <span class="mono">Ctrl/⌘ + Enter</span> to run actions.</div>
-      <div>Storage path: <span class="mono">/study-suite</span> (Puter)</div>
-    </footer>
+  <div class="container">
+    <h1>AI Explanation Generator</h1>
+    <textarea id="userInput" placeholder="Ask me something... e.g. Explain the nitrogen cycle"></textarea>
+    <button onclick="generateExplanation()">Generate Explanation</button>
+    <div id="output" class="output"></div>
   </div>
 
-  <!-- Putter.js -->
-  <script src="https://js.puter.com/v2/"></script>
   <script>
-    // ---------- NSFW / sensitive filter (client-side soft block) ----------
-    const BAD_WORDS = [
-      'porn','nsfw','nude','nudity','penis','vagina','breast','boobs','semen','sperm','hentai','sex','sexual','erotic',
-      'kill yourself','suicide','bomb','terror'
-    ];
-    function blocked(text){
-      const t = ' ' + String(text||'').toLowerCase() + ' ';
-      return BAD_WORDS.some(w => t.includes(' '+w+' '));
-    }
+    async function generateExplanation() {
+      const query = document.getElementById("userInput").value.trim();
+      const outputDiv = document.getElementById("output");
 
-    // ---------- Mermaid helpers ----------
-    const dgPrompt = document.getElementById('dg-prompt');
-    const dgMode   = document.getElementById('dg-mode');
-    const dgCodeTA = document.getElementById('dg-code');
-    const dgRender = document.getElementById('dg-render');
-    const dgSource = document.getElementById('dg-source');
-    const dgStatus = document.getElementById('dg-status');
+      if (!query) {
+        outputDiv.innerText = "⚠️ Please enter a question or topic.";
+        return;
+      }
 
-    const manualBox   = document.getElementById('manual-box');
-    const templateBox = document.getElementById('template-box');
+      outputDiv.innerText = "⏳ Generating a detailed explanation...";
 
-    dgMode.addEventListener('change', ()=>{
-      manualBox.style.display   = dgMode.value==='manual'   ? '' : 'none';
-      templateBox.style.display = dgMode.value==='template' ? '' : 'none';
-    });
+      try {
+        // Call your Putter.js backend here
+        const response = await fetch("http://localhost:3000/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: query + "\n\nProvide only a factually correct and structured explanation."
+          })
+        });
 
-    // Templates for school diagrams
-    const TPL = {
-      water: `graph TD
-  Sun((Sun)) --> Evaporation
-  Evaporation --> Condensation
-  Condensation --> Precipitation
-  Precipitation --> Runoff
-  Runoff --> Collection((Oceans/Lakes))
-  Collection --> Evaporation`,
-      nitrogen: `graph TD
-  A[Atmospheric N2] --> B[Nitrogen Fixation]
-  B --> C[Ammonium (NH4+)]
-  C --> D[Nitrification to NO2-]
-  D --> E[Nitrification to NO3-]
-  E --> F[Absorption by Plants]
-  F --> G[Animals consume]
-  G --> H[Decomposition]
-  H --> C
-  E --> I[Denitrification]
-  I --> A`,
-      carbon: `graph TD
-  Atmosphere[Atmospheric CO2] --> Photosynthesis
-  Photosynthesis --> Plants
-  Plants --> Respiration
-  Respiration --> Atmosphere
-  Plants --> Animals
-  Animals --> Respiration
-  Plants --> Decomposition
-  Animals --> Decomposition
-  Decomposition --> Atmosphere`,
-      foodchain: `graph TD
-  Sun((Sun)) --> Producer[Grass]
-  Producer --> Primary[Grasshopper]
-  Primary --> Secondary[Frog]
-  Secondary --> Tertiary[Snake]
-  Tertiary --> Quaternary[Eagle]`,
-      digestive: `graph LR
-  Mouth --> Esophagus --> Stomach --> SmallIntestine --> LargeIntestine --> Rectum --> Anus
-  SmallIntestine -->|Bile| Gallbladder
-  Stomach -->|Enzymes| Pancreas`
-    };
+        const data = await response.json();
 
-    document.querySelectorAll('[data-tpl]').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        const key = el.getAttribute('data-tpl');
-        dgCodeTA.value = TPL[key] || '';
-        dgMode.value = 'manual';
-        manualBox.style.display = '';
-        templateBox.style.display = 'none';
-      });
-    });
-
-    async function renderMermaid(code){
-      if(!code || !code.trim()){ return; }
-      try{
-        dgStatus.textContent = 'Rendering…';
-        dgRender.innerHTML = code;
-        await window.__mermaid.run({ nodes: [dgRender] });
-        dgSource.textContent = code;
-        dgStatus.textContent = 'Rendered.';
-      }catch(e){
-        console.error(e);
-        dgStatus.textContent = 'Render failed. Check Mermaid syntax.';
+        if (data.output) {
+          outputDiv.innerText = data.output;
+        } else {
+          outputDiv.innerText = "⚠️ No response received.";
+        }
+      } catch (error) {
+        console.error(error);
+        outputDiv.innerText = "❌ Error: Could not fetch explanation.";
       }
     }
-
-    document.getElementById('dg-generate').addEventListener('click', async ()=>{
-      const mode = dgMode.value;
-      let code = '';
-
-      if(mode==='manual'){
-        code = dgCodeTA.value.trim();
-        return renderMermaid(code);
-      }
-
-      if(mode==='template'){
-        if(!dgCodeTA.value.trim()){ dgStatus.textContent='Pick a template first.'; return; }
-        return renderMermaid(dgCodeTA.value.trim());
-      }
-
-      // AI assist → convert idea to mermaid
-      const idea = dgPrompt.value.trim();
-      if(!idea){ dgStatus.textContent='Type a diagram idea first.'; return; }
-      if(blocked(idea)){ dgStatus.textContent='Blocked by safety filter.'; return; }
-
-      dgStatus.textContent = 'Thinking (AI → Mermaid)…';
-      const sys = [
-        'You convert natural language into Mermaid code ONLY.',
-        'Return Mermaid code block WITHOUT extra commentary.',
-        'Prefer flowchart: "graph TD" unless user asks sequence/class/ER/state.',
-        'Use short readable labels; avoid long sentences; no styling directives.'
-      ].join('\n');
-
-      try{
-        const out = await puter.ai.chat(`${sys}\n\nUser request: ${idea}\n\nMermaid code:`);
-        code = String(out||'').replace(/^[`]+mermaid|^[`]+|[`]+$/g,'').trim();
-        if(!code || !/^(\w+)\s/i.test(code)){ throw new Error('AI did not return Mermaid.'); }
-        dgCodeTA.value = code; // let user see/edit
-        await renderMermaid(code);
-      }catch(err){
-        console.error(err);
-        dgStatus.textContent = 'AI conversion failed. Try templates or manual mode.';
-      }
-    });
-
-    document.getElementById('dg-clear').addEventListener('click', ()=>{
-      dgPrompt.value=''; dgCodeTA.value=''; dgSource.textContent=''; dgRender.innerHTML='graph TD; A[Start]-->B[Your diagram will render here];';
-      dgStatus.textContent='Cleared.';
-      window.__mermaid.run({nodes:[dgRender]}).catch(()=>{});
-    });
-
-    // Download SVG
-    document.getElementById('dg-download').addEventListener('click', ()=>{
-      const svg = dgRender.querySelector('svg');
-      if(!svg){ dgStatus.textContent='Nothing to download yet.'; return; }
-      const blob = new Blob([svg.outerHTML], {type:'image/svg+xml'});
-      const url = URL.createObjectURL(blob);
-      const a = Object.assign(document.createElement('a'), {href:url, download:`diagram-${Date.now()}.svg`});
-      a.click(); URL.revokeObjectURL(url);
-      dgStatus.textContent='Downloaded SVG.';
-    });
-
-    // ---------- Study assistant ----------
-    const stMode = document.getElementById('st-mode');
-    const stClass = document.getElementById('st-class');
-    const stSubj = document.getElementById('st-subj');
-    const stInput = document.getElementById('st-input');
-    const stChat = document.getElementById('st-chat');
-    const stStatus = document.getElementById('st-status');
-
-    let transcript = [];
-
-    function addMsg(role, text){
-      const box = document.createElement('div');
-      box.style.margin = '8px 0';
-      box.innerHTML = `<div class="tiny muted">${role==='user'?'You':'Assistant'} • ${new Date().toLocaleString()}</div><div>${text.replace(/</g,'&lt;')}</div>`;
-      stChat.appendChild(box);
-      stChat.scrollTop = stChat.scrollHeight;
-      transcript.push({role, text, t: Date.now()});
-    }
-
-    function buildStudyPrompt(q){
-      const cls = stClass.value ? `Class ${stClass.value}` : 'appropriate class level';
-      const modeLine = stMode.value==='summarize'
-        ? `Task: Summarize the provided text for ${cls} (${stSubj.value}). Use short paras and bullet points.`
-        : stMode.value==='explain'
-        ? `Task: Explain the concept clearly for ${cls} (${stSubj.value}). Include definition, key points, tiny example.`
-        : `Task: Answer precisely for ${cls} (${stSubj.value}).`;
-      const base = [
-        'You are a patient NCERT-aligned tutor.',
-        'Simple student-friendly language, exam-ready points.',
-        'Include units for formulas if any.',
-        'If asked MCQs, include answer key.',
-        'Avoid unsafe/adult content. If off-topic, refuse briefly and suggest a study-safe alternative.'
-      ].join('\n');
-      return `${base}\n${modeLine}\n\nUser:\n${q}`;
-    }
-
-    async function generateStudy(){
-      const q = stInput.value.trim();
-      if(!q){ stStatus.textContent='Type your question/text first.'; return; }
-      if(blocked(q)){ addMsg('assistant','⚠️ This request is blocked by the safety filter.'); return; }
-
-      addMsg('user', q);
-      stStatus.textContent = 'Thinking…';
-      try{
-        const out = await puter.ai.chat(buildStudyPrompt(q));
-        addMsg('assistant', (out||'').trim());
-        stStatus.textContent = 'Ready.';
-      }catch(e){
-        console.error(e);
-        addMsg('assistant', '⚠️ AI unavailable. Try again later.');
-        stStatus.textContent = 'Error.';
-      }
-    }
-
-    document.getElementById('st-generate').addEventListener('click', generateStudy);
-    document.addEventListener('keydown', e=>{
-      if((e.ctrlKey||e.metaKey) && e.key==='Enter'){
-        // Prefer focus: if diagram section focused, run diagram; else study.
-        const active = document.activeElement;
-        if(active && (active.id==='dg-prompt' || active.id==='dg-code')) document.getElementById('dg-generate').click();
-        else document.getElementById('st-generate').click();
-      }
-    });
-    document.getElementById('st-clear').addEventListener('click', ()=>{ stInput.value=''; stStatus.textContent='Cleared.'; });
-
-    // ---------- Reliable Puter storage (create dir if missing) ----------
-    const ROOT = '/study-suite';
-    async function ensureDirs(){
-      try{
-        await puter.fs.mkdir(ROOT).catch(()=>{});
-        await puter.fs.mkdir(`${ROOT}/chats`).catch(()=>{});
-      }catch(e){ console.warn('Puter mkdir issue', e); }
-    }
-    ensureDirs();
-
-    document.getElementById('st-save').addEventListener('click', async ()=>{
-      try{
-        await ensureDirs();
-        const path = `${ROOT}/chats/${Date.now()}-${(stSubj.value||'general').toLowerCase()}.json`;
-        await puter.fs.write(path, JSON.stringify({meta:{
-          class: stClass.value||null, subject: stSubj.value, mode: stMode.value, ts: Date.now()
-        }, transcript}, null, 2));
-        stStatus.textContent = `Saved: ${path}`;
-      }catch(e){ console.error(e); stStatus.textContent='Save failed.'; }
-    });
-
-    document.getElementById('st-load').addEventListener('click', async ()=>{
-      try{
-        await ensureDirs();
-        const dir = `${ROOT}/chats`;
-        const items = await puter.fs.list(dir);
-        if(!items || !items.length){ stStatus.textContent='No saved chats.'; return; }
-        items.sort((a,b)=> (b.mtime||0)-(a.mtime||0));
-        const latest = items[0];
-        const data = await puter.fs.read(latest.path);
-        const parsed = JSON.parse(data||'{}');
-        transcript = parsed.transcript || [];
-        stChat.innerHTML = '';
-        for(const m of transcript){ addMsg(m.role, m.text); }
-        stStatus.textContent = 'Loaded last chat.';
-      }catch(e){ console.error(e); stStatus.textContent='Load failed.'; }
-    });
-
-    // ---------- Minimal health check ----------
-    (async ()=>{
-      try{
-        await ensureDirs();
-        document.querySelector('.footer').insertAdjacentHTML('beforeend', '<span class="ok">Puter OK</span>');
-      }catch(e){
-        document.querySelector('.footer').insertAdjacentHTML('beforeend', '<span class="danger">Puter limited</span>');
-      }
-      // Initial demo render
-      window.__mermaid.run({nodes:[document.getElementById('dg-render')]}).catch(()=>{});
-    })();
   </script>
 </body>
-                  </html>
+</html>
