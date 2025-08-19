@@ -3,110 +3,131 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Topic Summarizer</title>
+  <title>Study AI - Chatbot</title>
   <script src="https://js.puter.com/v2/"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #4e54c8, #8f94fb);
-      color: #fff;
       margin: 0;
       padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f4f7fb;
       display: flex;
-      justify-content: center;
-      align-items: center;
+      flex-direction: column;
       height: 100vh;
     }
-    .container {
-      background: rgba(0,0,0,0.4);
-      padding: 30px;
-      border-radius: 16px;
-      max-width: 700px;
-      width: 100%;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 26px;
-      letter-spacing: 1px;
-    }
-    textarea {
-      width: 100%;
-      height: 180px;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      resize: none;
-      font-size: 15px;
-      font-family: inherit;
-    }
-    button {
-      display: block;
-      width: 100%;
-      margin-top: 16px;
-      padding: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      background: #00c6ff;
-      color: #fff;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #0072ff;
-    }
-    .output {
-      margin-top: 20px;
+    header {
+      background: #4A90E2;
       padding: 15px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 10px;
-      min-height: 100px;
-      white-space: pre-wrap;
-      font-size: 15px;
+      color: white;
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    #chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+    .msg {
+      max-width: 70%;
+      margin: 8px 0;
+      padding: 12px 15px;
+      border-radius: 15px;
+      line-height: 1.4em;
+      word-wrap: break-word;
+      font-size: 1em;
+    }
+    .user {
+      align-self: flex-end;
+      background: #4A90E2;
+      color: white;
+      border-bottom-right-radius: 0;
+    }
+    .ai {
+      align-self: flex-start;
+      background: #e2e2e2;
+      color: #333;
+      border-bottom-left-radius: 0;
+    }
+    #input-area {
+      display: flex;
+      padding: 10px;
+      background: white;
+      border-top: 1px solid #ccc;
+    }
+    #user-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      font-size: 1em;
+      outline: none;
+    }
+    #send-btn {
+      background: #4A90E2;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      margin-left: 10px;
+      border-radius: 20px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    #send-btn:hover {
+      background: #357ABD;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📘 Student Topic Summarizer</h1>
-    <textarea id="topicInput" placeholder="Paste your study topic here..."></textarea>
-    <button id="summarizeBtn">Summarize with AI</button>
-    <div id="summaryOutput" class="output">Your summary will appear here...</div>
+  <header>📘 Study AI - Summariser</header>
+
+  <div id="chat-container"></div>
+
+  <div id="input-area">
+    <input type="text" id="user-input" placeholder="Ask any study topic... e.g. Explain Nitrogen Cycle">
+    <button id="send-btn">Send</button>
   </div>
 
   <script>
-    const inputEl = document.getElementById("topicInput");
-    const outputEl = document.getElementById("summaryOutput");
-    const btn = document.getElementById("summarizeBtn");
+    const chatContainer = document.getElementById("chat-container");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
 
-    btn.addEventListener("click", async () => {
-      const text = inputEl.value.trim();
-      if (!text) {
-        alert("Please enter a topic first.");
-        return;
-      }
+    function appendMessage(text, sender) {
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("msg", sender);
+      msgDiv.innerText = text;
+      chatContainer.appendChild(msgDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
-      outputEl.textContent = "⏳ Summarizing... please wait";
+    async function sendMessage() {
+      const query = userInput.value.trim();
+      if (!query) return;
+
+      appendMessage(query, "user");
+      userInput.value = "";
 
       try {
-        // Use Puter AI for summarization
-        const response = await puter.ai.chat.completions.create({
-          model: "gpt-4.1-mini",
-          messages: [
-            { role: "system", content: "You are a helpful AI tutor. Summarize study topics for students in simple and clear language." },
-            { role: "user", content: `Summarize this study topic in a student-friendly way:\n\n${text}` }
-          ]
-        });
-
-        const summary = response.choices[0].message.content;
-        outputEl.textContent = summary;
-      } catch (err) {
-        console.error(err);
-        outputEl.textContent = "⚠️ Error: Could not generate summary.";
+        const ai = await puter.ai.chat();
+        let response = "";
+        for await (const msg of ai.send(query)) {
+          if (msg.type === "message") {
+            response += msg.content;
+          }
+        }
+        appendMessage(response || "I couldn't generate an answer.", "ai");
+      } catch (error) {
+        appendMessage("⚠️ Error: " + error.message, "ai");
       }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
     });
   </script>
 </body>
