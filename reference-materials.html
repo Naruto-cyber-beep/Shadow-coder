@@ -1,362 +1,113 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI Summarizer — Shadow Coder</title>
-  <link rel="icon" href="data:,"><style>
-    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#7c3aed;--glass: rgba(255,255,255,0.03)}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:linear-gradient(180deg,#07102a 0%, #07162f 60%);color:#e6eef8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .app{width:1100px;max-width:96vw;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);border-radius:14px;overflow:hidden;display:grid;grid-template-columns:420px 1fr;gap:0}
-    .sidebar{background:linear-gradient(180deg, rgba(124,58,237,0.12), rgba(124,58,237,0.04));padding:20px;display:flex;flex-direction:column;gap:18px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#5b21b6);display:flex;align-items:center;justify-content:center;font-weight:700;letter-spacing:-0.02em}
-    h1{font-size:18px;margin:0}
-    .muted{color:var(--muted);font-size:13px}
-    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
-    .control{display:flex;flex-direction:column;gap:8px}
-    textarea,input,select{width:100%;padding:12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit;font-size:14px}
-    .small{font-size:13px}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:white;cursor:pointer;font-weight:600}
-    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
-    .sidebar .row{display:flex;gap:8px}
-    .file-info{font-size:13px;color:var(--muted);}
-    .main{padding:22px;min-height:520px}
-    .top-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-    .result-card{background:var(--card);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03);min-height:360px;overflow:auto}
-    .result-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .summary-output{white-space:pre-wrap;font-size:15px;line-height:1.6}
-    .history{margin-top:12px;display:grid;grid-auto-rows: min-content;gap:8px}
-    .chip{background:var(--glass);padding:8px 10px;border-radius:8px;font-size:13px;color:var(--muted)}
-    .footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;color:var(--muted);font-size:13px}
-    .flex{display:flex;gap:8px}
-    .mode{display:flex;gap:6px}
-    .mode button{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--muted);cursor:pointer}
-    .mode button.active{background:rgba(255,255,255,0.03);color:white}
-    @media (max-width:980px){.app{grid-template-columns:1fr;}}  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Topic Summarizer</title>
+  <script src="https://js.puter.com/v2/"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4e54c8, #8f94fb);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: rgba(0,0,0,0.4);
+      padding: 30px;
+      border-radius: 16px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 26px;
+      letter-spacing: 1px;
+    }
+    textarea {
+      width: 100%;
+      height: 180px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      resize: none;
+      font-size: 15px;
+      font-family: inherit;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      background: #00c6ff;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0072ff;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      min-height: 100px;
+      white-space: pre-wrap;
+      font-size: 15px;
+    }
   </style>
 </head>
 <body>
-  <div class="app" role="application">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">SC</div>
-        <div>
-          <h1>AI Summarizer</h1>
-          <div class="muted">High-quality summaries for your website</div>
-        </div>
-      </div><div class="control">
-    <label for="sourceType">Input source</label>
-    <select id="sourceType">
-      <option value="text">Paste text</option>
-      <option value="url">Fetch from URL (server required)</option>
-      <option value="file">Upload file (.txt/.md/.html/.docx)</option>
-    </select>
+  <div class="container">
+    <h1>📘 Student Topic Summarizer</h1>
+    <textarea id="topicInput" placeholder="Paste your study topic here..."></textarea>
+    <button id="summarizeBtn">Summarize with AI</button>
+    <div id="summaryOutput" class="output">Your summary will appear here...</div>
   </div>
 
-  <div id="fileControls" style="display:none">
-    <label class="small">Upload file</label>
-    <input id="fileInput" type="file" accept=".txt,.md,.html,.docx" />
-    <div class="file-info" id="fileInfo">No file selected</div>
-  </div>
+  <script>
+    const inputEl = document.getElementById("topicInput");
+    const outputEl = document.getElementById("summaryOutput");
+    const btn = document.getElementById("summarizeBtn");
 
-  <div id="urlControls" style="display:none">
-    <label class="small">URL</label>
-    <input id="urlInput" placeholder="https://example.com/article" />
-    <div class="muted small">Note: fetching URLs from the browser requires CORS or a server-side proxy.</div>
-  </div>
-
-  <div class="control">
-    <label for="length">Summary length</label>
-    <select id="length">
-      <option value="short">Short — 1-3 lines</option>
-      <option value="medium" selected>Medium — paragraph</option>
-      <option value="long">Long — detailed</option>
-    </select>
-  </div>
-
-  <div class="control">
-    <label for="style">Style / Tone</label>
-    <select id="style">
-      <option value="neutral">Neutral</option>
-      <option value="formal">Formal</option>
-      <option value="casual">Casual</option>
-      <option value="bullet">Bullet points</option>
-    </select>
-  </div>
-
-  <div>
-    <label class="small">Advanced</label>
-    <div class="row">
-      <button id="summarizeBtn" class="btn">Summarize</button>
-      <button id="clearBtn" class="btn ghost">Clear</button>
-    </div>
-  </div>
-
-  <div class="muted small">Quick actions</div>
-  <div class="row">
-    <button id="copyBtn" class="btn ghost">Copy</button>
-    <button id="downloadBtn" class="btn ghost">Download .txt</button>
-    <button id="zipBtn" class="btn ghost">Export bundle (.zip)</button>
-  </div>
-
-  <div class="muted small">History</div>
-  <div class="history" id="history"></div>
-
-  <div class="footer">
-    <div class="muted small">Saved locally</div>
-    <div class="muted small">v1.0</div>
-  </div>
-</aside>
-
-<main class="main">
-  <div class="top-controls">
-    <div style="display:flex;gap:12px;align-items:center">
-      <div class="chip" id="wordCount">Words: 0</div>
-      <div class="chip" id="charCount">Chars: 0</div>
-    </div>
-    <div class="mode">
-      <button class="active" data-mode="extractive">Extractive</button>
-      <button data-mode="abstractive">Abstractive</button>
-    </div>
-  </div>
-
-  <div style="display:flex;gap:12px;flex-direction:column;height:100%">
-    <div class="result-card" style="display:flex;gap:12px;flex-direction:column">
-      <div>
-        <label class="small">Input</label>
-        <textarea id="inputText" rows="10" placeholder="Paste or type your article here..." ></textarea>
-      </div>
-
-      <div>
-        <label class="small">Summary</label>
-        <div id="result" class="summary-output">Your summary will appear here.</div>
-        <div class="result-controls">
-          <button id="regenerateBtn" class="btn ghost">Regenerate variations</button>
-          <button id="downloadJsonBtn" class="btn ghost">Export JSON</button>
-          <button id="clearHistoryBtn" class="btn ghost">Clear history</button>
-        </div>
-      </div>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="muted small">Tips: Use URL mode for live articles (proxy required). Use the JSZip button to create a bundle of multiple summary variations.</div>
-      <div class="muted small">Made for Shadow Coder</div>
-    </div>
-
-  </div>
-</main>
-
-  </div>  <!-- External libs -->  <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>  <!-- User-provided summarization library -->  <script src="https://js.puter.com/v2/"></script>  <script>
-  // Helper: simple extractive summarizer (fallback)
-  function extractiveSummarize(text, lengthMode, style){
-    // Split into sentences
-    const sents = text.match(/[^.!?]+[.!?]?/g) || [text];
-    const words = text.split(/\s+/).filter(Boolean);
-    const targetRatio = lengthMode === 'short' ? 0.05 : lengthMode === 'medium' ? 0.15 : 0.4;
-    const targetCount = Math.max(1, Math.round(sents.length * targetRatio));
-
-    // Score sentences by term frequency
-    const freq = {};
-    for(const w of words){
-      const k = w.replace(/[^\w]/g,'').toLowerCase();
-      if(k.length<2) continue;
-      freq[k]=(freq[k]||0)+1;
-    }
-    const scores = sents.map(s=>{
-      const ws = s.split(/\s+/).map(w=>w.replace(/[^\w]/g,'').toLowerCase());
-      let sc=0; for(const w of ws) if(freq[w]) sc+=freq[w];
-      return sc/(ws.length||1);
-    });
-    // pick top sentences in original order
-    const idxs = scores.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]).slice(0,targetCount).map(x=>x[1]).sort((a,b)=>a-b);
-    let out = idxs.map(i=>sents[i].trim()).join(' ');
-
-    if(style==='bullet') out = idxs.map(i=>'- '+sents[i].trim()).join('\n');
-    return out || text.slice(0,300)+"...";
-  }
-
-  // Simple abstractive stub (makes minor rewriting)
-  function abstractiveLight(text,lengthMode,style){
-    const short = extractiveSummarize(text,lengthMode,style);
-    // Very small rewrite: split into clauses and shorten
-    const clauses = short.split(/,|;|\n/).map(s=>s.trim()).filter(Boolean);
-    let out = clauses.slice(0, Math.max(1, Math.min(clauses.length, 5))).join('. ') + (clauses.length>5?'. . .':'');
-    if(style==='bullet') out = clauses.map(c=>'- '+c).join('\n');
-    return out;
-  }
-
-  // Utilities
-  const $ = id=>document.getElementById(id);
-  const inputText = $('inputText');
-  const result = $('result');
-  const lengthSelect = $('length');
-  const styleSelect = $('style');
-  const fileInput = $('fileInput');
-  const sourceType = $('sourceType');
-  const urlInput = $('urlInput');
-  const fileInfo = $('fileInfo');
-  const historyEl = $('history');
-  const wordCount = $('wordCount');
-  const charCount = $('charCount');
-
-  // Mode buttons (extractive/abstractive)
-  document.querySelectorAll('.mode button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.mode button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
-
-  // Source switcher
-  sourceType.addEventListener('change',()=>{
-    const v = sourceType.value;
-    $('fileControls').style.display = v==='file'? 'block':'none';
-    $('urlControls').style.display = v==='url'? 'block':'none';
-  });
-
-  // File reader
-  fileInput.addEventListener('change',async e=>{
-    const f = e.target.files[0];
-    if(!f) { fileInfo.textContent='No file selected'; return; }
-    fileInfo.textContent = f.name + ' — ' + Math.round(f.size/1024)+'KB';
-    const text = await f.text();
-    inputText.value = text;
-    updateCounts();
-  });
-
-  // Counts
-  function updateCounts(){
-    const t = inputText.value || '';
-    const wc = t.split(/\s+/).filter(Boolean).length;
-    wordCount.textContent = 'Words: '+wc;
-    charCount.textContent = 'Chars: '+t.length;
-  }
-  inputText.addEventListener('input', updateCounts);
-
-  // History (localStorage)
-  function loadHistory(){
-    const h = JSON.parse(localStorage.getItem('summaries')||'[]');
-    historyEl.innerHTML = '';
-    h.slice().reverse().forEach(item=>{
-      const d = document.createElement('div'); d.className='chip'; d.textContent = item.title + ' — '+new Date(item.t).toLocaleString();
-      d.addEventListener('click',()=>{ result.textContent = item.summary; });
-      historyEl.appendChild(d);
-    });
-  }
-  loadHistory();
-
-  function saveToHistory(title,summary){
-    const arr = JSON.parse(localStorage.getItem('summaries')||'[]');
-    arr.push({t:Date.now(),title:title||'Untitled',summary});
-    while(arr.length>100) arr.shift();
-    localStorage.setItem('summaries', JSON.stringify(arr));
-    loadHistory();
-  }
-
-  // Summarization pipeline
-  async function summarize(){
-    const text = inputText.value.trim();
-    if(!text){ alert('Please paste or upload some text first.'); return; }
-    const lengthMode = lengthSelect.value;
-    const style = styleSelect.value;
-    const mode = document.querySelector('.mode button.active').dataset.mode; // extractive|abstractive
-
-    result.textContent = 'Summarizing...';
-
-    try{
-      // Prefer user's external library if available
-      if(window.Puter && typeof window.Puter.summarize === 'function'){
-        // NOTE: this assumes the external script exposes `Puter.summarize(text, options)`
-        const options = {length:lengthMode,style,mode};
-        const r = await window.Puter.summarize(text, options);
-        // Allow r to be string or {summary:...}
-        const summary = (typeof r==='string')? r : (r && r.summary) || JSON.stringify(r);
-        result.textContent = summary;
-        saveToHistory('Summary (Puter)', summary);
+    btn.addEventListener("click", async () => {
+      const text = inputEl.value.trim();
+      if (!text) {
+        alert("Please enter a topic first.");
         return;
       }
 
-      // Try another possible global name 'jsPuter' (some libs vary)
-      if(window.jsPuter && typeof window.jsPuter.summarize === 'function'){
-        const r = await window.jsPuter.summarize(text,{length:lengthMode,style,mode});
-        const summary = (typeof r==='string')? r : (r && r.summary) || JSON.stringify(r);
-        result.textContent = summary;
-        saveToHistory('Summary (jsPuter)', summary);
-        return;
+      outputEl.textContent = "⏳ Summarizing... please wait";
+
+      try {
+        // Use Puter AI for summarization
+        const response = await puter.ai.chat.completions.create({
+          model: "gpt-4.1-mini",
+          messages: [
+            { role: "system", content: "You are a helpful AI tutor. Summarize study topics for students in simple and clear language." },
+            { role: "user", content: `Summarize this study topic in a student-friendly way:\n\n${text}` }
+          ]
+        });
+
+        const summary = response.choices[0].message.content;
+        outputEl.textContent = summary;
+      } catch (err) {
+        console.error(err);
+        outputEl.textContent = "⚠️ Error: Could not generate summary.";
       }
-
-      // Fallback local implementations
-      let out = '';
-      if(mode==='extractive') out = extractiveSummarize(text,lengthMode,style);
-      else out = abstractiveLight(text,lengthMode,style);
-      result.textContent = out;
-      saveToHistory('Summary (local)', out);
-    }catch(err){
-      console.error(err);
-      result.textContent = 'Error: '+err.message;
-    }
-  }
-
-  // Buttons
-  $('summarizeBtn').addEventListener('click',summarize);
-  $('clearBtn').addEventListener('click',()=>{ inputText.value=''; result.textContent='Your summary will appear here.'; updateCounts(); });
-  $('copyBtn').addEventListener('click',()=>{ navigator.clipboard.writeText(result.textContent||'').then(()=>alert('Copied to clipboard')); });
-
-  $('downloadBtn').addEventListener('click',()=>{
-    const blob = new Blob([result.textContent || ''],{type:'text/plain;charset=utf-8'});
-    saveAs(blob, 'summary.txt');
-  });
-
-  $('downloadJsonBtn').addEventListener('click',()=>{
-    const obj = {title:document.title,source:sourceType.value,summary:result.textContent,at:new Date().toISOString()};
-    const blob = new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
-    saveAs(blob, 'summary.json');
-  });
-
-  // Export multiple variations into a zip
-  $('zipBtn').addEventListener('click',async ()=>{
-    const text = inputText.value.trim(); if(!text){ alert('Please provide input text first.'); return; }
-    const zip = new JSZip();
-    const variations = ['short','medium','long'];
-    for(const v of variations){
-      const ex = extractiveSummarize(text,v,styleSelect.value);
-      zip.file(`summary-extractive-${v}.txt`, ex);
-      const ab = abstractiveLight(text,v,styleSelect.value);
-      zip.file(`summary-abstractive-${v}.txt`, ab);
-    }
-    const blob = await zip.generateAsync({type:'blob'});
-    saveAs(blob, 'summaries_bundle.zip');
-  });
-
-  // Regenerate variations (three versions)
-  $('regenerateBtn').addEventListener('click',()=>{
-    const base = inputText.value.trim(); if(!base){ alert('Add input first'); return; }
-    const arr = ['short','medium','long'].map(l=>({len:l,txt:(document.querySelector('.mode button.active').dataset.mode==='extractive')? extractiveSummarize(base,l,styleSelect.value):abstractiveLight(base,l,styleSelect.value)}));
-    result.textContent = arr.map(a=>`--- ${a.len.toUpperCase()} ---\n${a.txt}`).join('\n\n');
-  });
-
-  // Clear history
-  $('clearHistoryBtn').addEventListener('click',()=>{ if(confirm('Clear local history?')){ localStorage.removeItem('summaries'); loadHistory(); }});
-
-  // Simple URL fetch (requires CORS/proxy)
-  $('urlInput').addEventListener('keydown', async (e)=>{ if(e.key==='Enter'){
-    const u = $('urlInput').value.trim(); if(!u) return; result.textContent='Fetching...';
-    try{
-      const res = await fetch(u); if(!res.ok) throw new Error('Fetch failed: '+res.status);
-      const txt = await res.text(); // crude: strip HTML
-      const stripped = txt.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,200000);
-      inputText.value = stripped; updateCounts(); result.textContent='Fetched content — paste ready. Click Summarize.';
-    }catch(err){ result.textContent='Could not fetch. Use a server proxy due to CORS.'; }
-  }});
-
-  // Initial counts
-  updateCounts();
-
-  // Accessibility tip: keyboard shortcut Ctrl+Enter to summarize
-  document.addEventListener('keydown', (e)=>{ if(e.ctrlKey && e.key==='Enter') summarize(); });
-
-  </script></body>
+    });
+  </script>
+</body>
 </html>
