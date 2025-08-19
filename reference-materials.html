@@ -2,108 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Explanation Generator</title>
+  <title>Study Helper AI</title>
+  <script src="https://js.puter.com/v2/"></script> <!-- ✅ THIS IS THE MAIN LINK -->
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f8f9fa;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-    .container {
-      margin-top: 50px;
-      width: 90%;
-      max-width: 800px;
-      background: #fff;
-      padding: 20px 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    h1 {
+      background: #f7f9fc;
+      padding: 20px;
       text-align: center;
-      margin-bottom: 20px;
-      color: #333;
     }
     textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      width: 80%;
+      height: 150px;
+      margin-bottom: 15px;
+      padding: 10px;
       font-size: 16px;
-      resize: vertical;
-      min-height: 80px;
     }
     button {
-      margin-top: 15px;
-      padding: 12px 20px;
-      background: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
+      padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
-      transition: background 0.2s ease;
+      margin: 10px;
+      border: none;
+      background: #4a90e2;
+      color: white;
+      border-radius: 5px;
     }
     button:hover {
-      background: #0056b3;
+      background: #357ab8;
     }
-    .output {
-      margin-top: 25px;
+    #output {
+      margin-top: 20px;
+      text-align: left;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
       padding: 20px;
-      background: #f1f1f1;
+      background: #fff;
       border-radius: 10px;
-      border-left: 5px solid #007bff;
-      font-size: 16px;
-      line-height: 1.6;
-      white-space: pre-wrap;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>AI Explanation Generator</h1>
-    <textarea id="userInput" placeholder="Ask me something... e.g. Explain the nitrogen cycle"></textarea>
-    <button onclick="generateExplanation()">Generate Explanation</button>
-    <div id="output" class="output"></div>
-  </div>
+  <h1>📘 Study Helper AI</h1>
+  <p>Type any topic (e.g., Nitrogen Cycle, Vaccination Principle, Microorganisms in Agriculture) and get a detailed explanation.</p>
+
+  <textarea id="userInput" placeholder="Enter your study topic here..."></textarea><br>
+  <button onclick="getExplanation()">Get Explanation</button>
+
+  <div id="output"></div>
 
   <script>
-    async function generateExplanation() {
-      const query = document.getElementById("userInput").value.trim();
+    async function getExplanation() {
+      const topic = document.getElementById("userInput").value.trim();
       const outputDiv = document.getElementById("output");
 
-      if (!query) {
-        outputDiv.innerText = "⚠️ Please enter a question or topic.";
+      if (!topic) {
+        outputDiv.innerHTML = "<p style='color:red;'>⚠️ Please enter a topic.</p>";
         return;
       }
 
-      outputDiv.innerText = "⏳ Generating a detailed explanation...";
+      outputDiv.innerHTML = "⏳ Generating explanation... please wait.";
 
       try {
-        // Call your Putter.js backend here
-        const response = await fetch("http://localhost:3000/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            prompt: query + "\n\nProvide only a factually correct and structured explanation."
-          })
+        // ✅ Using Puter AI directly from CDN
+        const response = await puter.ai.chat(topic, {
+          model: "gpt-4o-mini",  // lightweight, fast model
+          systemPrompt: "You are a science teacher. Explain topics in detail but simple words. Nothing should be wrong."
         });
 
-        const data = await response.json();
-
-        if (data.output) {
-          outputDiv.innerText = data.output;
-        } else {
-          outputDiv.innerText = "⚠️ No response received.";
-        }
-      } catch (error) {
-        console.error(error);
-        outputDiv.innerText = "❌ Error: Could not fetch explanation.";
+        outputDiv.innerHTML = `<h2>📖 Explanation of: ${topic}</h2><p>${response.message}</p>`;
+      } catch (err) {
+        console.error(err);
+        outputDiv.innerHTML = "<p style='color:red;'>❌ Error: Could not generate explanation. Try again.</p>";
       }
     }
   </script>
