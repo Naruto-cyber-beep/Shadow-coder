@@ -2,408 +2,443 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Study Assistant — NCERT Summarizer & Explainer (ShadowAI)</title>
+  <title>Study + Diagrams — Mermaid.js + Puter.js</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      --bg: #0b1020; --card:#11172b; --text:#e8ecf3; --muted:#9fb0c6; --accent:#6aa9ff; --accent-2:#00d4a6; --danger:#ff6a7a;
-      --border:#1c2542; --chip:#1a2a48; --shadow:0 8px 24px rgba(0,0,0,.35);
+      --bg:#0b1020;--card:#11172b;--text:#e8ecf3;--muted:#9fb0c6;--accent:#6aa9ff;--accent2:#00d4a6;--border:#1c2542;--chip:#162544;--danger:#ff6a7a;
+      --shadow:0 8px 24px rgba(0,0,0,.35);
     }
     @media (prefers-color-scheme: light) {
-      :root{ --bg:#f7f9ff; --card:#ffffff; --text:#0c1326; --muted:#475569; --accent:#2b6ef7; --accent-2:#10b981; --border:#e5e9f5; --chip:#eef2ff; --shadow:0 8px 24px rgba(15,23,42,.08) }
+      :root{--bg:#f7f9ff;--card:#fff;--text:#0c1326;--muted:#475569;--accent:#2b6ef7;--accent2:#10b981;--border:#e5e9f5;--chip:#eef2ff;--shadow:0 8px 24px rgba(15,23,42,.08)}
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font:500 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
-    .wrap{max-width:1000px;margin:24px auto;padding:0 16px}
-    header{display:flex;gap:14px;align-items:center;justify-content:space-between;margin:6px 0 16px}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    header{display:flex;align-items:center;justify-content:space-between;margin:6px 0 16px;gap:12px}
     h1{font-size:22px;margin:0}
     .badge{background:var(--chip);color:var(--accent);padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;border:1px solid var(--border)}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
-    .controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
-    .controls .row{display:flex;gap:8px;flex-wrap:wrap}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+    .card h3{margin:0;padding:14px 16px;border-bottom:1px solid var(--border);font-size:16px}
+    .sec{padding:14px 16px;display:grid;gap:12px}
     label{font-size:12px;color:var(--muted)}
-    select,input[type="text"],textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);outline:none}
-    textarea{min-height:140px;resize:vertical}
-    .chips{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:13px;cursor:pointer}
-    .chip[data-active="true"]{outline:2px solid var(--accent)}
-    .btns{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);cursor:pointer;background:linear-gradient(0deg,transparent,transparent);color:var(--text)}
-    .btn.primary{background:linear-gradient(180deg,var(--accent),#4b7df6);border:none;color:white}
-    .btn.ghost{background:transparent}
+    input,select,textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);outline:none}
+    textarea{min-height:120px;resize:vertical}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer}
+    .btn.primary{background:linear-gradient(180deg,var(--accent),#4b7df6);border:none;color:#fff}
+    .btn.green{background:linear-gradient(180deg,var(--accent2),#08a873);border:none;color:#fff}
     .btn.warn{background:linear-gradient(180deg,#ff758f,#ff5975);border:none;color:#fff}
     .btn:disabled{opacity:.6;cursor:not-allowed}
-    .status{font-size:13px;color:var(--muted);padding:8px 14px;border-top:1px dashed var(--border)}
-    .chat{margin-top:16px}
-    .msg{padding:16px 18px;border-bottom:1px dashed var(--border)}
-    .msg.u{background:linear-gradient(180deg,rgba(106,169,255,.08),transparent)}
-    .msg.ai{background:linear-gradient(180deg,rgba(16,185,129,.08),transparent)}
-    .msg h4{margin:0 0 8px 0;font-size:13px;color:var(--muted)}
-    .msg pre{white-space:pre-wrap;word-wrap:break-word;margin:0}
-    .foot{margin:18px 0 40px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;color:var(--muted)}
-    .right{display:flex;gap:10px;align-items:center}
-    .kbd{border:1px solid var(--border);padding:2px 6px;border-radius:6px;background:var(--chip);font-size:12px}
-    .tiny{font-size:12px;color:var(--muted)}
-    .save-dot{width:8px;height:8px;border-radius:999px;background:var(--accent-2);display:inline-block;margin-left:6px}
+    .status{font-size:12px;color:var(--muted);padding:10px 16px;border-top:1px dashed var(--border)}
+    .output{background:linear-gradient(180deg,rgba(106,169,255,.08),transparent);padding:12px;border-radius:12px;border:1px dashed var(--border)}
+    .mono{font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .muted{color:var(--muted)}
+    .footer{margin:18px 0 40px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;color:var(--muted)}
+    .tiny{font-size:12px}
+    .mermaid-wrap{background:#0b0f1c0d;border:1px dashed var(--border);border-radius:12px;padding:12px;overflow:auto}
+    .chip-row{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer}
+    .ok{color:var(--accent2)}
     .danger{color:var(--danger)}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-    .flex{display:flex;gap:10px;flex-wrap:wrap}
-    .grow{flex:1}
-
-    /* Image generator */
-    .igrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
-    .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:0 14px 14px}
-    .thumb{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--chip);position:relative}
-    .thumb img{display:block;width:100%;height:auto}
-    .meta{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;padding:8px 0 0}
-    .note{font-size:12px;color:var(--muted);padding:0 14px 14px}
-    .pill{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:var(--chip)}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
   </style>
+  <!-- Mermaid ES module (works reliably) -->
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    window.__mermaid = mermaid;
+    mermaid.initialize({ startOnLoad:false, securityLevel:"loose", theme: "default" });
+  </script>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div>
-        <h1>📘 Study Assistant</h1>
-        <div class="tiny">Summarize • Explain • NCERT-style Q&A — Powered by <b>ShadowAI</b></div>
+        <h1>📘 Study + 🗺️ Diagrams</h1>
+        <div class="tiny muted">Mermaid.js diagrams • Putter.js study helper</div>
       </div>
-      <span class="badge">Client-only · No API keys</span>
+      <span class="badge">Powered by Putter</span>
     </header>
 
-    <!-- Controls -->
-    <section class="card">
-      <div class="controls">
-        <div class="row">
-          <div class="grow">
-            <label for="mode">Mode</label>
-            <select id="mode">
-              <option value="summarize">Summarize Text</option>
-              <option value="explain">Explain a Concept</option>
-              <option value="qa" selected>Ask a Question</option>
-            </select>
+    <div class="grid">
+      <!-- DIAGRAMS -->
+      <section class="card" id="diagram-card">
+        <h3>Mermaid Diagram Generator</h3>
+        <div class="sec">
+          <div class="row">
+            <div style="flex:2">
+              <label>Describe your diagram (e.g., “Nitrogen cycle”, “ER diagram for library”)</label>
+              <input id="dg-prompt" placeholder="Type your idea…">
+            </div>
+            <div style="flex:1">
+              <label>Mode</label>
+              <select id="dg-mode">
+                <option value="auto" selected>AI Assist → Mermaid</option>
+                <option value="manual">Manual (paste Mermaid code)</option>
+                <option value="template">Template (common school diagrams)</option>
+              </select>
+            </div>
           </div>
-          <div class="grow">
-            <label for="class">Class (NCERT focus)</label>
-            <select id="class">
-              <option value="">— Optional —</option>
-              <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
-            </select>
+
+          <div id="manual-box" style="display:none">
+            <label>Mermaid code</label>
+            <textarea id="dg-code" class="mono" placeholder="graph TD
+  A-->B
+  B-->C"></textarea>
+          </div>
+
+          <div id="template-box" style="display:none">
+            <label>Pick a template</label>
+            <div class="chip-row">
+              <span class="chip" data-tpl="water">Water Cycle</span>
+              <span class="chip" data-tpl="nitrogen">Nitrogen Cycle</span>
+              <span class="chip" data-tpl="carbon">Carbon Cycle</span>
+              <span class="chip" data-tpl="foodchain">Food Chain</span>
+              <span class="chip" data-tpl="digestive">Human Digestive (simplified)</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn primary" id="dg-generate">Generate Diagram</button>
+            <button class="btn" id="dg-clear">Clear</button>
+            <button class="btn" id="dg-download">Download SVG</button>
+            <span class="tiny muted" id="dg-status">Ready.</span>
+          </div>
+
+          <div class="mermaid-wrap">
+            <div id="dg-render" class="mermaid">graph TD; A[Start]-->B[Your diagram will render here];</div>
+          </div>
+
+          <div class="output tiny">
+            <div class="muted">Mermaid source (read-only after render):</div>
+            <pre id="dg-source" class="mono" style="white-space:pre-wrap;word-break:break-word;margin:6px 0 0"></pre>
           </div>
         </div>
+        <div class="status">Tips: Use <span class="mono">flowchart/graph</span>, <span class="mono">sequenceDiagram</span>, <span class="mono">classDiagram</span>, <span class="mono">erDiagram</span>, <span class="mono">stateDiagram</span>.</div>
+      </section>
 
-        <div class="row">
-          <div class="grow">
-            <label for="subject">Subject</label>
-            <select id="subject">
-              <option>General</option><option>Science</option><option>Biology</option><option>Physics</option><option>Chemistry</option>
-              <option>Maths</option><option>History</option><option>Geography</option><option>Civics</option><option>Hindi</option><option>English</option>
-            </select>
+      <!-- STUDY -->
+      <section class="card" id="study-card">
+        <h3>Study Assistant (NCERT-friendly)</h3>
+        <div class="sec">
+          <div class="row">
+            <div style="flex:1">
+              <label>Task</label>
+              <select id="st-mode">
+                <option value="summarize">Summarize</option>
+                <option value="explain" selected>Explain</option>
+                <option value="qa">Q&A</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label>Class</label>
+              <select id="st-class">
+                <option value="">— Any —</option>
+                <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label>Subject</label>
+              <select id="st-subj">
+                <option>General</option><option>Science</option><option>Biology</option><option>Physics</option><option>Chemistry</option>
+                <option>Maths</option><option>History</option><option>Geography</option><option>Civics</option><option>Hindi</option><option>English</option>
+              </select>
+            </div>
           </div>
-          <div class="grow">
-            <label for="tone">Style</label>
-            <select id="tone">
-              <option value="simple" selected>Simple student-friendly</option>
-              <option value="exam">Exam-focused (points)</option>
-              <option value="teacher">Teacher explanation</option>
-              <option value="flash">Flashcards (Q→A)</option>
-            </select>
+
+          <div>
+            <label>Your question / text</label>
+            <textarea id="st-input" placeholder="Ask a study question, paste text to summarize, or name a concept to explain."></textarea>
+          </div>
+
+          <div class="row">
+            <button class="btn green" id="st-generate">Generate Answer</button>
+            <button class="btn" id="st-clear">Clear</button>
+            <button class="btn" id="st-save">Save Chat</button>
+            <button class="btn" id="st-load">Load Last</button>
+            <span class="tiny muted" id="st-status">Ready.</span>
+          </div>
+
+          <div class="output" id="st-chat" aria-live="polite" style="min-height:120px">
+            <div class="tiny muted">Your answers will appear here.</div>
           </div>
         </div>
+        <div class="status tiny">Basic safety filter active. Avoid sensitive/NSFW terms. Stored locally in your Puter drive.</div>
+      </section>
+    </div>
 
-        <div class="row">
-          <div class="grow">
-            <label for="query">Your prompt / text</label>
-            <textarea id="query" placeholder="Type your question, concept, or paste a passage to summarize..."></textarea>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="chips" id="quick">
-            <span class="chip" data-t="Define with examples">Define + examples</span>
-            <span class="chip" data-t="Give key formulas and units">Key formulas</span>
-            <span class="chip" data-t="Make 10 MCQs with answers">10 MCQs</span>
-            <span class="chip" data-t="Explain step by step with analogy">Step-by-step</span>
-            <span class="chip" data-t="Give past-year style questions">PYQ-style</span>
-            <span class="chip" data-t="Create a 1-page revision sheet">1-page notes</span>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="btns">
-            <button id="ask" class="btn primary">Generate Answer</button>
-            <button id="clear" class="btn ghost">Clear</button>
-            <button id="export" class="btn ghost">Export .txt</button>
-            <button id="save" class="btn ghost">Save Transcript <span id="saved" class="save-dot" style="opacity:0"></span></button>
-            <button id="load" class="btn ghost">Load Last</button>
-            <button id="newChat" class="btn warn">New Chat</button>
-          </div>
-        </div>
-      </div>
-      <div class="status" id="status">Ready.</div>
-    </section>
-
-    <!-- Chat -->
-    <section id="chat" class="chat card" aria-live="polite"></section>
-
-    <!-- IMAGE GENERATOR (ShadowAI + Puter txt2img) -->
-    <section class="card" style="margin-top:16px;">
-      <div class="igrid">
-        <div>
-          <label for="imgPrompt">AI Diagram / Image Prompt</label>
-          <textarea id="imgPrompt" placeholder="e.g., 'Class 8 water cycle diagram, clean labels, flat vector, high contrast'"></textarea>
-          <div class="meta" style="margin-top:8px;">
-            <span>Daily Free: <span id="freeLeft" class="pill">5</span></span>
-            <span>Coins: <span id="coinBal" class="pill">0</span> (10/image after free)</span>
-          </div>
-          <div class="btns" style="margin-top:10px;">
-            <button id="genImg" class="btn primary">Generate Image</button>
-            <button id="dlAll" class="btn ghost">Download All</button>
-            <label class="pill" style="display:inline-flex;align-items:center;gap:6px;">
-              <input type="checkbox" id="testMode"> Test mode
-            </label>
-            <button id="login" class="btn ghost">Login</button>
-            <button id="addCoins" class="btn ghost">Buy 30 Coins (₹10)</button>
-          </div>
-          <div class="note">NSFW & harmful prompts are blocked. After 5 free generations/day, you need to be logged in and will be charged <b>10 Shadow Coins</b> per image. (₹1 = 3 coins)</div>
-        </div>
-        <div>
-          <label>Safety & Limits</label>
-          <ul class="tiny" style="margin:8px 0 0 16px; line-height:1.7;">
-            <li>Blocks nudity, sexual content, graphic violence, hate/abuse, self-harm, illegal content.</li>
-            <li>Prompt length limited to ~300 characters.</li>
-            <li>Max 5 free images/day per device; abuse resets may apply.</li>
-            <li>Images are for educational/personal use; respect copyright.</li>
-          </ul>
-        </div>
-      </div>
-      <div id="imgStatus" class="status">Image generator ready.</div>
-      <div id="gallery" class="gallery"></div>
-    </section>
-
-    <footer class="foot">
-      <div>Tip: Press <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to send. Responses are generated via ShadowAI bridge.</div>
-      <div class="right tiny">Transcripts saved to Puter storage (with local fallback). <span class="danger">Don’t paste private data.</span></div>
+    <footer class="footer tiny">
+      <div>Press <span class="mono">Ctrl/⌘ + Enter</span> to run actions.</div>
+      <div>Storage path: <span class="mono">/study-suite</span> (Puter)</div>
     </footer>
   </div>
 
-  <!-- Puter.js -->
+  <!-- Putter.js -->
   <script src="https://js.puter.com/v2/"></script>
   <script>
-    // ---------- UI Refs ----------
-    const els = {
-      mode: document.getElementById('mode'),
-      class: document.getElementById('class'),
-      subject: document.getElementById('subject'),
-      tone: document.getElementById('tone'),
-      query: document.getElementById('query'),
-      chat: document.getElementById('chat'),
-      status: document.getElementById('status'),
-      ask: document.getElementById('ask'),
-      clear: document.getElementById('clear'),
-      export: document.getElementById('export'),
-      save: document.getElementById('save'),
-      load: document.getElementById('load'),
-      newChat: document.getElementById('newChat'),
-      quick: document.getElementById('quick'),
-      saved: document.getElementById('saved'),
+    // ---------- NSFW / sensitive filter (client-side soft block) ----------
+    const BAD_WORDS = [
+      'porn','nsfw','nude','nudity','penis','vagina','breast','boobs','semen','sperm','hentai','sex','sexual','erotic',
+      'kill yourself','suicide','bomb','terror'
+    ];
+    function blocked(text){
+      const t = ' ' + String(text||'').toLowerCase() + ' ';
+      return BAD_WORDS.some(w => t.includes(' '+w+' '));
+    }
 
-      // image gen
-      imgPrompt: document.getElementById('imgPrompt'),
-      genImg: document.getElementById('genImg'),
-      testMode: document.getElementById('testMode'),
-      imgStatus: document.getElementById('imgStatus'),
-      gallery: document.getElementById('gallery'),
-      freeLeft: document.getElementById('freeLeft'),
-      coinBal: document.getElementById('coinBal'),
-      login: document.getElementById('login'),
-      addCoins: document.getElementById('addCoins'),
-      dlAll: document.getElementById('dlAll'),
+    // ---------- Mermaid helpers ----------
+    const dgPrompt = document.getElementById('dg-prompt');
+    const dgMode   = document.getElementById('dg-mode');
+    const dgCodeTA = document.getElementById('dg-code');
+    const dgRender = document.getElementById('dg-render');
+    const dgSource = document.getElementById('dg-source');
+    const dgStatus = document.getElementById('dg-status');
+
+    const manualBox   = document.getElementById('manual-box');
+    const templateBox = document.getElementById('template-box');
+
+    dgMode.addEventListener('change', ()=>{
+      manualBox.style.display   = dgMode.value==='manual'   ? '' : 'none';
+      templateBox.style.display = dgMode.value==='template' ? '' : 'none';
+    });
+
+    // Templates for school diagrams
+    const TPL = {
+      water: `graph TD
+  Sun((Sun)) --> Evaporation
+  Evaporation --> Condensation
+  Condensation --> Precipitation
+  Precipitation --> Runoff
+  Runoff --> Collection((Oceans/Lakes))
+  Collection --> Evaporation`,
+      nitrogen: `graph TD
+  A[Atmospheric N2] --> B[Nitrogen Fixation]
+  B --> C[Ammonium (NH4+)]
+  C --> D[Nitrification to NO2-]
+  D --> E[Nitrification to NO3-]
+  E --> F[Absorption by Plants]
+  F --> G[Animals consume]
+  G --> H[Decomposition]
+  H --> C
+  E --> I[Denitrification]
+  I --> A`,
+      carbon: `graph TD
+  Atmosphere[Atmospheric CO2] --> Photosynthesis
+  Photosynthesis --> Plants
+  Plants --> Respiration
+  Respiration --> Atmosphere
+  Plants --> Animals
+  Animals --> Respiration
+  Plants --> Decomposition
+  Animals --> Decomposition
+  Decomposition --> Atmosphere`,
+      foodchain: `graph TD
+  Sun((Sun)) --> Producer[Grass]
+  Producer --> Primary[Grasshopper]
+  Primary --> Secondary[Frog]
+  Secondary --> Tertiary[Snake]
+  Tertiary --> Quaternary[Eagle]`,
+      digestive: `graph LR
+  Mouth --> Esophagus --> Stomach --> SmallIntestine --> LargeIntestine --> Rectum --> Anus
+  SmallIntestine -->|Bile| Gallbladder
+  Stomach -->|Enzymes| Pancreas`
     };
 
-    // ---------- Chat State ----------
-    let conversation = [];
-    const nowISO = () => new Date().toISOString().replace('T',' ').split('.')[0];
-    function setStatus(t){ els.status.textContent = t; }
-    function setImgStatus(t){ els.imgStatus.textContent = t; }
-    function escapeHTML(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-    function addMsg(role, text){
-      const div = document.createElement('div');
-      div.className = `msg ${role==='user'?'u':'ai'}`;
-      div.innerHTML = `<h4>${role==='user'?'You':'Assistant'} • <span class="tiny">${nowISO()}</span></h4><pre>${escapeHTML(text)}</pre>`;
-      els.chat.prepend(div);
-      conversation.push({role, text, t: Date.now()});
+    document.querySelectorAll('[data-tpl]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const key = el.getAttribute('data-tpl');
+        dgCodeTA.value = TPL[key] || '';
+        dgMode.value = 'manual';
+        manualBox.style.display = '';
+        templateBox.style.display = 'none';
+      });
+    });
+
+    async function renderMermaid(code){
+      if(!code || !code.trim()){ return; }
+      try{
+        dgStatus.textContent = 'Rendering…';
+        dgRender.innerHTML = code;
+        await window.__mermaid.run({ nodes: [dgRender] });
+        dgSource.textContent = code;
+        dgStatus.textContent = 'Rendered.';
+      }catch(e){
+        console.error(e);
+        dgStatus.textContent = 'Render failed. Check Mermaid syntax.';
+      }
     }
 
-    // ---------- System Prompt ----------
-    function buildSystemPrompt(){
-      const cls = els.class.value ? `Class ${els.class.value}` : `appropriate class level`;
-      const subj = els.subject.value;
-      const tone = els.tone.value;
-      const mode = els.mode.value;
+    document.getElementById('dg-generate').addEventListener('click', async ()=>{
+      const mode = dgMode.value;
+      let code = '';
 
-      const base = [
-        `You are a patient NCERT-aligned study tutor.`,
-        `Write in simple, exam-friendly language. Use short paragraphs and bullet points.`,
-        `Include examples/analogies where useful. If formulas appear, use correct SI units.`,
-        `Summaries: keep key ideas/definitions; remove filler.`,
-        `MCQs: include an answer key at the end.`,
-        `Steps/derivations: show them in order.`,
-        `Avoid unsafe/adult content; if off-topic, suggest a safe, study alternative.`
-      ].join('\\n');
-
-      const modeLine = ({
-        summarize: \`Task: Summarize the provided passage for \${cls} (\${subj}). Keep headings and bullet points.\`,
-        explain:   \`Task: Explain the concept clearly for \${cls} (\${subj}). Include definition, key points, and a quick example.\`,
-        qa:        \`Task: Answer the user's question for \${cls} (\${subj}) with precision.\`
-      })[mode];
-
-      const toneLine = ({
-        simple: \`Style: Simple student-friendly.\`,
-        exam:   \`Style: Exam-focused points with bolded keywords where helpful.\`,
-        teacher:\`Style: Teacher talk-through with steps and checks.\`,
-        flash:  \`Style: Flashcards (Q: … A: …) for each key point.\`
-      })[tone];
-
-      return \`\${base}\\n\\n\${modeLine}\\n\${toneLine}\\nAlways verify calculations carefully.\`;
-    }
-
-    async function aiReply(userText){
-      const sys = buildSystemPrompt();
-      const prompt = \`\${sys}\\n\\nUser:\\n\${userText}\`;
-
-      // basic moderation
-      const banned = /(\\bsex\\b|porn|nude|nudity|nsfw|gore|rape|child|suicide|self\\s*harm|kill\\s*myself|terror|bomb|extremis|hate\\s*speech)/i;
-      if (banned.test(userText)) {
-        return "I can’t help with that. Please ask a study-related question aligned to NCERT.";
+      if(mode==='manual'){
+        code = dgCodeTA.value.trim();
+        return renderMermaid(code);
       }
 
+      if(mode==='template'){
+        if(!dgCodeTA.value.trim()){ dgStatus.textContent='Pick a template first.'; return; }
+        return renderMermaid(dgCodeTA.value.trim());
+      }
+
+      // AI assist → convert idea to mermaid
+      const idea = dgPrompt.value.trim();
+      if(!idea){ dgStatus.textContent='Type a diagram idea first.'; return; }
+      if(blocked(idea)){ dgStatus.textContent='Blocked by safety filter.'; return; }
+
+      dgStatus.textContent = 'Thinking (AI → Mermaid)…';
+      const sys = [
+        'You convert natural language into Mermaid code ONLY.',
+        'Return Mermaid code block WITHOUT extra commentary.',
+        'Prefer flowchart: "graph TD" unless user asks sequence/class/ER/state.',
+        'Use short readable labels; avoid long sentences; no styling directives.'
+      ].join('\n');
+
       try{
-        setStatus("Thinking… (ShadowAI)");
-        const out = await puter.ai.chat(prompt);
-        setStatus("Ready.");
-        return String(out ?? "").trim();
+        const out = await puter.ai.chat(`${sys}\n\nUser request: ${idea}\n\nMermaid code:`);
+        code = String(out||'').replace(/^[`]+mermaid|^[`]+|[`]+$/g,'').trim();
+        if(!code || !/^(\w+)\s/i.test(code)){ throw new Error('AI did not return Mermaid.'); }
+        dgCodeTA.value = code; // let user see/edit
+        await renderMermaid(code);
       }catch(err){
         console.error(err);
-        setStatus("AI error — using fallback outline.");
-        return [
-          "⚠️ AI is temporarily unavailable. Here’s a structured outline you can expand:",
-          "",
-          "• Definition:",
-          "• Key points (3–6 bullets):",
-          "• Example:",
-          "• Common mistakes:",
-          "• Quick recap:"
-        ].join("\\n");
+        dgStatus.textContent = 'AI conversion failed. Try templates or manual mode.';
       }
-    }
-
-    // ---------- Events (Chat) ----------
-    function renderHeaderLine(){
-      const parts = [];
-      if (els.class.value) parts.push(\`Class \${els.class.value}\`);
-      if (els.subject.value && els.subject.value !== 'General') parts.push(els.subject.value);
-      if (els.mode.value) parts.push(els.mode.value.charAt(0).toUpperCase()+els.mode.value.slice(1));
-      if (els.tone.value) parts.push(els.tone.options[els.tone.selectedIndex].text);
-      return parts.length ? \`[\${parts.join(' • ')}]\` : "[General]";
-    }
-
-    els.ask.addEventListener('click', async ()=>{
-      const q = els.query.value.trim();
-      if (!q){ setStatus("Type your question/text first."); return; }
-      addMsg('user', renderHeaderLine() + "\\n" + q);
-      els.ask.disabled = true; setStatus("Sending…");
-      const a = await aiReply(q);
-      addMsg('assistant', a);
-      els.ask.disabled = false; setStatus("Ready.");
-      pulseSaved(false);
     });
 
-    els.clear.addEventListener('click', ()=>{ els.query.value = ""; setStatus("Cleared input."); });
-    els.newChat.addEventListener('click', ()=>{ conversation = []; els.chat.innerHTML = ""; setStatus("Started a new chat."); });
+    document.getElementById('dg-clear').addEventListener('click', ()=>{
+      dgPrompt.value=''; dgCodeTA.value=''; dgSource.textContent=''; dgRender.innerHTML='graph TD; A[Start]-->B[Your diagram will render here];';
+      dgStatus.textContent='Cleared.';
+      window.__mermaid.run({nodes:[dgRender]}).catch(()=>{});
+    });
 
-    els.export.addEventListener('click', ()=>{
-      const txt = conversation.map(m => \`\${m.role.toUpperCase()} @ \${new Date(m.t).toLocaleString()}\\n\${m.text}\\n\`).join('\\n---\\n');
-      const blob = new Blob([txt], {type:'text/plain'});
+    // Download SVG
+    document.getElementById('dg-download').addEventListener('click', ()=>{
+      const svg = dgRender.querySelector('svg');
+      if(!svg){ dgStatus.textContent='Nothing to download yet.'; return; }
+      const blob = new Blob([svg.outerHTML], {type:'image/svg+xml'});
       const url = URL.createObjectURL(blob);
-      const a = Object.assign(document.createElement('a'), {href:url, download:\`study-assistant-\${Date.now()}.txt\`});
+      const a = Object.assign(document.createElement('a'), {href:url, download:`diagram-${Date.now()}.svg`});
       a.click(); URL.revokeObjectURL(url);
+      dgStatus.textContent='Downloaded SVG.';
     });
 
-    // ---------- Save/Load with robust fallback ----------
-    function pulseSaved(isSaved){ els.saved.style.opacity = isSaved ? 1 : 0; }
-    const LS_KEY = "shadowai:lastTranscript";
+    // ---------- Study assistant ----------
+    const stMode = document.getElementById('st-mode');
+    const stClass = document.getElementById('st-class');
+    const stSubj = document.getElementById('st-subj');
+    const stInput = document.getElementById('st-input');
+    const stChat = document.getElementById('st-chat');
+    const stStatus = document.getElementById('st-status');
 
-    async function saveTranscript(){
-      const payload = JSON.stringify({meta:getMeta(), conversation}, null, 2);
-      // try Puter FS
+    let transcript = [];
+
+    function addMsg(role, text){
+      const box = document.createElement('div');
+      box.style.margin = '8px 0';
+      box.innerHTML = `<div class="tiny muted">${role==='user'?'You':'Assistant'} • ${new Date().toLocaleString()}</div><div>${text.replace(/</g,'&lt;')}</div>`;
+      stChat.appendChild(box);
+      stChat.scrollTop = stChat.scrollHeight;
+      transcript.push({role, text, t: Date.now()});
+    }
+
+    function buildStudyPrompt(q){
+      const cls = stClass.value ? `Class ${stClass.value}` : 'appropriate class level';
+      const modeLine = stMode.value==='summarize'
+        ? `Task: Summarize the provided text for ${cls} (${stSubj.value}). Use short paras and bullet points.`
+        : stMode.value==='explain'
+        ? `Task: Explain the concept clearly for ${cls} (${stSubj.value}). Include definition, key points, tiny example.`
+        : `Task: Answer precisely for ${cls} (${stSubj.value}).`;
+      const base = [
+        'You are a patient NCERT-aligned tutor.',
+        'Simple student-friendly language, exam-ready points.',
+        'Include units for formulas if any.',
+        'If asked MCQs, include answer key.',
+        'Avoid unsafe/adult content. If off-topic, refuse briefly and suggest a study-safe alternative.'
+      ].join('\n');
+      return `${base}\n${modeLine}\n\nUser:\n${q}`;
+    }
+
+    async function generateStudy(){
+      const q = stInput.value.trim();
+      if(!q){ stStatus.textContent='Type your question/text first.'; return; }
+      if(blocked(q)){ addMsg('assistant','⚠️ This request is blocked by the safety filter.'); return; }
+
+      addMsg('user', q);
+      stStatus.textContent = 'Thinking…';
       try{
-        const dir = `/study-assistant/chats`;
-        await puter.fs.mkdir(dir).catch(()=>{});
-        const path = \`\${dir}/\${Date.now()}-\${(els.subject.value||'General').toLowerCase()}.json\`;
-        await puter.fs.write(path, payload);
-        localStorage.setItem(LS_KEY, payload); // also keep a local copy
-        setStatus(\`Saved: \${path}\`); pulseSaved(true);
+        const out = await puter.ai.chat(buildStudyPrompt(q));
+        addMsg('assistant', (out||'').trim());
+        stStatus.textContent = 'Ready.';
       }catch(e){
-        console.warn("Puter FS save failed, using localStorage.", e);
-        localStorage.setItem(LS_KEY, payload);
-        setStatus("Saved locally (Puter storage unavailable)."); pulseSaved(true);
+        console.error(e);
+        addMsg('assistant', '⚠️ AI unavailable. Try again later.');
+        stStatus.textContent = 'Error.';
       }
     }
 
-    async function loadLast(){
-      // try Puter FS newest
-      try{
-        const dir = `/study-assistant/chats`;
-        const items = await puter.fs.list(dir);
-        if (items && items.length){
-          items.sort((a,b)=> b.mtime - a.mtime);
-          const latest = items[0];
-          const data = await puter.fs.read(latest.path);
-          if (data){ restoreTranscript(JSON.parse(data)); setStatus("Loaded last (Puter)."); return; }
-        }
-      }catch(e){ console.warn("Puter FS load failed, falling back to localStorage.", e); }
-      const local = localStorage.getItem(LS_KEY);
-      if (local){ restoreTranscript(JSON.parse(local)); setStatus("Loaded last (Local)."); }
-      else setStatus("No saved chats found.");
-    }
-
-    function restoreTranscript(parsed){
-      conversation = parsed.conversation || [];
-      els.chat.innerHTML = "";
-      for (const m of conversation.slice().reverse()){
-        addMsg(m.role==='user'?'user':'assistant', m.text);
-      }
-      pulseSaved(true);
-    }
-
-    function getMeta(){ return { class: els.class.value || null, subject: els.subject.value, mode: els.mode.value, tone: els.tone.value, ts: Date.now() }; }
-
-    els.save.addEventListener('click', saveTranscript);
-    els.load.addEventListener('click', loadLast);
-
-    // quick chips
-    els.quick.addEventListener('click', e=>{
-      const chip = e.target.closest('.chip'); if(!chip) return;
-      const t = chip.getAttribute('data-t');
-      els.query.value = (els.query.value.trim() ? els.query.value+"\\n" : "") + t + ".";
-      chip.dataset.active = "true";
-      setTimeout(()=> chip.dataset.active = "false", 400);
-    });
-
+    document.getElementById('st-generate').addEventListener('click', generateStudy);
     document.addEventListener('keydown', e=>{
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ els.ask.click(); }
+      if((e.ctrlKey||e.metaKey) && e.key==='Enter'){
+        // Prefer focus: if diagram section focused, run diagram; else study.
+        const active = document.activeElement;
+        if(active && (active.id==='dg-prompt' || active.id==='dg-code')) document.getElementById('dg-generate').click();
+        else document.getElementById('st-generate').click();
+      }
+    });
+    document.getElementById('st-clear').addEventListener('click', ()=>{ stInput.value=''; stStatus.textContent='Cleared.'; });
+
+    // ---------- Reliable Puter storage (create dir if missing) ----------
+    const ROOT = '/study-suite';
+    async function ensureDirs(){
+      try{
+        await puter.fs.mkdir(ROOT).catch(()=>{});
+        await puter.fs.mkdir(`${ROOT}/chats`).catch(()=>{});
+      }catch(e){ console.warn('Puter mkdir issue', e); }
+    }
+    ensureDirs();
+
+    document.getElementById('st-save').addEventListener('click', async ()=>{
+      try{
+        await ensureDirs();
+        const path = `${ROOT}/chats/${Date.now()}-${(stSubj.value||'general').toLowerCase()}.json`;
+        await puter.fs.write(path, JSON.stringify({meta:{
+          class: stClass.value||null, subject: stSubj.value, mode: stMode.value, ts: Date.now()
+        }, transcript}, null, 2));
+        stStatus.textContent = `Saved: ${path}`;
+      }catch(e){ console.error(e); stStatus.textContent='Save failed.'; }
     });
 
-    // ---------- Image Generation: coins, free tier, moderation ----------
-    const DAILY_FREE_LIMIT = 5;
-    const COST_PER_IMG = 10; // coins
-    const COINS_PER_RUPEE = 3;
+    document.getElementById('st-load').addEventListener('click', async ()=>{
+      try{
+        await ensureDirs();
+        const dir = `${ROOT}/chats`;
+        const items = await puter.fs.list(dir);
+        if(!items || !items.length){ stStatus.textContent='No saved chats.'; return; }
+        items.sort((a,b)=> (b.mtime||0)-(a.mtime||0));
+        const latest = items[0];
+        const data = await puter.fs.read(latest.path);
+        const parsed = JSON.parse(data||'{}');
+        transcript = parsed.transcript || [];
+        stChat.innerHTML = '';
+        for(const m of transcript){ addMsg(m.role, m.text); }
+        stStatus.textContent = 'Loaded last chat.';
+      }catch(e){ console.error(e); stStatus.textContent='Load failed.'; }
+    });
 
-    function todayKey(){ const d = new Date(); return `y${d.getFullYear()}m${d.getMonth()+1}d${d.getDate()}`; }
-    function getState(){
-      const k = "shadowai:state";
-      const raw = localStorage.getItem(k);
-      if (raw) try { return JSON.parse(raw); } catch {}
-      return { coins: 0, freeUsedByDay: {}, loggedIn: false };
-    }
-    function setState(s){ localStorage.setItem("shadowai:state", 
+    // ---------- Minimal health check ----------
+    (async ()=>{
+      try{
+        await ensureDirs();
+        document.querySelector('.footer').insertAdjacentHTML('beforeend', '<span class="ok">Puter OK</span>');
+      }catch(e){
+        document.querySelector('.footer').insertAdjacentHTML('beforeend', '<span class="danger">Puter limited</span>');
+      }
+      // Initial demo render
+      window.__mermaid.run({nodes:[document.getElementById('dg-render')]}).catch(()=>{});
+    })();
+  </script>
+</body>
+                  </html>
