@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,shrink-to-fit=no" />
+<title>AI Chatbot Assistant</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M2 9a7 7 0 0 1 7-7h6a7 7 0 0 1 7 7v4a7 7 0 0 1-7 7H9l-5 4v-4a7 7 0 0 1-2-5V9z'/%3E%3C/svg%3E">
+
+<!-- Puter.js -->
+<script src="https://js.puter.com/v2/"></script>
+
+<style>
+/* -------------  CSS VARIABLES ------------- */
+:root{
+  --primary:#4f46e5; --secondary:#7c3aed;
+  --bg:#fafafa;      --bg-dark:#18181b;
+  --ai:#ffffff;      --ai-dark:#1f1f23;
+  --gradient-user:linear-gradient(135deg,var(--primary),var(--secondary));
+  --radius:1.1rem;   --shadow:0 24px 48px rgba(0,0,0,.12);
+  --shadow-card:0 2px 6px rgba(0,0,0,.06);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:var(--bg-dark);--ai:var(--ai-dark);--shadow-card:0 2px 6px rgba(0,0,0,.4);
+}
+
+/* ------------- RESET ------------- */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--font);
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  display:flex;align-items:center;justify-content:center;color:#e5e7eb;
+  overflow:hidden;transition:background .3s ease
+}
+[data-theme="dark"] body{color:#d1d5db}
+
+/* scrollbar */
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:4px}
+
+/* ------------- WRAPPER ------------- */
+.wrapper{
+  width:clamp(320px,95%,52rem);height:90vh;background:#fff;color:#333;
+  border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:var(--shadow);transition:background .3s ease,color .3s ease
+}
+[data-theme="dark"] .wrapper{background:#0f0f11;color:#e5e7eb}
+
+/* HEADER */
+.header{
+  padding:1rem 1.25rem;background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;display:flex;align-items:center;justify-content:space-between;gap:.5rem
+}
+.header h1{font-size:1.3rem;font-weight:600;margin-right:auto}
+.header .controls button{
+  background:transparent;border:none;color:#fff;font-size:1.2rem;cursor:pointer;margin-left:.4rem
+}
+
+/* CHAT BODY */
+.chat-body{flex:1;overflow-y:auto;background:var(--bg);scroll-behavior:smooth}
+[data-theme="dark"] .chat-body{background:var(--bg-dark)}
+ul.chat-list{list-style:none;margin:0;padding:1.2rem 1.2rem 2rem;position:relative}
+li.msg{display:flex;margin-bottom:1rem;gap:.4rem}
+li.user{justify-content:flex-end}
+li.ai{justify-content:flex-start}
+.bubble{
+  max-width:75%;padding:.85rem 1.15rem;border-radius:var(--radius);
+  font-size:.95rem;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;
+  box-shadow:var(--shadow-card);position:relative
+}
+.user .bubble{background:var(--gradient-user);color:#fff;border-bottom-right-radius:.4rem}
+.ai .bubble{background:var(--ai);color:inherit;border:1px solid #e5e7eb;border-bottom-left-radius:.4rem}
+[data-theme="dark"] .ai .bubble{border:1px solid #2a2a2a}
+
+.bubble time{
+  position:absolute;right:.65rem;bottom:-1.1rem;font-size:.7rem;color:#a1a1aa
+}
+.copy-btn{
+  position:absolute;top:.35rem;right:.45rem;border:none;background:transparent;
+  font-size:1rem;color:#9ca3af;cursor:pointer;opacity:0;transition:opacity .2s
+}
+.bubble:hover .copy-btn{opacity:1}
+
+/* LOADING */
+.loading-dots{display:flex;gap:.4rem}
+.dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--primary);animation:blink 1.1s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+
+/* FOOTER */
+.footer{
+  padding:1rem;background:#fff;border-top:1px solid #e5e7eb;
+  display:flex;align-items:flex-end;gap:.7rem;transition:background .3s ease
+}
+[data-theme="dark"] .footer{background:#0f0f11;border-color:#2a2a2a}
+#chatInput{
+  flex:1;min-height:3rem;max-height:10rem;overflow-y:auto;resize:none;
+  border:2px solid #e5e7eb;border-radius:2rem;padding:.75rem 1rem;font-size:.95rem;
+  background:#fff;color:#333;outline:none;transition:border-color .2s
+}
+[data-theme="dark"] #chatInput{background:#18181b;color:#e5e7eb;border-color:#2a2a2a}
+#chatInput:focus{border-color:var(--primary)}
+.btn{
+  width:2.9rem;height:2.9rem;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;color:#fff;background:var(--gradient-user);cursor:pointer;
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+.btn:hover:not(:disabled){transform:scale(1.06);box-shadow:0 6px 15px rgba(79,70,229,.35)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+
+/* ACCESSIBILITY */
+.sr-only{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+
+/* fade */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="wrapper" role="region" aria-label="AI chat interface">
+  <!-- HEADER -->
+  <header class="header">
+    <h1>AI Chatbot Assistant</h1>
+
+    <div class="controls">
+      <!-- Theme -->
+      <button id="themeBtn" aria-label="Toggle theme">🌚</button>
+      <!-- Mic -->
+      <button id="micBtn" aria-label="Voice input">🎙️</button>
+      <!-- Download -->
+      <button id="dlBtn" aria-label="Download chat">⬇️</button>
+      <!-- Encrypt -->
+      <button id="lockBtn" aria-label="Encryption off">🔓</button>
+    </div>
+  </header>
+
+  <!-- Live region -->
+  <div id="liveRegion" class="sr-only" aria-live="polite"></div>
+
+  <!-- CHAT -->
+  <main id="chatBody" class="chat-body">
+    <ul id="chatList" class="chat-list" role="log"></ul>
+  </main>
+
+  <!-- INPUT -->
+  <footer class="footer">
+    <textarea id="chatInput" placeholder="Type your question…" rows="1" aria-label="Chat input" maxlength="8000"></textarea>
+    <button id="sendBtn" class="btn" aria-label="Send message">➤</button>
+  </footer>
+</div>
+
+<!-- --------- Virtual scroll helper --------- -->
+<script>
+class MiniVirtual{constructor(c,l,h){this.c=c;this.l=l;this.h=h;this.onS=this.onS.bind(this);c.addEventListener('scroll',this.onS)}
+ setData(i){this.i=i;this.refresh()}refresh(){const v=this.c.clientHeight,s=this.c.scrollTop;
+  const a=Math.floor(s/this.h),m=Math.ceil(v/this.h)+5,b=Math.min(this.i.length,a+m);
+  const f=document.createDocumentFragment();for(let k=a;k<b;k++)f.appendChild(this.i[k]);
+  this.l.innerHTML='';this.l.appendChild(f);this.l.style.paddingTop=a*this.h+'px';this.l.style.paddingBottom=(this.i.length-b)*this.h+'px'}
+ onS(){this.refresh()}}
+</script>
+
+<script>
+/* ---------- ELEMENTS ---------- */
+const body       = document.body;
+const chatBody   = document.getElementById('chatBody');
+const chatList   = document.getElementById('chatList');
+const liveReg    = document.getElementById('liveRegion');
+const inputEl    = document.getElementById('chatInput');
+const sendBtn    = document.getElementById('sendBtn');
+const themeBtn   = document.getElementById('themeBtn');
+const micBtn     = document.getElementById('micBtn');
+const dlBtn      = document.getElementById('dlBtn');
+const lockBtn    = document.getElementById('lockBtn');
+
+/* ---------- CONFIG & FLAGS ---------- */
+let lastSend = 0, unseen = 0, loaderId=null;
+const MAX_LEN=8000, RATE=1000, TIMEOUT=20000;
+const BAD_WORDS=['badword1','badword2'];
+const FAQ = [{q:"gravity",a:"Gravity is a force that attracts two bodies..."},{q:"photosynthesis",a:"Photosynthesis is the process by which plants..."}]; // extend
+const KEY_STORAGE='chat_history_v3';           // changes when encryption state changes
+const clickAudio=new Audio('data:audio/mp3;base64,//uQxA...');
+let speechOn=true, recognition=null, encrypt=false, keyCrypto=null;
+
+/* ---------- UTIL ---------- */
+const encode=s=>s.replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])).replace(/ {2}/g,' &nbsp;');
+const haptic=ms=>('vibrate'in navigator)&&navigator.vibrate(ms);
+const nowISO=()=>new Date().toISOString();
+const timeStr=()=>new Date().toLocaleTimeString();
+
+/* ---------- THEME ---------- */
+const savedTheme=localStorage.getItem('theme')|| (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+document.documentElement.dataset.theme=savedTheme; themeBtn.textContent=savedTheme==='dark'?'🌞':'🌚';
+themeBtn.onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';
+  document.documentElement.dataset.theme=t; themeBtn.textContent=t==='dark'?'🌞':'🌚';localStorage.setItem('theme',t);};
+
+/* ---------- VIRTUAL SCROLL ---------- */
+const vs=new MiniVirtual(chatBody,chatList,120);
+
+/* ---------- STORAGE (with optional encryption) ---------- */
+async function generateKey(pwd){
+  const enc=new TextEncoder().encode(pwd);
+  const hash=await crypto.subtle.digest('SHA-256',enc);
+  return crypto.subtle.importKey('raw',hash,{name:'AES-GCM'},false,['encrypt','decrypt']);
+}
+async function encryptText(text,key){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const data=new TextEncoder().encode(text);
+  const buf=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,data);
+  return ivToB64(iv)+"."+bufToB64(new Uint8Array(buf));
+}
+async function decryptText(cipher,key){
+  const [ivB,ctB]=cipher.split('.'); if(!ivB||!ctB) return null;
+  const iv=b64ToBuf(ivB), data=b64ToBuf(ctB);
+  try{const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,data);
+      return new TextDecoder().decode(plain);}catch{ return null;}
+}
+const ivToB64=v=>btoa(String.fromCharCode(...v));
+const bufToB64=b=>btoa(String.fromCharCode(...b));
+const b64ToBuf=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+
+async function saveChat(){
+  let text=chatList.innerHTML;
+  if(encrypt && keyCrypto) text=await encryptText(text,keyCrypto);
+  localStorage.setItem(KEY_STORAGE,text);
+}
+async function restore(){
+  let saved=localStorage.getItem(KEY_STORAGE); if(!saved) return;
+  if(encrypt && keyCrypto){ saved=await decryptText(saved,keyCrypto)||''; }
+  chatList.innerHTML=saved; attachCopyBtns(); vs.setData([...chatList.children]);
+}
+
+/* ---------- COPY BUTTONS ---------- */
+function attachCopyBtns(){
+  chatList.querySelectorAll('.bubble:not([data-copy])').forEach(b=>{
+    if(b.parentElement.classList.contains('ai')){
+      const btn=document.createElement('button');btn.className='copy-btn';btn.innerHTML='📋';btn.title='Copy';
+      btn.onclick=e=>{e.stopPropagation(); navigator.clipboard.writeText(b.innerText.trim());};
+      b.appendChild(btn); b.dataset.copy='1';
+    }
+  });
+}
+
+/* ---------- MESSAGE RENDER ---------- */
+function addMessage(role,text){
+  const li=document.createElement('li'); li.className=`msg ${role}`;
+  const bubble=document.createElement('div'); bubble.className='bubble';
+  bubble.innerHTML=encode(text).replace(/\n/g,'<br>');
+  const t=document.createElement('time'); t.dateTime=nowISO(); t.textContent=timeStr();
+  bubble.appendChild(t); li.appendChild(bubble); chatList.appendChild(li);
+  attachCopyBtns(); vs.setData([...chatList.children]); liveReg.textContent=(role==='ai'?'Assistant: ':'You: ')+text;
+  if(document.hidden&&role==='ai'){unseen++;document.title=`(${unseen}) AI Chatbot Assistant`;}
+  clickAudio.currentTime=0; clickAudio.play().catch(()=>{}); haptic(15); saveChat();
+  if(role==='ai'&&speechOn) speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+}
+
+/* ---------- LOADER ---------- */
+function showLoader(){
+  loaderId='load-'+Date.now();
+  const li=document.createElement('li'); li.className='msg ai'; li.id=loaderId;
+  li.innerHTML=`<div class="bubble"><span class="loading-dots">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>`;
+  chatList.appendChild(li); vs.setData([...chatList.children]);
+}
+function removeLoader(){document.getElementById(loaderId)?.remove(); loaderId=null; vs.setData([...chatList.children]);}
+
+/* ---------- INPUT ---------- */
+inputEl.oninput=()=>{inputEl.style.height='auto'; inputEl.style.height=Math.min(inputEl.scrollHeight,160)+'px';};
+inputEl.addEventListener('keydown',e=>{if((e.key==='Enter'&&!e.shiftKey)||(e.key==='Enter'&&e.ctrlKey)){e.preventDefault();send();}});
+sendBtn.onclick=send;
+
+/* voice */
+let listening=false;
+micBtn.onclick=()=>{
+  if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){alert('Speech recognition not supported');return;}
+  if(!listening) startRec(); else stopRec();
+};
+function startRec(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR(); recognition.lang='en-US'; recognition.continuous=false; recognition.interimResults=true;
+  recognition.onresult=e=>{
+    const t=[...e.results].map(r=>r[0].transcript).join(''); inputEl.value=t;
+  }; recognition.onend=()=>{listening=false;micBtn.textContent='🎙️';};
+  recognition.start(); listening=true; micBtn.textContent='⏹️';
+}
+function stopRec(){recognition?.stop();}
+
+/* ---------- SEND PROMPT ---------- */
+async function send(){
+  const now=Date.now(); if(now-lastSend<RATE)return;
+  let text=inputEl.value.trim(); if(!text) return;
+  if(text.length>MAX_LEN) text=text.slice(0,MAX_LEN)+' …';
+  BAD_WORDS.forEach(w=>text=text.replace(new RegExp(`\\b${w}\\b`,'gi'),'****'));
+  addMessage('user',text); inputEl.value=''; inputEl.style.height='auto';
+  toggle(false); showLoader(); lastSend=now;
+
+  /* RAG-lite: pick best FAQ */
+  let rag=''; const low=text.toLowerCase();
+  for(const doc of FAQ){if(low.includes(doc.q.toLowerCase())){rag=doc.a;break;}}
+
+  try{
+    if(typeof puter==='undefined'||!puter.ai?.chat) throw new Error('Puter.js not loaded');
+    const sys=`You are an educational assistant. ${rag?`Reference: ${rag}`:''}`;
+    const prompt=[{role:'system',content:sys},{role:'user',content:text}];
+    const res=await Promise.race([
+      puter.ai.chat({messages:prompt}),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('Timeout')),TIMEOUT))
+    ]);
+    const ai=typeof res==='string'?res:res?.text??res?.choices?.[0]?.message?.content??res?.error??'⚠️ Unexpected.';
+    addMessage('ai',ai);
+  }catch(err){addMessage('ai','Sorry — '+err.message);}
+  finally{removeLoader();toggle(true);}
+}
+
+/* ---------- TOGGLE INPUT ---------- */
+function toggle(en){inputEl.disabled=sendBtn.disabled=!en;}
+
+/* ---------- TITLE RESET ---------- */
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){unseen=0;document.title='AI Chatbot Assistant';}});
+
+/* ---------- DOWNLOAD CHAT ---------- */
+dlBtn.onclick=()=>{
+  const md=[...chatList.querySelectorAll('.msg')].map(li=>{
+    const txt=li.querySelector('.bubble').innerText; return li.classList.contains('user')?`**You:** ${txt}`:`**AI:** ${txt}`;}).join('\n\n');
+  const blob=new Blob([md],{type:'text/markdown'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='chat.md'; a.click(); URL.revokeObjectURL(url);
+};
+
+/* ---------- ENCRYPTION ---------- */
+lockBtn.onclick=async ()=>{
+  if(!encrypt){const pwd=prompt('Set a password to encrypt chat:'); if(!pwd) return;
+    keyCrypto=await generateKey(pwd); encrypt=true; lockBtn.textContent='🔒'; lockBtn.title='Encryption on';
+    await saveChat(); alert('Chat encrypted. Remember your password!');}
+  else{const pwd=prompt('Enter password to decrypt:'); if(!pwd) return;
+    const k=await generateKey(pwd); const test=await decryptText(localStorage.getItem(KEY_STORAGE),k);
+    if(test==null){alert('Wrong password');return;} keyCrypto=k; await restore(); encrypt=false; lockBtn.textContent='🔓';lockBtn.title='Encryption off';}
+};
+
+/* ---------- ANALYTICS / A/B FLAGS ---------- */
+const FEATURE_FLAGS={voice:1,export:1,rag:1};
+function beacon(evt){fetch(`/collect?v=1&e=${evt}&t=${Date.now()}`).catch(()=>{});}
+['click','focus'].forEach(ev=>window.addEventListener(ev,()=>beacon(ev)));
+
+/* ---------- INITIALISE ---------- */
+restore().then(()=>{if(!chatList.children.length)addMessage('ai','Hello 👋 How can I assist you today?');});
+inputEl.focus();
+
+/* ---------- MOBILE KEYBOARD GUARD ---------- */
+if('visualViewport' in window){
+  const vv=visualViewport;
+  vv.addEventListener('resize',()=>{body.style.transform=`translateY(${-vv.offsetTop}px)`;});
+}
+</script>
+</body>
+</html>
