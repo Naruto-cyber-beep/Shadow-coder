@@ -4,20 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Study Assistant</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Embedded Tailwind CSS */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
         }
-        .message-container {
-            max-height: 60vh;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-        }
+
         .user-message {
             background-color: #d1e0fc;
         }
@@ -25,8 +19,9 @@
             background-color: #ffffff;
         }
     </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4 bg-gray-100">
 
     <!-- Main Container -->
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col h-[80vh]">
@@ -40,21 +35,20 @@
         </div>
 
         <!-- Chat Area -->
-        <div id="chat-messages" class="flex-grow p-4 space-y-4 message-container">
+        <div id="chat-messages" class="flex-grow p-4 space-y-4 overflow-y-auto scroll-smooth">
             <!-- Messages will be injected here -->
         </div>
 
         <!-- Input and Button Area -->
-        <div class="p-4 bg-gray-100 border-t border-gray-200 flex items-center">
-            <input type="text" id="user-input" placeholder="Enter text or ask a question..." class="flex-grow p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200">
-            <button id="quiz-button" class="ml-4 p-3 bg-green-500 text-white rounded-full shadow-lg hover:bg-green-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                Generate Quiz ✨
-            </button>
-            <button id="send-button" class="ml-4 p-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                </svg>
-            </button>
+        <div class="p-4 bg-gray-100 border-t border-gray-200 flex flex-wrap items-center justify-center sm:justify-between">
+            <input type="text" id="user-input" placeholder="Enter text or ask a question..." class="flex-grow mb-2 sm:mb-0 p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 w-full sm:w-auto">
+            <div class="flex flex-row space-x-2 w-full sm:w-auto mt-2 sm:mt-0">
+                <button id="send-button" class="flex-shrink-0 p-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <!-- Custom Message Box -->
@@ -70,15 +64,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             const userInput = document.getElementById('user-input');
             const sendButton = document.getElementById('send-button');
-            const quizButton = document.getElementById('quiz-button');
             const chatMessages = document.getElementById('chat-messages');
             const messageBox = document.getElementById('message-box');
             const messageBoxText = document.getElementById('message-box-text');
             const messageBoxClose = document.getElementById('message-box-close');
             
-            const apiKey = "";
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
             // Function to show the custom message box
             function showMessageBox(message) {
                 messageBoxText.textContent = message;
@@ -97,11 +87,14 @@
                 if (sender === 'user') {
                     messageDiv.classList.add('user-message', 'ml-auto', 'text-right');
                 } else {
-                    messageDiv.classList.add('ai-message', 'mr-auto');
+                    messageDiv.classList.add('ai-message', 'mr-auto', 'flex', 'items-start', 'space-x-2');
                 }
                 
                 // Convert Markdown to HTML for basic formatting
-                messageDiv.innerHTML = parseMarkdown(text);
+                const textContainer = document.createElement('span');
+                textContainer.innerHTML = parseMarkdown(text);
+                messageDiv.appendChild(textContainer);
+
                 chatMessages.appendChild(messageDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
@@ -116,49 +109,6 @@
                 return html;
             }
 
-            // Function to handle fetching from the Gemini API
-            async function fetchGeminiResponse(prompt, isQuiz = false) {
-                sendButton.disabled = true;
-                quizButton.disabled = true;
-
-                addMessage('Thinking...', 'ai');
-
-                try {
-                    const payload = {
-                        contents: [{ parts: [{ text: prompt }] }],
-                    };
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    const result = await response.json();
-                    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-                    // Remove "Thinking..." message
-                    chatMessages.lastChild.remove();
-
-                    if (text) {
-                        addMessage(text, 'ai');
-                    } else {
-                        addMessage('An error occurred. Please try again.', 'ai');
-                        console.error('API response error:', result);
-                    }
-
-                } catch (error) {
-                    // Remove "Thinking..." message and add an error message
-                    if (chatMessages.lastChild.textContent === 'Thinking...') {
-                        chatMessages.lastChild.remove();
-                    }
-                    addMessage('An error occurred. Please try again.', 'ai');
-                    console.error('AI request failed:', error);
-                } finally {
-                    sendButton.disabled = false;
-                    quizButton.disabled = false;
-                }
-            }
-
             // Function to send a chat message
             function sendMessage() {
                 const prompt = userInput.value.trim();
@@ -168,25 +118,15 @@
                 }
                 addMessage(prompt, 'user');
                 userInput.value = '';
-                fetchGeminiResponse(prompt);
-            }
-
-            // Function to generate a quiz
-            function generateQuiz() {
-                const text = userInput.value.trim();
-                if (!text) {
-                    showMessageBox('Please enter some study material to generate a quiz.');
-                    return;
-                }
-                addMessage('Generating a quiz from your notes...', 'user');
-                userInput.value = '';
-                const quizPrompt = `Generate a 5 question multiple-choice quiz from the following text. For each question, provide four choices (A, B, C, D) and specify the correct answer. Format the output with bold questions and correct answers. \n\nTEXT: ${text}`;
-                fetchGeminiResponse(quizPrompt, true);
+                
+                // Simple echo response for a zero-cost solution
+                setTimeout(() => {
+                    addMessage(`Hello there! How can I assist you with your studies?`, 'ai');
+                }, 500);
             }
 
             // Event listeners
             sendButton.addEventListener('click', sendMessage);
-            quizButton.addEventListener('click', generateQuiz);
             userInput.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter') {
                     sendMessage();
@@ -195,5 +135,4 @@
         });
     </script>
 </body>
-    </html>
-    
+</html>
