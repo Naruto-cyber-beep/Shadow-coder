@@ -12,11 +12,36 @@
             font-family: 'Inter', sans-serif;
         }
 
+        .message-container {
+            max-height: 60vh;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
         .user-message {
             background-color: #d1e0fc;
         }
         .ai-message {
             background-color: #ffffff;
+        }
+
+        /* Loading animation styles */
+        .loading-dots span {
+            animation: pulse 1.4s infinite ease-in-out both;
+        }
+        .loading-dots span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+        .loading-dots span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+        @keyframes pulse {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
         }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -35,7 +60,7 @@
         </div>
 
         <!-- Chat Area -->
-        <div id="chat-messages" class="flex-grow p-4 space-y-4 overflow-y-auto scroll-smooth">
+        <div id="chat-messages" class="flex-grow p-4 space-y-4 message-container">
             <!-- Messages will be injected here -->
         </div>
 
@@ -110,7 +135,7 @@
             }
 
             // Function to send a chat message
-            function sendMessage() {
+            async function sendMessage() {
                 const prompt = userInput.value.trim();
                 if (!prompt) {
                     showMessageBox('Please enter a question before sending.');
@@ -118,11 +143,46 @@
                 }
                 addMessage(prompt, 'user');
                 userInput.value = '';
-                
-                // Simple echo response for a zero-cost solution
-                setTimeout(() => {
-                    addMessage(`Hello there! How can I assist you with your studies?`, 'ai');
-                }, 500);
+                sendButton.disabled = true;
+
+                // Add loading indicator
+                const loadingMessage = document.createElement('div');
+                loadingMessage.classList.add('ai-message', 'p-4', 'rounded-2xl', 'max-w-md', 'mr-auto', 'flex', 'items-start', 'space-x-2');
+                loadingMessage.innerHTML = `
+                    <div class="loading-dots flex space-x-1">
+                        <span class="w-2 h-2 bg-gray-500 rounded-full"></span>
+                        <span class="w-2 h-2 bg-gray-500 rounded-full"></span>
+                        <span class="w-2 h-2 bg-gray-500 rounded-full"></span>
+                    </div>
+                `;
+                chatMessages.appendChild(loadingMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                try {
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                    const payload = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                    };
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const result = await response.json();
+                    const aiText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                    chatMessages.removeChild(loadingMessage); // Remove loading indicator
+                    addMessage(aiText || "Sorry, I couldn't get a response. Please try again.", 'ai');
+                } catch (error) {
+                    chatMessages.removeChild(loadingMessage); // Remove loading indicator
+                    addMessage("An error occurred. Please try again later.", 'ai');
+                } finally {
+                    sendButton.disabled = false;
+                }
             }
 
             // Event listeners
@@ -135,4 +195,5 @@
         });
     </script>
 </body>
-</html>
+    </html>
+    
