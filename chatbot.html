@@ -6,63 +6,32 @@
     <title>Study AI - Putter.js</title>
     <script src="https://js.puter.com/v2/"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: #f4f4f4;
-        }
-        #ai-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        textarea {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            resize: vertical;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            background: #007BFF;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        #response {
-            margin-top: 20px;
-            white-space: pre-line;
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 8px;
-        }
+        body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+        #ai-container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        textarea { width: 100%; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; resize: vertical; }
+        button { margin-top: 10px; padding: 10px 20px; font-size: 16px; border: none; background: #007BFF; color: #fff; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #response { margin-top: 20px; white-space: pre-line; background: #f0f0f0; padding: 15px; border-radius: 8px; }
     </style>
 </head>
 <body>
     <div id="ai-container">
         <h2>Study Material AI</h2>
         <textarea id="userInput" rows="4" placeholder="Ask me anything about your study material..."></textarea>
-        <button onclick="askAI()">Get Answer</button>
+        <button id="askBtn">Get Answer</button>
         <div id="response"></div>
     </div>
 
     <script>
+        let ai;
+
         // Initialize Putter AI
-        const ai = new PutterAI({
-            apiKey: "YOUR_PUTTER_API_KEY", // Replace with your Putter API key
-            model: "text-davinci" // Choose a model
-        });
+        async function initAI() {
+            ai = await Putter.init({
+                apiKey: "YOUR_PUTTER_API_KEY", // Replace with your Putter API key
+            });
+            document.getElementById("askBtn").disabled = false;
+        }
 
         async function askAI() {
             const userText = document.getElementById("userInput").value.trim();
@@ -75,15 +44,21 @@
 
             try {
                 const result = await ai.generate({
-                    prompt: `Provide study material explanation for: "${userText}"`,
+                    prompt: `Explain this for study purposes: "${userText}"`,
                     max_tokens: 200
                 });
-
                 document.getElementById("response").innerText = result.text;
             } catch (err) {
                 document.getElementById("response").innerText = "Error: " + err.message;
             }
         }
+
+        // Disable button until AI is ready
+        document.getElementById("askBtn").disabled = true;
+        document.getElementById("askBtn").addEventListener("click", askAI);
+
+        // Initialize AI when page loads
+        initAI();
     </script>
 </body>
 </html>
