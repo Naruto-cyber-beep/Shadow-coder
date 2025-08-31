@@ -1,64 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study AI - Putter.js</title>
-    <script src="https://js.puter.com/v2/"></script>
-    <style>
-        body { font-family: Arial; padding: 20px; background: #f4f4f4; }
-        #ai-container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        textarea { width: 100%; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; resize: vertical; }
-        button { margin-top: 10px; padding: 10px 20px; font-size: 16px; border: none; background: #007BFF; color: #fff; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        #response { margin-top: 20px; white-space: pre-line; background: #f0f0f0; padding: 15px; border-radius: 8px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study AI Assistant</title>
+<script src="https://js.puter.com/v2/"></script>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(to right, #e0eafc, #cfdef3);
+        margin: 0;
+        padding: 0;
+    }
+    #ai-container {
+        max-width: 700px;
+        margin: 50px auto;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+    textarea {
+        width: 100%;
+        padding: 15px;
+        font-size: 16px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        resize: vertical;
+        margin-bottom: 15px;
+    }
+    button {
+        padding: 12px 25px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        background: #007BFF;
+        color: white;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    button:hover {
+        background: #0056b3;
+    }
+    #response {
+        margin-top: 20px;
+        white-space: pre-line;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        min-height: 80px;
+        position: relative;
+    }
+    #response.loading::after {
+        content: "⏳ Thinking...";
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-style: italic;
+        color: #555;
+        animation: blink 1s infinite;
+    }
+    @keyframes blink {
+        0%, 50%, 100% { opacity: 1; }
+        25%, 75% { opacity: 0; }
+    }
+    #history {
+        margin-top: 30px;
+        max-height: 300px;
+        overflow-y: auto;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+    }
+    .history-item {
+        background: #f0f8ff;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    .question { font-weight: bold; color: #007BFF; }
+    .answer { margin-top: 5px; color: #333; }
+</style>
 </head>
 <body>
-    <div id="ai-container">
-        <h2>Study Material AI</h2>
-        <textarea id="userInput" rows="4" placeholder="Ask me anything about your study material..."></textarea>
-        <button id="askBtn">Get Answer</button>
-        <div id="response"></div>
-    </div>
 
-    <script>
-        let ai;
+<div id="ai-container">
+    <h2>Study AI Assistant</h2>
+    <textarea id="userInput" rows="4" placeholder="Ask me anything about your study material..."></textarea>
+    <button id="askBtn" disabled>Get Answer</button>
+    <div id="response"></div>
+    <div id="history"></div>
+</div>
 
-        // Initialize Putter AI
-        async function initAI() {
-            ai = await Putter.init({
-                apiKey: "YOUR_PUTTER_API_KEY", // Replace with your Putter API key
-            });
-            document.getElementById("askBtn").disabled = false;
-        }
+<script>
+let ai;
 
-        async function askAI() {
-            const userText = document.getElementById("userInput").value.trim();
-            if (!userText) {
-                alert("Please enter a question!");
-                return;
-            }
+// Initialize Putter AI (no API key needed)
+async function initAI() {
+    try {
+        ai = await Putter.init(); // ✅ Correct way for v2
+        document.getElementById("askBtn").disabled = false;
+    } catch (err) {
+        alert("AI initialization failed: " + err.message);
+    }
+}
 
-            document.getElementById("response").innerText = "Thinking...";
+// Ask AI function
+async function askAI() {
+    const userText = document.getElementById("userInput").value.trim();
+    if (!userText) {
+        alert("Please enter a question!");
+        return;
+    }
 
-            try {
-                const result = await ai.generate({
-                    prompt: `Explain this for study purposes: "${userText}"`,
-                    max_tokens: 200
-                });
-                document.getElementById("response").innerText = result.text;
-            } catch (err) {
-                document.getElementById("response").innerText = "Error: " + err.message;
-            }
-        }
+    const responseDiv = document.getElementById("response");
+    responseDiv.classList.add("loading");
+    responseDiv.innerText = "";
 
-        // Disable button until AI is ready
-        document.getElementById("askBtn").disabled = true;
-        document.getElementById("askBtn").addEventListener("click", askAI);
+    try {
+        const result = await ai.generate({
+            prompt: `Explain this for study purposes in simple terms: "${userText}"`,
+            max_tokens: 300
+        });
 
-        // Initialize AI when page loads
-        initAI();
-    </script>
+        responseDiv.classList.remove("loading");
+        responseDiv.innerText = result.text;
+
+        // Add to history
+        const historyDiv = document.getElementById("history");
+        const item = document.createElement("div");
+        item.classList.add("history-item");
+        item.innerHTML = `<div class="question">Q: ${userText}</div>
+                          <div class="answer">A: ${result.text}</div>`;
+        historyDiv.prepend(item);
+
+        document.getElementById("userInput").value = "";
+    } catch (err) {
+        responseDiv.classList.remove("loading");
+        responseDiv.innerText = "Error: " + err.message;
+    }
+}
+
+// Setup
+document.getElementById("askBtn").addEventListener("click", askAI);
+initAI();
+</script>
+
 </body>
 </html>
