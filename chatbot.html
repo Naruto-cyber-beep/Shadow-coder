@@ -1,296 +1,127 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Study Assistant — NCERT Summarizer & Explainer (Puter.js)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root{
-      --bg: #0b1020; --card:#11172b; --text:#e8ecf3; --muted:#9fb0c6; --accent:#6aa9ff; --accent-2:#00d4a6; --danger:#ff6a7a;
-      --border:#1c2542; --chip:#1a2a48; --shadow:0 8px 24px rgba(0,0,0,.35);
-    }
-    @media (prefers-color-scheme: light) {
-      :root{ --bg:#f7f9ff; --card:#ffffff; --text:#0c1326; --muted:#475569; --accent:#2b6ef7; --accent-2:#10b981; --border:#e5e9f5; --chip:#eef2ff; --shadow:0 8px 24px rgba(15,23,42,.08) }
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font:500 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
-    .wrap{max-width:1000px;margin:24px auto;padding:0 16px}
-    header{display:flex;gap:14px;align-items:center;justify-content:space-between;margin:6px 0 16px}
-    h1{font-size:22px;margin:0}
-    .badge{background:var(--chip);color:var(--accent);padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;border:1px solid var(--border)}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
-    .controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
-    .controls .row{display:flex;gap:8px;flex-wrap:wrap}
-    label{font-size:12px;color:var(--muted)}
-    select,input[type="text"],textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text);outline:none}
-    textarea{min-height:140px;resize:vertical}
-    .chips{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:13px;cursor:pointer}
-    .chip[data-active="true"]{outline:2px solid var(--accent)}
-    .btns{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);cursor:pointer;background:linear-gradient(0deg,transparent,transparent);color:var(--text)}
-    .btn.primary{background:linear-gradient(180deg,var(--accent),#4b7df6);border:none;color:white}
-    .btn.ghost{background:transparent}
-    .btn.warn{background:linear-gradient(180deg,#ff758f,#ff5975);border:none;color:#fff}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    .status{font-size:13px;color:var(--muted);padding:8px 14px;border-top:1px dashed var(--border)}
-    .chat{margin-top:16px}
-    .msg{padding:16px 18px;border-bottom:1px dashed var(--border)}
-    .msg.u{background:linear-gradient(180deg,rgba(106,169,255,.08),transparent)}
-    .msg.ai{background:linear-gradient(180deg,rgba(16,185,129,.08),transparent)}
-    .msg h4{margin:0 0 8px 0;font-size:13px;color:var(--muted)}
-    .msg pre{white-space:pre-wrap;word-wrap:break-word;margin:0}
-    .foot{margin:18px 0 40px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;color:var(--muted)}
-    .right{display:flex;gap:10px;align-items:center}
-    .kbd{border:1px solid var(--border);padding:2px 6px;border-radius:6px;background:var(--chip);font-size:12px}
-    .tiny{font-size:12px;color:var(--muted)}
-    .save-dot{width:8px;height:8px;border-radius:999px;background:var(--accent-2);display:inline-block;margin-left:6px}
-    .danger{color:var(--danger)}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-    .flex{display:flex;gap:10px;flex-wrap:wrap}
-    .grow{flex:1}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Putter.js Prompt Builder</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; background: #f0f0f0; }
+  .container { max-width: 900px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);}
+  select, button { padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
+  button { cursor: pointer; }
+  #promptOutput { width: 100%; height: 250px; margin-top: 15px; padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; white-space: pre-wrap; }
+  .quick-buttons { margin-top: 10px; }
+  .quick-buttons button { background-color: #007BFF; color: white; border: none; margin-right: 5px; }
+  footer { text-align: center; padding: 15px; margin-top: 20px; font-size: 14px; color: #555; }
+  footer a { color: #007BFF; text-decoration: none; }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>📘 Study Assistant</h1>
-        <div class="tiny">Summarize • Explain • NCERT-style Q&A — Powered by <span class="mono">Puter.js</span></div>
-      </div>
-      <span class="badge">Client-only · No API keys</span>
-    </header>
 
-    <!-- Controls -->
-    <section class="card">
-      <div class="controls">
-        <div class="row">
-          <div class="grow">
-            <label for="mode">Mode</label>
-            <select id="mode">
-              <option value="summarize">Summarize Text</option>
-              <option value="explain">Explain a Concept</option>
-              <option value="qa" selected>Ask a Question</option>
-            </select>
-          </div>
-          <div class="grow">
-            <label for="class">Class (NCERT focus)</label>
-            <select id="class">
-              <option value="">— Optional —</option>
-              <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
-            </select>
-          </div>
-        </div>
+<div class="container">
+  <h2>Putter.js Prompt Builder</h2>
 
-        <div class="row">
-          <div class="grow">
-            <label for="subject">Subject</label>
-            <select id="subject">
-              <option>General</option><option>Science</option><option>Biology</option><option>Physics</option><option>Chemistry</option>
-              <option>Maths</option><option>History</option><option>Geography</option><option>Civics</option><option>Hindi</option><option>English</option>
-            </select>
-          </div>
-          <div class="grow">
-            <label for="tone">Style</label>
-            <select id="tone">
-              <option value="simple" selected>Simple student-friendly</option>
-              <option value="exam">Exam-focused (points)</option>
-              <option value="teacher">Teacher explanation</option>
-              <option value="flash">Flashcards (Q→A)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="grow">
-            <label for="query">Your prompt / text</label>
-            <textarea id="query" placeholder="Type your question, concept, or paste a passage to summarize..."></textarea>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="chips" id="quick">
-            <span class="chip" data-t="Define with examples">Define + examples</span>
-            <span class="chip" data-t="Give key formulas and units">Key formulas</span>
-            <span class="chip" data-t="Make 10 MCQs with answers">10 MCQs</span>
-            <span class="chip" data-t="Explain step by step with analogy">Step-by-step</span>
-            <span class="chip" data-t="Give past-year style questions">PYQ-style</span>
-            <span class="chip" data-t="Create a 1-page revision sheet">1-page notes</span>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="btns">
-            <button id="ask" class="btn primary">Generate Answer</button>
-            <button id="clear" class="btn ghost">Clear</button>
-            <button id="export" class="btn ghost">Export .txt</button>
-            <button id="save" class="btn ghost">Save to Puter <span id="saved" class="save-dot" style="opacity:0"></span></button>
-            <button id="load" class="btn ghost">Load Last</button>
-            <button id="newChat" class="btn warn">New Chat</button>
-          </div>
-        </div>
-      </div>
-      <div class="status" id="status">Ready.</div>
-    </section>
-
-    <!-- Chat -->
-    <section id="chat" class="chat card" aria-live="polite"></section>
-
-    <footer class="foot">
-      <div>Tip: Press <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to send. Responses are generated on-device via Puter’s AI bridge.</div>
-      <div class="right tiny">Puter storage used for transcripts only. <span class="danger">Don’t paste private data.</span></div>
-    </footer>
+  <div>
+    <label>Class:</label>
+    <select id="classSelect">
+      <option value="">Select Class</option>
+      <option value="Class 8">Class 8</option>
+      <option value="Class 9">Class 9</option>
+      <option value="Class 10">Class 10</option>
+      <option value="JEE">JEE</option>
+      <option value="NEET">NEET</option>
+    </select>
   </div>
 
-  <!-- Puter.js -->
-  <script src="https://js.puter.com/v2/"></script>
-  <script>
-    await puter.init(); // ✅ Required in new versions
+  <div>
+    <label>Subject:</label>
+    <select id="subjectSelect">
+      <option value="">Select Subject</option>
+      <option value="Math">Math</option>
+      <option value="Physics">Physics</option>
+      <option value="Chemistry">Chemistry</option>
+      <option value="Biology">Biology</option>
+      <option value="Computer Science">Computer Science</option>
+    </select>
+  </div>
 
-    const els = {
-      mode: document.getElementById('mode'),
-      class: document.getElementById('class'),
-      subject: document.getElementById('subject'),
-      tone: document.getElementById('tone'),
-      query: document.getElementById('query'),
-      chat: document.getElementById('chat'),
-      status: document.getElementById('status'),
-      ask: document.getElementById('ask'),
-      clear: document.getElementById('clear'),
-      export: document.getElementById('export'),
-      save: document.getElementById('save'),
-      load: document.getElementById('load'),
-      newChat: document.getElementById('newChat'),
-      quick: document.getElementById('quick'),
-      saved: document.getElementById('saved'),
-    };
-    let conversation = [];
+  <div>
+    <label>Style:</label>
+    <select id="styleSelect">
+      <option value="">Select Style</option>
+      <option value="Detailed">Detailed</option>
+      <option value="Concise">Concise</option>
+      <option value="Creative">Creative</option>
+      <option value="Analytical">Analytical</option>
+    </select>
+  </div>
 
-    const nowISO = () => new Date().toISOString().replace('T',' ').split('.')[0];
-    function setStatus(t){ els.status.textContent = t; }
-    function addMsg(role, text){
-      const div = document.createElement('div');
-      div.className = `msg ${role==='user'?'u':'ai'}`;
-      div.innerHTML = `<h4>${role==='user'?'You':'Assistant'} • <span class="tiny">${nowISO()}</span></h4><pre>${escapeHTML(text)}</pre>`;
-      els.chat.prepend(div);
-      conversation.push({role, text, t: Date.now()});
-    }
-    function escapeHTML(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  <div class="quick-buttons">
+    <button data-action="Explain">Explain</button>
+    <button data-action="Summarize">Summarize</button>
+    <button data-action="Generate Questions">Generate Questions</button>
+    <button data-action="Example">Give Example</button>
+  </div>
 
-    function buildSystemPrompt(){
-      const cls = els.class.value ? `Class ${els.class.value}` : `appropriate class level`;
-      const subj = els.subject.value;
-      const tone = els.tone.value;
-      const mode = els.mode.value;
+  <textarea id="promptOutput" placeholder="Your prompt will appear here..."></textarea>
 
-      const base = [
-        `You are a patient NCERT-aligned study tutor.`,
-        `Write in simple, exam-friendly language.`,
-        `Add examples and formulas with SI units.`,
-        `Avoid unsafe or unrelated content.`
-      ].join('\n');
+  <div style="margin-top: 15px;">
+    <button id="runPutter" style="background-color:#28a745;">Run with Putter.js</button>
+  </div>
+</div>
 
-      const modeLine = ({
-        summarize: `Task: Summarize the provided passage for ${cls} (${subj}).`,
-        explain:   `Task: Explain the concept for ${cls} (${subj}).`,
-        qa:        `Task: Answer the user's question for ${cls} (${subj}).`
-      })[mode];
+<footer>
+  <a href="https://developer.puter.com" target="_blank">Powered by Puter</a>
+</footer>
 
-      const toneLine = ({
-        simple: `Style: Student-friendly.`,
-        exam:   `Style: Exam-focused points.`,
-        teacher:`Style: Teacher explanation.`,
-        flash:  `Style: Flashcards (Q→A).`
-      })[tone];
+<script src="https://js.puter.com/v2/"></script>
+<script>
+  const classSelect = document.getElementById('classSelect');
+  const subjectSelect = document.getElementById('subjectSelect');
+  const styleSelect = document.getElementById('styleSelect');
+  const promptOutput = document.getElementById('promptOutput');
+  const quickButtons = document.querySelectorAll('.quick-buttons button');
+  const runPutter = document.getElementById('runPutter');
 
-      return `${base}\n\n${modeLine}\n${toneLine}`;
-    }
+  function updatePrompt() {
+    const selectedClass = classSelect.value;
+    const selectedSubject = subjectSelect.value;
+    const selectedStyle = styleSelect.value;
+    
+    let prompt = '';
+    if(selectedClass) prompt += `Class: ${selectedClass}\n`;
+    if(selectedSubject) prompt += `Subject: ${selectedSubject}\n`;
+    if(selectedStyle) prompt += `Style: ${selectedStyle}\n`;
+    
+    promptOutput.value = prompt;
+  }
 
-    async function aiReply(userText){
-      const sys = buildSystemPrompt();
+  classSelect.addEventListener('change', updatePrompt);
+  subjectSelect.addEventListener('change', updatePrompt);
+  styleSelect.addEventListener('change', updatePrompt);
 
-      try{
-        setStatus("Thinking… (Puter.ai)");
-        const out = await puter.ai.chat({
-          messages: [
-            { role: "system", content: sys },
-            { role: "user", content: userText }
-          ]
-        });
-        setStatus("Ready.");
-        return String(out?.message?.content ?? "").trim();
-      }catch(err){
-        console.error(err);
-        setStatus("AI error — using fallback explanation.");
-        return "⚠️ AI is temporarily unavailable.";
-      }
-    }
-
-    els.ask.addEventListener('click', async ()=>{
-      const q = els.query.value.trim();
-      if (!q){ setStatus("Type your question/text first."); return; }
-      addMsg('user', q);
-      els.ask.disabled = true; setStatus("Sending…");
-      const a = await aiReply(q);
-      addMsg('assistant', a);
-      els.ask.disabled = false; setStatus("Ready.");
-      pulseSaved(false);
+  quickButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.getAttribute('data-action');
+      promptOutput.value += `Action: ${action}\n`;
     });
+  });
 
-    els.clear.addEventListener('click', ()=>{ els.query.value = ""; setStatus("Cleared input."); });
-    els.newChat.addEventListener('click', ()=>{ conversation = []; els.chat.innerHTML = ""; setStatus("Started a new chat."); });
-    els.export.addEventListener('click', ()=>{
-      const txt = conversation.map(m => `${m.role.toUpperCase()} @ ${new Date(m.t).toLocaleString()}\n${m.text}\n`).join('\n---\n');
-      const blob = new Blob([txt], {type:'text/plain'});
-      const url = URL.createObjectURL(blob);
-      const a = Object.assign(document.createElement('a'), {href:url, download:`study-assistant-${Date.now()}.txt`});
-      a.click(); URL.revokeObjectURL(url);
+  runPutter.addEventListener('click', () => {
+    const promptText = promptOutput.value;
+    if (!promptText) { alert('Please build your prompt first!'); return; }
+
+    // Putter.js dynamic app call
+    puter.generate({
+      prompt: promptText,
+      model: "default"
+    }).then(response => {
+      promptOutput.value += `\n---\nPutter.js Output:\n${response.result}`;
+    }).catch(err => {
+      promptOutput.value += `\nError: ${err}`;
     });
+  });
+</script>
 
-    function pulseSaved(isSaved){
-      els.saved.style.opacity = isSaved ? 1 : 0;
-    }
-
-    els.save.addEventListener('click', async ()=>{
-      try{
-        setStatus("Saving transcript to Puter…");
-        const path = `/study-assistant/chats/${Date.now()}-${(els.subject.value||'General').toLowerCase()}.json`;
-        const body = JSON.stringify({conversation}, null, 2);
-        await puter.fs.writeFile(path, body);
-        setStatus(`Saved: ${path}`); pulseSaved(true);
-      }catch(e){ console.error(e); setStatus("Save failed."); pulseSaved(false); }
-    });
-
-    els.load.addEventListener('click', async ()=>{
-      try{
-        setStatus("Loading last transcript…");
-        const dir = `/study-assistant/chats`;
-        const items = await puter.fs.readdir(dir);
-        if (!items || !items.length){ setStatus("No saved chats yet."); return; }
-        items.sort((a,b)=> b.mtime - a.mtime);
-        const latest = items[0];
-        const data = await puter.fs.readFile(latest.path);
-        const parsed = JSON.parse(data||'{}');
-        conversation = parsed.conversation || [];
-        els.chat.innerHTML = "";
-        for (const m of conversation.slice().reverse()){
-          addMsg(m.role==='user'?'user':'assistant', m.text);
-        }
-        setStatus("Loaded last chat.");
-      }catch(e){ console.error(e); setStatus("Load failed."); }
-    });
-
-    els.quick.addEventListener('click', e=>{
-      const chip = e.target.closest('.chip'); if(!chip) return;
-      const t = chip.getAttribute('data-t');
-      els.query.value = (els.query.value.trim() ? els.query.value+"\n" : "") + t + ".";
-      chip.dataset.active = "true";
-      setTimeout(()=> chip.dataset.active = "false", 400);
-    });
-
-    document.addEventListener('keydown', e=>{
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ els.ask.click(); }
-    });
-  </script>
 </body>
-  </html>
+</html>
