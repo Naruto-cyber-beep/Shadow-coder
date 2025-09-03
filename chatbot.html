@@ -145,7 +145,8 @@
   <!-- Puter.js -->
   <script src="https://js.puter.com/v2/"></script>
   <script>
-    // ---------- basic state ----------
+    await puter.init(); // ✅ Required in new versions
+
     const els = {
       mode: document.getElementById('mode'),
       class: document.getElementById('class'),
@@ -165,7 +166,6 @@
     };
     let conversation = [];
 
-    // ---------- helpers ----------
     const nowISO = () => new Date().toISOString().replace('T',' ').split('.')[0];
     function setStatus(t){ els.status.textContent = t; }
     function addMsg(role, text){
@@ -176,6 +176,7 @@
       conversation.push({role, text, t: Date.now()});
     }
     function escapeHTML(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
     function buildSystemPrompt(){
       const cls = els.class.value ? `Class ${els.class.value}` : `appropriate class level`;
       const subj = els.subject.value;
@@ -184,69 +185,51 @@
 
       const base = [
         `You are a patient NCERT-aligned study tutor.`,
-        `Write in simple, exam-friendly language. Use short paragraphs and bullet points.`,
-        `When useful, add tiny examples or analogies. Avoid fluff.`,
-        `If formulas appear, include correct SI units.`,
-        `If asked to summarize pasted text, keep key ideas and definitions; remove filler.`,
-        `If the user requests MCQs, include an answer key at the end.`,
-        `If the user requests steps/derivations, show them in order.`,
-        `Avoid unsafe or adult content. If a request is off-topic or unsafe, say so briefly and suggest a safe, study-related alternative.`
+        `Write in simple, exam-friendly language.`,
+        `Add examples and formulas with SI units.`,
+        `Avoid unsafe or unrelated content.`
       ].join('\n');
 
       const modeLine = ({
-        summarize: `Task: Summarize the provided passage for ${cls} (${subj}). Keep headings and bullet points.`,
-        explain:   `Task: Explain the concept clearly for ${cls} (${subj}). Include definition, key points, and a quick example.`,
-        qa:        `Task: Answer the user's question for ${cls} (${subj}) with precision.`
+        summarize: `Task: Summarize the provided passage for ${cls} (${subj}).`,
+        explain:   `Task: Explain the concept for ${cls} (${subj}).`,
+        qa:        `Task: Answer the user's question for ${cls} (${subj}).`
       })[mode];
 
       const toneLine = ({
-        simple: `Style: Simple student-friendly.`,
-        exam:   `Style: Exam-focused points with bolded keywords where helpful.`,
-        teacher:`Style: Teacher talk-through with steps and checks.`,
-        flash:  `Style: Flashcards (Q: … A: …) for each key point.`
+        simple: `Style: Student-friendly.`,
+        exam:   `Style: Exam-focused points.`,
+        teacher:`Style: Teacher explanation.`,
+        flash:  `Style: Flashcards (Q→A).`
       })[tone];
 
-      return `${base}\n\n${modeLine}\n${toneLine}\nAlways verify calculations carefully.`;
+      return `${base}\n\n${modeLine}\n${toneLine}`;
     }
 
     async function aiReply(userText){
-      // Compose a single prompt; Puter exposes a high-level chat helper.
-      // From docs: puter.ai.chat("prompt").then(...)
       const sys = buildSystemPrompt();
-      const prompt = `${sys}\n\nUser:\n${userText}`;
-
-      // basic profanity guard (client-side only; optional)
-      if (/[^\w](sex|porn|nude|suicide|kill|terror|bomb)[^\w]/i.test(userText)) {
-        return "I can’t help with that. Please ask a study-related question aligned to NCERT.";
-      }
 
       try{
         setStatus("Thinking… (Puter.ai)");
-        // NOTE: We call a single-shot chat. If streaming is added later, you can upgrade this.
-        const out = await puter.ai.chat(prompt);
+        const out = await puter.ai.chat({
+          messages: [
+            { role: "system", content: sys },
+            { role: "user", content: userText }
+          ]
+        });
         setStatus("Ready.");
-        return String(out ?? "").trim();
+        return String(out?.message?.content ?? "").trim();
       }catch(err){
         console.error(err);
         setStatus("AI error — using fallback explanation.");
-        // graceful fallback if AI unavailable
-        return [
-          "⚠️ AI is temporarily unavailable. Here’s a structured outline you can expand:",
-          "",
-          "• Definition:",
-          "• Key points (3–6 bullets):",
-          "• Example:",
-          "• Common mistakes:",
-          "• Quick recap:"
-        ].join("\n");
+        return "⚠️ AI is temporarily unavailable.";
       }
     }
 
-    // ---------- events ----------
     els.ask.addEventListener('click', async ()=>{
       const q = els.query.value.trim();
       if (!q){ setStatus("Type your question/text first."); return; }
-      addMsg('user', renderHeaderLine() + "\n" + q);
+      addMsg('user', q);
       els.ask.disabled = true; setStatus("Sending…");
       const a = await aiReply(q);
       addMsg('assistant', a);
@@ -268,13 +251,12 @@
       els.saved.style.opacity = isSaved ? 1 : 0;
     }
 
-    // Save/load transcript to Puter storage
     els.save.addEventListener('click', async ()=>{
       try{
         setStatus("Saving transcript to Puter…");
         const path = `/study-assistant/chats/${Date.now()}-${(els.subject.value||'General').toLowerCase()}.json`;
-        const body = JSON.stringify({meta:getMeta(), conversation}, null, 2);
-        await puter.fs.write(path, body); // Puter filesystem write
+        const body = JSON.stringify({conversation}, null, 2);
+        await puter.fs.writeFile(path, body);
         setStatus(`Saved: ${path}`); pulseSaved(true);
       }catch(e){ console.error(e); setStatus("Save failed."); pulseSaved(false); }
     });
@@ -283,11 +265,11 @@
       try{
         setStatus("Loading last transcript…");
         const dir = `/study-assistant/chats`;
-        const items = await puter.fs.list(dir); // list directory
+        const items = await puter.fs.readdir(dir);
         if (!items || !items.length){ setStatus("No saved chats yet."); return; }
         items.sort((a,b)=> b.mtime - a.mtime);
         const latest = items[0];
-        const data = await puter.fs.read(latest.path);
+        const data = await puter.fs.readFile(latest.path);
         const parsed = JSON.parse(data||'{}');
         conversation = parsed.conversation || [];
         els.chat.innerHTML = "";
@@ -298,53 +280,17 @@
       }catch(e){ console.error(e); setStatus("Load failed."); }
     });
 
-    // quick chips → append helper text
     els.quick.addEventListener('click', e=>{
       const chip = e.target.closest('.chip'); if(!chip) return;
       const t = chip.getAttribute('data-t');
       els.query.value = (els.query.value.trim() ? els.query.value+"\n" : "") + t + ".";
-      chip.dataset.active = chip.dataset.active === "true" ? "false" : "true";
+      chip.dataset.active = "true";
       setTimeout(()=> chip.dataset.active = "false", 400);
     });
 
-    // keyboard: Ctrl+Enter to send
     document.addEventListener('keydown', e=>{
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ els.ask.click(); }
     });
-
-    // ---------- UI utils ----------
-    function renderHeaderLine(){
-      const parts = [];
-      if (els.class.value) parts.push(`Class ${els.class.value}`);
-      if (els.subject.value && els.subject.value !== 'General') parts.push(els.subject.value);
-      if (els.mode.value) parts.push(els.mode.value.charAt(0).toUpperCase()+els.mode.value.slice(1));
-      if (els.tone.value) parts.push(els.tone.options[els.tone.selectedIndex].text);
-      return parts.length ? `[${parts.join(' • ')}]` : "[General]";
-    }
-    function getMeta(){
-      return {
-        class: els.class.value || null,
-        subject: els.subject.value,
-        mode: els.mode.value,
-        tone: els.tone.value,
-        ts: Date.now()
-      };
-    }
-
-    // ---------- Safety note ----------
-    // For serious moderation, add a server rule or Puter Function that screens prompts before calling puter.ai.chat.
-
-    // ---------- Minimal Puter feature checks ----------
-    (async function init(){
-      try{
-        // Optional: create base folder if missing (no error if exists)
-        await puter.fs.mkdir('/study-assistant/chats').catch(()=>{});
-        setStatus("Ready.");
-      }catch(e){
-        console.warn("Puter init warning:", e);
-        setStatus("Ready (limited: storage may be unavailable).");
-      }
-    })();
   </script>
 </body>
-                </html>
+  </html>
