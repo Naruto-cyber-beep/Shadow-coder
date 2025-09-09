@@ -1,32 +1,282 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Shadow Coder | Login</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shadow Coder | Unified Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    /* UI polish and drag-drop visuals */
+    body {
+      background: linear-gradient(90deg, #0f172a 0%, #1e40af 100%);
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: #1e293b;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .card {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      user-select: none;
+      cursor: grab;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card.dragging {
+      opacity: 0.6;
+      cursor: grabbing;
+      box-shadow: 0 0 20px #3b82f6;
+      transform: scale(1.05);
+      z-index: 10;
+      position: relative;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #1e293b;
+    }
+    .card-path {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    button, input, textarea {
+      font-family: inherit;
+    }
+    input, textarea {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      width: 100%;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 8px #3b82f6aa;
+    }
+    .btn-primary {
+      background-color: #3b82f6;
+      color: white;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      user-select: none;
+    }
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+    .btn-danger {
+      background-color: #ef4444;
+      color: white;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+    .btn-secondary {
+      background-color: #e2e8f0;
+      color: #475569;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    .btn-secondary:hover {
+      background-color: #cbd5e1;
+    }
+    /* Scroll container for cards */
+    #cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 960px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+    }
+    /* Modal styling */
+    #cardModalBackdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #cardModalBackdrop.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    #cardModal {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 480px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+    }
+    #modalCloseBtn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: #64748b;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s ease;
+    }
+    #modalCloseBtn:hover {
+      color: #1e40af;
+    }
+    /* General container for login and dashboard */
+    #app-container {
+      width: 100%;
+      max-width: 480px;
+      margin-top: 3rem;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      padding: 2rem;
+    }
+    /* Error message */
+    #loginError {
+      color: #dc2626;
+      margin-top: 0.5rem;
+      font-weight: 600;
+      min-height: 1.2em;
+      text-align: center;
+      user-select: none;
+    }
+    /* Scrollbars for cards on mobile */
+    @media (max-width: 480px){
+      #cards-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-r from-slate-900 to-blue-800 min-h-screen flex items-center justify-center">
-  <div class="bg-white shadow-xl rounded-xl p-8 w-full max-w-md space-y-5">
-    <div class="flex flex-col items-center space-y-2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M8 12h8m-4-4v8" stroke-width="2"/></svg>
-      <h2 class="text-2xl font-bold text-gray-900">Login to Shadow Coder</h2>
-    </div>
-    <form id="loginForm" class="flex flex-col gap-4">
-      <input type="email" id="email" class="border p-2 rounded" placeholder="Email" required />
-      <input type="password" id="password" class="border p-2 rounded" placeholder="Password" required />
-      <button type="submit" class="bg-blue-700 text-white py-2 rounded hover:bg-blue-900">Login</button>
-      <button id="googleLogin" type="button" class="flex items-center justify-center gap-2 border py-2 rounded hover:bg-gray-50">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="h-5">Login with Google
-      </button>
-      <span id="loginError" class="text-red-600 font-semibold"></span>
-    </form>
+<body>
+  <h1 class="text-white text-5xl font-extrabold select-none">Shadow Coder</h1>
+  <p class="text-slate-300 text-center max-w-lg my-2 px-2 user-select-none">
+    Unified Educational Platform — Admins control cards, normal users view content.<br />
+    Login below with Email/Password, Google, or Work Email.
+  </p>
+
+  <div id="app-container" class="mx-auto">
+    <!-- Login Section -->
+    <section id="login-section">
+      <form id="loginForm" class="space-y-6" novalidate>
+        <div>
+          <label for="email" class="block text-gray-700 font-semibold mb-1">Email address</label>
+          <input type="email" id="email" name="email" required placeholder="your email"
+            class="w-full border rounded px-4 py-2 focus:border-blue-600 focus:ring-blue-500 focus:outline-none" />
+        </div>
+        <div>
+          <label for="password" class="block text-gray-700 font-semibold mb-1">Password</label>
+          <input type="password" id="password" name="password" required placeholder="••••••••"
+            class="w-full border rounded px-4 py-2 focus:border-blue-600 focus:ring-blue-500 focus:outline-none" />
+        </div>
+        <button type="submit" class="btn-primary w-full">Login</button>
+        <p id="loginError" role="alert" aria-live="assertive"></p>
+      </form>
+
+      <div class="flex flex-col items-center mt-6 gap-3">
+        <button id="googleLogin" type="button" class="btn-secondary w-full flex justify-center items-center gap-3">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5" />
+          Continue with Google
+        </button>
+
+        <a href="https://your-work-email-site.com" target="_blank" rel="noopener noreferrer"
+          class="btn-primary w-full text-center bg-indigo-700 hover:bg-indigo-900" title="Go to work email creation site">
+          Login with Work Email (Create or Manage)
+        </a>
+      </div>
+    </section>
+
+    <!-- Content Section (Appears after login) -->
+    <section id="content-section" class="hidden flex flex-col">
+      <header class="flex justify-between items-center mb-5">
+        <h2 id="welcomeMsg" class="text-2xl font-bold text-indigo-900 select-none"></h2>
+        <button id="logoutBtn" class="btn-danger">Logout</button>
+      </header>
+
+      <div id="cards-container" aria-label="Content cards container" tabindex="0"></div>
+
+      <!-- Admin Controls -->
+      <div id="admin-controls" class="mt-8 hidden flex flex-col gap-4">
+        <h3 class="text-xl text-indigo-800 font-bold select-none">Manage Cards</h3>
+        <button id="addCardBtn" class="btn-primary max-w-xs">+ Add New Card</button>
+      </div>
+    </section>
   </div>
+
+  <!-- Card Modal -->
+  <div id="cardModalBackdrop" aria-hidden="true" role="dialog" aria-modal="true">
+    <div id="cardModal">
+      <button id="modalCloseBtn" aria-label="Close modal">&times;</button>
+      <h3 id="modalTitle" class="text-xl font-semibold text-indigo-900 mb-3 select-none">Add New Card</h3>
+      <form id="cardForm" class="flex flex-col gap-4" novalidate>
+        <label>
+          Card Name (display title)
+          <input type="text" id="cardNameInput" required placeholder="Example: Introduction to Biology" />
+        </label>
+        <label>
+          Path (must end with .html)
+          <input type="text" id="cardPathInput" required placeholder="Example: /biology.html" />
+        </label>
+        <div class="flex justify-end gap-3">
+          <button type="submit" class="btn-primary">Save</button>
+          <button type="button" id="cancelCardBtn" class="btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+
   <script>
+    // Firebase config and init
     const firebaseConfig = {
       apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
       authDomain: "learn-code-with-anay.firebaseapp.com",
@@ -38,27 +288,281 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.database();
 
-    document.getElementById('loginForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const pwd = document.getElementById('password').value;
+    // UI elements
+    const loginSection = document.getElementById('login-section');
+    const contentSection = document.getElementById('content-section');
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+    const googleLoginBtn = document.getElementById('googleLogin');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const welcomeMsg = document.getElementById('welcomeMsg');
+    const cardsContainer = document.getElementById('cards-container');
+    const adminControls = document.getElementById('admin-controls');
+    const addCardBtn = document.getElementById('addCardBtn');
+
+    // Modal elements
+    const cardModalBackdrop = document.getElementById('cardModalBackdrop');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const cardForm = document.getElementById('cardForm');
+    const cardNameInput = document.getElementById('cardNameInput');
+    const cardPathInput = document.getElementById('cardPathInput');
+    const cancelCardBtn = document.getElementById('cancelCardBtn');
+    const modalTitle = document.getElementById('modalTitle');
+
+    let cardsData = [];
+    let isAdminUser = false;
+    let editingCardIndex = null;
+
+    // Utility to check if email is work email (e.g. ends with your work domain)
+    function isWorkEmail(email) {
+      if (!email) return false;
+      // Example condition: work emails end with '@yourworkdomain.com'
+      // Replace this with your actual domain(s)
+      const workEmailDomains = ['yourworkdomain.com', 'learn-code-with-anay.firebaseapp.com'];
+      const domain = email.split('@')[1]?.toLowerCase();
+      return workEmailDomains.includes(domain);
+    }
+    
+    // Show view based on user role
+    function showContentForUser(user) {
+      loginSection.classList.add('hidden');
+      contentSection.classList.remove('hidden');
+      welcomeMsg.textContent = `Welcome, ${user.email}`;
+      // Determine role by email domain or customClaims (if you set those on Firebase)
+      isAdminUser = isWorkEmail(user.email);
+      adminControls.style.display = isAdminUser ? 'flex' : 'none';
+      loadCards();
+    }
+
+    // Load cards from Firebase Realtime Database and render
+    async function loadCards() {
       try {
-        await auth.signInWithEmailAndPassword(email, pwd);
-        location.href = "/dashboard.html";
-      } catch (err) {
-        document.getElementById('loginError').innerText = err.message;
+        const snapshot = await db.ref('cards').once('value');
+        cardsData = snapshot.val() || [];
+        renderCards();
+      } catch (error) {
+        console.error('Failed to load cards', error);
+        cardsContainer.textContent = 'Failed to load cards.';
+      }
+    }
+
+    // Save cards to Firebase DB
+    async function saveCards() {
+      try {
+        await db.ref('cards').set(cardsData);
+      } catch (error) {
+        console.error('Failed to save cards', error);
+      }
+    }
+
+    // Render cards in container: editable if admin, read-only if not
+    function renderCards() {
+      cardsContainer.innerHTML = '';
+      cardsData.forEach((card, index) => {
+        const cardEl = document.createElement('article');
+        cardEl.className = 'card';
+        cardEl.setAttribute('draggable', isAdminUser);
+        cardEl.setAttribute('aria-roledescription', 'card');
+        cardEl.setAttribute('tabindex', '0');
+
+        if (isAdminUser) {
+          cardEl.addEventListener('dragstart', (e) => {
+            draggingIndex = index;
+            e.target.classList.add('dragging');
+          });
+          cardEl.addEventListener('dragend', (e) => {
+            draggingIndex = null;
+            e.target.classList.remove('dragging');
+          });
+          cardEl.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+          });
+          cardEl.addEventListener('dragleave', (e) => {
+            e.currentTarget.classList.remove('drag-over');
+          });
+          cardEl.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const targetIndex = index;
+            if (draggingIndex !== null && draggingIndex !== targetIndex) {
+              swapCards(draggingIndex, targetIndex);
+            }
+            cardsContainer.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+          });
+        }
+
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'card-header small-select-none';
+        headerDiv.textContent = card.name;
+        
+        // Admin edit and delete buttons
+        if (isAdminUser) {
+          const controlsDiv = document.createElement('div');
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'Edit';
+          editBtn.className = 'text-indigo-700 hover:underline focus:outline-none';
+          editBtn.onclick = () => openEditModal(index);
+          const delBtn = document.createElement('button');
+          delBtn.textContent = 'Delete';
+          delBtn.className = 'btn-danger ml-2';
+          delBtn.onclick = () => deleteCard(index);
+          controlsDiv.appendChild(editBtn);
+          controlsDiv.appendChild(delBtn);
+          headerDiv.appendChild(controlsDiv);
+          headerDiv.style.display = 'flex';
+          headerDiv.style.justifyContent = 'space-between';
+          headerDiv.style.alignItems = 'center';
+        }
+        cardEl.appendChild(headerDiv);
+
+        const pathSpan = document.createElement('span');
+        pathSpan.className = 'card-path';
+        pathSpan.textContent = card.href;
+        cardEl.appendChild(pathSpan);
+
+        // Link button to open card page for all users
+        const openBtn = document.createElement('button');
+        openBtn.textContent = 'Open';
+        openBtn.className = 'btn-primary mt-3 self-start';
+        openBtn.onclick = () => {
+          // Normalize href to end with .html if needed
+          let url = card.href;
+          if (!url.endsWith('.html')) {
+            url += '.html';
+          }
+          window.open(url, '_blank', 'noopener');
+        };
+        cardEl.appendChild(openBtn);
+
+        cardsContainer.appendChild(cardEl);
+      });
+    }
+
+    let draggingIndex = null;
+    function swapCards(fromIdx, toIdx) {
+      const temp = cardsData[fromIdx];
+      cardsData[fromIdx] = cardsData[toIdx];
+      cardsData[toIdx] = temp;
+      renderCards();
+      saveCards();
+    }
+
+    // Remove card by index
+    function deleteCard(index) {
+      if (confirm(`Delete card "${cardsData[index].name}"? This cannot be undone.`)) {
+        cardsData.splice(index, 1);
+        renderCards();
+        saveCards();
+      }
+    }
+
+    // Open modal to edit card
+    function openEditModal(index) {
+      editingCardIndex = index;
+      modalTitle.textContent = 'Edit Card';
+      const card = cardsData[index];
+      cardNameInput.value = card.name;
+      cardPathInput.value = card.href;
+      openModal();
+    }
+
+    // Open modal to add new card
+    addCardBtn.onclick = () => {
+      editingCardIndex = null;
+      modalTitle.textContent = 'Add New Card';
+      cardForm.reset();
+      openModal();
+    };
+
+    // Open modal helper
+    function openModal() {
+      cardModalBackdrop.classList.add('active');
+      cardModalBackdrop.setAttribute('aria-hidden', 'false');
+      cardNameInput.focus();
+    }
+    // Close modal helper
+    function closeModal() {
+      cardModalBackdrop.classList.remove('active');
+      cardModalBackdrop.setAttribute('aria-hidden', 'true');
+      editingCardIndex = null;
+      cardForm.reset();
+    }
+    modalCloseBtn.onclick = closeModal;
+    cancelCardBtn.onclick = closeModal;
+
+    cardForm.onsubmit = (e) => {
+      e.preventDefault();
+      const name = cardNameInput.value.trim();
+      let href = cardPathInput.value.trim();
+
+      if (!name || !href) {
+        alert('Both card name and path are required.');
+        return;
+      }
+      if (!href.endsWith('.html')) {
+        href += '.html';
+      }
+
+      if (editingCardIndex !== null) {
+        cardsData[editingCardIndex] = { name, href };
+      } else {
+        cardsData.push({ name, href });
+      }
+      renderCards();
+      saveCards();
+      closeModal();
+    };
+
+    // Logout button
+    logoutBtn.onclick = () => {
+      auth.signOut();
+    };
+
+    // Firebase login form handler
+    loginForm.onsubmit = async (e) => {
+      e.preventDefault();
+      loginError.textContent = '';
+      const email = e.target.email.value.trim();
+      const password = e.target.password.value.trim();
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (error) {
+        loginError.textContent = error.message;
       }
     };
-    document.getElementById('googleLogin').onclick = async () => {
+
+    // Google login
+    googleLoginBtn.onclick = async () => {
+      loginError.textContent = '';
       const provider = new firebase.auth.GoogleAuthProvider();
       try {
         await auth.signInWithPopup(provider);
-        location.href = "/dashboard.html";
-      } catch (err) {
-        document.getElementById('loginError').innerText = err.message;
+      } catch (error) {
+        loginError.textContent = error.message;
       }
     };
+
+    // Auth state observer — adjusts UI based on logged in user and role
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        showContentForUser(user);
+      } else {
+        // Clear UI, show login form
+        loginError.textContent = '';
+        loginForm.reset();
+        loginSection.classList.remove('hidden');
+        contentSection.classList.add('hidden');
+        cardsContainer.innerHTML = '';
+      }
+    });
+
+    // Initial load fallback (for SPA refresh)
+    auth.getRedirectResult().then((result) => {
+      if (result.user) showContentForUser(result.user);
+    }).catch(() => {});
+
   </script>
 </body>
 </html>
