@@ -1,228 +1,64 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Reference Material – Educational Platform</title>
-<style>
-/* ---------- Reset / Core ---------- */
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
-  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-  min-height:100vh;color:#333;line-height:1.6
-}
-.container{max-width:1200px;margin:0 auto;padding:0 20px}
-
-/* ---------- Header ---------- */
-.header{text-align:center;padding:80px 0 60px;color:#fff}
-.header h1{
-  font-size:3.5rem;font-weight:700;margin-bottom:20px;
-  background:linear-gradient(135deg,#fff,#f0f0f0);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  text-shadow:0 4px 20px rgba(0,0,0,.1)
-}
-.header p{font-size:1.3rem;opacity:.95;max-width:600px;margin:0 auto;font-weight:300}
-.subtitle{margin-top:15px;font-size:1.1rem;opacity:.8}
-
-/* ---------- Services Grid ---------- */
-.services{padding:40px 0 80px}
-.services-grid{
-  display:grid;gap:40px;margin-top:60px;
-  grid-template-columns:repeat(auto-fit,minmax(350px,1fr))
-}
-.service-card{
-  background:#fff;border-radius:20px;padding:40px 30px;position:relative;overflow:hidden;
-  box-shadow:0 20px 40px rgba(0,0,0,.1);transition:.3s;cursor:pointer
-}
-.service-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:4px;
-  background:linear-gradient(135deg,#4f46e5,#7c3aed);transform:scaleX(0);transition:.3s
-}
-.service-card:hover{transform:translateY(-10px);box-shadow:0 30px 60px rgba(0,0,0,.15)}
-.service-card:hover::before{transform:scaleX(1)}
-.service-icon{
-  width:80px;height:80px;border-radius:20px;
-  background:linear-gradient(135deg,#4f46e5,#7c3aed);
-  display:flex;align-items:center;justify-content:center;margin-bottom:25px
-}
-.service-icon svg{width:46px;height:46px}
-.service-title{font-size:1.8rem;font-weight:600;margin-bottom:15px;color:#1a1a1a}
-.service-description{font-size:1rem;color:#666;margin-bottom:30px;line-height:1.7}
-.service-features{list-style:none;margin-bottom:30px}
-.service-features li{padding:8px 0 8px 25px;color:#555;position:relative}
-.service-features li::before{
-  content:'✓';position:absolute;left:0;color:#4f46e5;font-weight:bold
-}
-.service-button{
-  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;
-  padding:15px 30px;border-radius:12px;font-size:1rem;font-weight:600;text-transform:uppercase;
-  letter-spacing:.5px;width:100%;cursor:pointer;transition:.3s;display:flex;align-items:center;justify-content:center
-}
-.service-button:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(79,70,229,.3)}
-.service-button:active{transform:translateY(0)}
-.status-badge{
-  position:absolute;top:20px;right:20px;background:rgba(34,197,94,.1);color:#22c55e;
-  padding:5px 12px;border-radius:20px;font-size:.8rem;font-weight:500
-}
-
-/* ---------- Footer ---------- */
-.footer{text-align:center;padding:40px 0;color:#fff;opacity:.8}
-.footer p{font-size:.9rem}
-
-/* ---------- Responsive tweaks ---------- */
-@media(max-width:768px){
-  .header h1{font-size:2.5rem}
-  .header p{font-size:1.1rem}
-  .services-grid{grid-template-columns:1fr;gap:30px;margin-top:40px}
-  .service-card{padding:30px 25px}
-  .service-icon{width:70px;height:70px}
-  .service-icon svg{width:40px;height:40px}
-  .service-title{font-size:1.5rem}
-}
-@media(max-width:480px){
-  .header{padding:60px 0 40px}
-  .header h1{font-size:2rem}
-  .services{padding:20px 0 60px}
-}
-
-/* ---------- Button Loading Animation ---------- */
-.loading{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,.3);
-  border-radius:50%;border-top-color:#fff;animation:spin 1s linear infinite;margin-left:10px;opacity:0;transition:.3s}
-.service-button.loading .loading{opacity:1}
-@keyframes spin{to{transform:rotate(360deg)}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Shadow Coder | Login</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css"/>
 </head>
-<body>
-<div class="container">
-  <!-- Header -->
-  <header class="header">
-    <h1>📚 Reference Material</h1>
-    <p>Your comprehensive educational platform for interactive learning</p>
-    <p class="subtitle">Choose from three professional tools to enhance your studies</p>
-  </header>
-
-  <!-- Services -->
-  <section class="services">
-    <div class="services-grid">
-      <!-- Chatbot Assistant -->
-      <div class="service-card" onclick="navigateToService('chatbot')">
-        <div class="status-badge">Live&nbsp;Now</div>
-        <div class="service-icon">
-          <!-- Chatbot SVG -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 9a7 7 0 0 1 7-7h6a7 7 0 0 1 7 7v4a7 7 0 0 1-7 7H9l-5 4v-4a7 7 0 0 1-2-5V9z"/>
-            <line x1="8" y1="12" x2="8" y2="12"/>
-            <line x1="16" y1="12" x2="16" y2="12"/>
-          </svg>
-        </div>
-        <h3 class="service-title">Chatbot&nbsp;Assistant</h3>
-        <p class="service-description">Instant AI-powered answers for all of your academic questions.</p>
-        <ul class="service-features">
-          <li>24/7 support</li>
-          <li>Explains complex topics</li>
-          <li>Covers all subjects</li>
-          <li>Interactive learning</li>
-        </ul>
-        <button class="service-button" onclick="event.stopPropagation();navigateToService('chatbot')">
-          Launch Assistant <div class="loading"></div>
-        </button>
-      </div>
-
-      <!-- Diagram Helper -->
-      <div class="service-card" onclick="navigateToService('diagram')">
-        <div class="status-badge">Live&nbsp;Now</div>
-        <div class="service-icon">
-          <!-- Diagram SVG -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 3v18h18"/>
-            <rect x="7" y="13" width="3" height="6" rx="1"/>
-            <rect x="12" y="9" width="3" height="10" rx="1"/>
-            <rect x="17" y="5" width="3" height="14" rx="1"/>
-          </svg>
-        </div>
-        <h3 class="service-title">Diagram&nbsp;Helper</h3>
-        <p class="service-description">Create, edit and understand diagrams with smart visual tools.</p>
-        <ul class="service-features">
-          <li>Interactive creation</li>
-          <li>AI diagram analysis</li>
-          <li>Multiple formats</li>
-          <li>Export &amp; share</li>
-        </ul>
-        <button class="service-button" onclick="event.stopPropagation();navigateToService('diagram')">
-          Access Helper <div class="loading"></div>
-        </button>
-      </div>
-
-      <!-- Community -->
-      <div class="service-card" onclick="navigateToService('community')">
-        <div class="status-badge">Live&nbsp;Now</div>
-        <div class="service-icon">
-          <!-- Community SVG -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="7" r="4"/>
-            <path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>
-            <circle cx="5" cy="8" r="3"/>
-            <circle cx="19" cy="8" r="3"/>
-          </svg>
-        </div>
-        <h3 class="service-title">Community</h3>
-        <p class="service-description">Connect with fellow learners and collaborate on projects.</p>
-        <ul class="service-features">
-          <li>Study groups &amp; forums</li>
-          <li>Peer-to-peer learning</li>
-          <li>Mentorship programs</li>
-          <li>Resource sharing</li>
-        </ul>
-        <button class="service-button" onclick="event.stopPropagation();navigateToService('community')">
-          Join Community <div class="loading"></div>
-        </button>
-      </div>
+<body class="bg-gradient-to-r from-slate-900 to-blue-800 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-xl rounded-xl p-8 w-full max-w-md space-y-5">
+    <div class="flex flex-col items-center space-y-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path d="M8 12h8m-4-4v8" stroke-width="2"/></svg>
+      <h2 class="text-2xl font-bold text-gray-900">Login to Shadow Coder</h2>
     </div>
-  </section>
+    <form id="loginForm" class="flex flex-col gap-4">
+      <input type="email" id="email" class="border p-2 rounded" placeholder="Email" required />
+      <input type="password" id="password" class="border p-2 rounded" placeholder="Password" required />
+      <button type="submit" class="bg-blue-700 text-white py-2 rounded hover:bg-blue-900">Login</button>
+      <button id="googleLogin" type="button" class="flex items-center justify-center gap-2 border py-2 rounded hover:bg-gray-50">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="h-5">Login with Google
+      </button>
+      <span id="loginError" class="text-red-600 font-semibold"></span>
+    </form>
+  </div>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOHLoX1OGHiznYvYeUSkrR2lAxzhVrsGw",
+      authDomain: "learn-code-with-anay.firebaseapp.com",
+      projectId: "learn-code-with-anay",
+      storageBucket: "learn-code-with-anay.firebasestorage.app",
+      messagingSenderId: "197075143711",
+      appId: "1:197075143711:web:64fc5d83528f907d38d92a",
+      measurementId: "G-F01VRZK4ZL"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; 2025 Reference Material Platform. Empowering education through technology.</p>
-  </footer>
-</div>
-
-<script>
-function navigateToService(service){
-  const btn=event.target.closest('.service-card').querySelector('.service-button'),
-        loader=btn.querySelector('.loading');
-  btn.classList.add('loading');btn.style.pointerEvents='none';
-
-  const serviceUrls={
-    chatbot:'chatbot.html',
-    diagram:'diagram-helper.html',
-    community:'community.html'
-  };
-  setTimeout(()=>location.href=serviceUrls[service]||'#',800);
-}
-
-/* Accessibility */
-document.querySelectorAll('.service-card').forEach(card=>{
-  card.tabIndex=0;
-  card.setAttribute('role','button');
-  card.setAttribute('aria-label',card.querySelector('.service-title').textContent);
-});
-
-/* Fade-in effect */
-window.addEventListener('load',()=>{
-  document.body.style.opacity='0';
-  document.body.style.transition='opacity .5s ease';
-  setTimeout(()=>document.body.style.opacity='1',100);
-});
-
-/* Keyboard activation */
-document.addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    const card=document.activeElement.closest('.service-card');
-    if(card)card.click();
-  }
-});
-</script>
+    document.getElementById('loginForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const pwd = document.getElementById('password').value;
+      try {
+        await auth.signInWithEmailAndPassword(email, pwd);
+        location.href = "/dashboard.html";
+      } catch (err) {
+        document.getElementById('loginError').innerText = err.message;
+      }
+    };
+    document.getElementById('googleLogin').onclick = async () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        await auth.signInWithPopup(provider);
+        location.href = "/dashboard.html";
+      } catch (err) {
+        document.getElementById('loginError').innerText = err.message;
+      }
+    };
+  </script>
 </body>
-    </html>
-    
+</html>
