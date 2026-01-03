@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Puter.js Paper Generator</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold mb-4 text-indigo-600">Sample Paper Generator</h2>
+        
+        <div class="space-y-4">
+            <input id="subject" type="text" placeholder="Enter Subject (e.g. Class 10 Math)" 
+                   class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-400 outline-none">
+            
+            <button onclick="generatePaper()" id="gen-btn"
+                    class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+                Generate Best Paper
+            </button>
+        </div>
+
+        <hr class="my-6">
+
+        <div id="status" class="text-sm text-gray-500 mb-2"></div>
+        <div id="paper-output" class="p-4 bg-gray-100 rounded-md min-h-[100px] whitespace-pre-wrap italic text-gray-700">
+            No paper generated yet...
+        </div>
+    </div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const outputEl = document.getElementById('paper-output');
+
+        // 1. Load the "Best Paper" from the Database on startup
+        async function loadSavedData() {
+            try {
+                const savedPaper = await puter.kv.get('best_sample_paper');
+                if (savedPaper) {
+                    outputEl.innerText = savedPaper;
+                    outputEl.classList.remove('italic', 'text-gray-700');
+                    statusEl.innerText = "Loaded your last saved paper from Cloud.";
+                }
+            } catch (err) {
+                console.log("No data found yet.");
+            }
+        }
+        loadSavedData();
+
+        // 2. Main Logic: Generate and Store
+        async function generatePaper() {
+            const subject = document.getElementById('subject').value;
+            if (!subject) return alert("Please enter a subject!");
+
+            const btn = document.getElementById('gen-btn');
+            btn.disabled = true;
+            btn.innerText = "Generating...";
+            statusEl.innerText = "AI is thinking...";
+
+            try {
+                // Generate the paper using a high-quality model (Gemini-1.5-flash or Claude-3-5-sonnet)
+                const prompt = `Create a high-quality sample paper for ${subject}. Include 5 questions with marks.`;
+                const response = await puter.ai.chat(prompt, { model: 'claude-3-5-sonnet' });
+                
+                const bestPaperText = response.text;
+
+                // 3. Store in Puter's Cloud Database (KV Store)
+                // This makes it "best paper on data" as it stays in the cloud for this user.
+                await puter.kv.set('best_sample_paper', bestPaperText);
+
+                // Update UI
+                outputEl.innerText = bestPaperText;
+                outputEl.classList.remove('italic', 'text-gray-700');
+                statusEl.innerText = "Saved successfully to your Cloud Database!";
+
+            } catch (error) {
+                statusEl.innerText = "Error: " + error.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Generate Best Paper";
+            }
+        }
+    </script>
+</body>
+</html>
