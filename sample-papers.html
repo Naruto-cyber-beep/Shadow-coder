@@ -2,96 +2,105 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Puter.js Paper Generator - Fixed</title>
+    <title>Exam AI & Admin Panel</title>
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
-<body class="bg-gray-100 p-10">
+<body class="bg-slate-50 p-4 md:p-10">
 
-    <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
-        <h2 class="text-3xl font-extrabold mb-6 text-indigo-700">Sample Paper AI</h2>
-        
-        <div class="space-y-4">
-            <input id="subject" type="text" placeholder="Enter Subject (e.g., Physics Grade 12)" 
-                   class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
+            <h2 class="text-3xl font-black mb-4 text-indigo-700">Exam Paper Finder</h2>
+            <textarea id="student-query" placeholder="Ask a question about any past paper..." 
+                      class="w-full p-4 border-2 border-slate-100 rounded-xl focus:border-indigo-500 outline-none h-32 mb-4"></textarea>
+            <button onclick="checkQuestion()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-700 transition">Search Archive</button>
+            <div id="ai-response" class="mt-6 p-5 bg-blue-50 rounded-2xl hidden border border-blue-100 text-blue-900"></div>
             
-            <button onclick="generatePaper()" id="gen-btn"
-                    class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 shadow-lg active:scale-95 transition">
-                Generate & Save Best Paper
-            </button>
+            <div id="request-section" class="mt-6 p-6 bg-orange-50 rounded-2xl hidden border border-orange-100">
+                <h3 class="font-bold text-orange-800">Paper Not Found!</h3>
+                <input type="email" id="user-email" placeholder="Your Email" class="w-full p-2 mt-2 border rounded">
+                <button onclick="sendRequest()" class="mt-2 bg-orange-600 text-white px-4 py-2 rounded font-bold">Request from Admin</button>
+            </div>
         </div>
 
-        <div id="status" class="mt-4 text-sm font-medium text-gray-500"></div>
-        
-        <div id="paper-output" class="mt-6 p-5 bg-gray-50 rounded-lg border border-dashed border-gray-300 min-h-[150px] whitespace-pre-wrap text-gray-800 leading-relaxed">
-            Your generated paper will appear here...
+        <div class="bg-slate-800 p-8 rounded-3xl shadow-2xl text-white">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">🛠 Admin Dashboard</h2>
+            
+            <div id="admin-login">
+                <input type="password" id="admin-pass" placeholder="Enter Admin Password" class="p-2 rounded text-black mr-2">
+                <button onclick="verifyAdmin()" class="bg-indigo-500 px-4 py-2 rounded font-bold">Login</button>
+            </div>
+
+            <div id="admin-tools" class="hidden space-y-4">
+                <p class="text-slate-400 text-sm">Add a new paper to the 8-year archive:</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <input id="new-year" type="number" placeholder="Year (e.g. 2024)" class="p-2 rounded text-black">
+                    <input id="new-subject" type="text" placeholder="Subject" class="p-2 rounded text-black">
+                    <input id="new-topics" type="text" placeholder="Topics (comma separated)" class="p-2 rounded text-black">
+                </div>
+                <button onclick="addPaper()" class="w-full bg-green-600 hover:bg-green-700 py-2 rounded font-bold">Save to Cloud Database</button>
+                
+                <div class="mt-6">
+                    <h4 class="font-bold text-indigo-400 mb-2">Current Database:</h4>
+                    <div id="db-view" class="bg-slate-900 p-4 rounded text-xs font-mono max-h-40 overflow-auto"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const statusEl = document.getElementById('status');
-        const outputEl = document.getElementById('paper-output');
+        emailjs.init({ publicKey: "YOUR_EMAILJS_PUBLIC_KEY" });
+        const DB_KEY = 'exam_archive_8years';
 
-        // Load existing paper from Puter's Cloud Database on page load
-        window.onload = async () => {
-            try {
-                const savedPaper = await puter.kv.get('best_sample_paper');
-                if (savedPaper) {
-                    outputEl.innerText = savedPaper;
-                    statusEl.innerText = "✅ Last paper loaded from cloud.";
-                }
-            } catch (e) { console.log("Cloud store empty."); }
-        };
-
-        async function generatePaper() {
-            const subject = document.getElementById('subject').value;
-            if (!subject) return alert("Please enter a subject first!");
-
-            const btn = document.getElementById('gen-btn');
-            btn.disabled = true;
-            btn.innerText = "AI is thinking...";
-            statusEl.innerText = "Connecting to Puter AI...";
+        // --- STUDENT LOGIC ---
+        async function checkQuestion() {
+            const query = document.getElementById('student-query').value;
+            const responseBox = document.getElementById('ai-response');
+            const requestBox = document.getElementById('request-section');
+            responseBox.classList.remove('hidden');
+            responseBox.innerText = "Checking Cloud Archive...";
 
             try {
-                // IMPORTANT: Ensure the model name is correct. 
-                // Using 'gpt-4o-mini' or 'claude-3-5-sonnet' is usually most stable.
-                const response = await puter.ai.chat(
-                    `Generate a complete sample paper for ${subject}. 
-                     Include sections for Multiple Choice and Long Answers.`, 
-                    { model: 'gpt-4o' }
-                );
+                const archive = await puter.kv.get(DB_KEY) || "[]";
+                const res = await puter.ai.chat(`Student query: "${query}". Archive: ${archive}. If match, tell year/subject. If no match, start with "MISSING".`, { model: 'gpt-4o' });
+                responseBox.innerText = res.text;
+                res.text.includes("MISSING") ? requestBox.classList.remove('hidden') : requestBox.classList.add('hidden');
+            } catch (err) { responseBox.innerText = "Error: " + err.message; }
+        }
 
-                // FIX: Check for 'message.content' or 'text' depending on Puter version response
-                let content = "";
-                if (response.text) {
-                    content = response.text;
-                } else if (response.message && response.message.content) {
-                    content = response.message.content;
-                } else {
-                    throw new Error("AI returned an empty response. Please try again.");
-                }
+        // --- ADMIN LOGIC ---
+        function verifyAdmin() {
+            if(document.getElementById('admin-pass').value === "1234") { // Change "1234" to your password
+                document.getElementById('admin-login').classList.add('hidden');
+                document.getElementById('admin-tools').classList.remove('hidden');
+                refreshDBView();
+            } else { alert("Wrong Password!"); }
+        }
 
-                // 1. Update the UI
-                outputEl.innerText = content;
-                statusEl.innerText = "✨ Paper generated! Saving to cloud...";
+        async function refreshDBView() {
+            const data = await puter.kv.get(DB_KEY) || "[]";
+            document.getElementById('db-view').innerText = JSON.stringify(JSON.parse(data), null, 2);
+        }
 
-                // 2. Save to Puter Database (Key-Value Store)
-                await puter.kv.set('best_sample_paper', content);
-                statusEl.innerText = "✅ Successfully generated and saved to Cloud Database.";
+        async function addPaper() {
+            const year = document.getElementById('new-year').value;
+            const sub = document.getElementById('new-subject').value;
+            const top = document.getElementById('new-topics').value;
+            
+            if(!year || !sub) return alert("Fill year and subject!");
 
-            } catch (error) {
-                console.error("Puter Error:", error);
-                statusEl.innerHTML = `<span class="text-red-500 font-bold">Error: ${error.message}</span>`;
-                
-                // Common Fix: If user isn't logged in, Puter might fail
-                if (error.message.includes("auth") || error.message.includes("sign")) {
-                    statusEl.innerText = "Please sign in to Puter to use free AI.";
-                    await puter.auth.signIn();
-                }
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Generate & Save Best Paper";
-            }
+            const currentData = JSON.parse(await puter.kv.get(DB_KEY) || "[]");
+            currentData.push({ year, subject: sub, topics: top });
+            
+            await puter.kv.set(DB_KEY, JSON.stringify(currentData));
+            alert("Paper Added to Cloud!");
+            refreshDBView();
+        }
+
+        async function sendRequest() {
+            // Your Email.js send logic here
+            alert("Email sent to Admin!");
         }
     </script>
 </body>
