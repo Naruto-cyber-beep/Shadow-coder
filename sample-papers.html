@@ -2,105 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Exam AI & Admin Panel</title>
+    <title>LAST YEAR SAMPLE PAPER</title>
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
-<body class="bg-slate-50 p-4 md:p-10">
-
-    <div class="max-w-4xl mx-auto space-y-8">
-        <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
-            <h2 class="text-3xl font-black mb-4 text-indigo-700">Exam Paper Finder</h2>
-            <textarea id="student-query" placeholder="Ask a question about any past paper..." 
-                      class="w-full p-4 border-2 border-slate-100 rounded-xl focus:border-indigo-500 outline-none h-32 mb-4"></textarea>
-            <button onclick="checkQuestion()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-700 transition">Search Archive</button>
-            <div id="ai-response" class="mt-6 p-5 bg-blue-50 rounded-2xl hidden border border-blue-100 text-blue-900"></div>
-            
-            <div id="request-section" class="mt-6 p-6 bg-orange-50 rounded-2xl hidden border border-orange-100">
-                <h3 class="font-bold text-orange-800">Paper Not Found!</h3>
-                <input type="email" id="user-email" placeholder="Your Email" class="w-full p-2 mt-2 border rounded">
-                <button onclick="sendRequest()" class="mt-2 bg-orange-600 text-white px-4 py-2 rounded font-bold">Request from Admin</button>
-            </div>
-        </div>
-
-        <div class="bg-slate-800 p-8 rounded-3xl shadow-2xl text-white">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">🛠 Admin Dashboard</h2>
-            
-            <div id="admin-login">
-                <input type="password" id="anay" placeholder="Enter Admin Password" class="p-2 rounded text-black mr-2">
-                <button onclick="verifyAdmin()" class="bg-indigo-500 px-4 py-2 rounded font-bold">Login</button>
-            </div>
-
-            <div id="admin-tools" class="hidden space-y-4">
-                <p class="text-slate-400 text-sm">Add a new paper to the 8-year archive:</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <input id="new-year" type="number" placeholder="Year (e.g. 2024)" class="p-2 rounded text-black">
-                    <input id="new-subject" type="text" placeholder="Subject" class="p-2 rounded text-black">
-                    <input id="new-topics" type="text" placeholder="Topics (comma separated)" class="p-2 rounded text-black">
-                </div>
-                <button onclick="addPaper()" class="w-full bg-green-600 hover:bg-green-700 py-2 rounded font-bold">Save to Cloud Database</button>
-                
-                <div class="mt-6">
-                    <h4 class="font-bold text-indigo-400 mb-2">Current Database:</h4>
-                    <div id="db-view" class="bg-slate-900 p-4 rounded text-xs font-mono max-h-40 overflow-auto"></div>
-                </div>
-            </div>
-        </div>
+<body class="bg-slate-50 p-6">
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-3xl shadow-xl">
+        <h2 class="text-3xl font-bold text-indigo-600 mb-6">Find Past Paper Questions</h2>
+        
+        <textarea id="student-query" placeholder="Search for a topic (e.g. 'Questions on Exponents from 2021')" 
+                  class="w-full p-4 border rounded-xl mb-4 h-32 outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
+        
+        <button onclick="searchArchive()" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl">Search 8-Year Archive</button>
+        
+        <div id="ai-result" class="mt-6 p-5 rounded-2xl hidden border leading-relaxed"></div>
     </div>
 
     <script>
-        emailjs.init({ publicKey: "YOUR_EMAILJS_PUBLIC_KEY" });
-        const DB_KEY = 'exam_archive_8years';
-
-        // --- STUDENT LOGIC ---
-        async function checkQuestion() {
+        async function searchArchive() {
             const query = document.getElementById('student-query').value;
-            const responseBox = document.getElementById('ai-response');
-            const requestBox = document.getElementById('request-section');
-            responseBox.classList.remove('hidden');
-            responseBox.innerText = "Checking Cloud Archive...";
+            const resultBox = document.getElementById('ai-result');
+            resultBox.classList.remove('hidden');
+            resultBox.innerText = "AI is scanning your cloud archive...";
 
             try {
-                const archive = await puter.kv.get(DB_KEY) || "[]";
-                const res = await puter.ai.chat(`Student query: "${query}". Archive: ${archive}. If match, tell year/subject. If no match, start with "MISSING".`, { model: 'gpt-4o' });
-                responseBox.innerText = res.text;
-                res.text.includes("MISSING") ? requestBox.classList.remove('hidden') : requestBox.classList.add('hidden');
-            } catch (err) { responseBox.innerText = "Error: " + err.message; }
-        }
+                // Fetch the data the Admin uploaded
+                const archiveData = await puter.kv.get('exam_archive_8years') || "[]";
 
-        // --- ADMIN LOGIC ---
-        function verifyAdmin() {
-            if(document.getElementById('admin-pass').value === "1234") { // Change "1234" to your password
-                document.getElementById('admin-login').classList.add('hidden');
-                document.getElementById('admin-tools').classList.remove('hidden');
-                refreshDBView();
-            } else { alert("Wrong Password!"); }
-        }
+                const prompt = `
+                    Student Query: "${query}"
+                    Available Papers: ${archiveData}
+                    
+                    Instruction:
+                    If a match is found, provide the Year, Subject, and this Link: [downloadURL].
+                    If no match, reply exactly: "MISSING: We don't have this paper."
+                `;
 
-        async function refreshDBView() {
-            const data = await puter.kv.get(DB_KEY) || "[]";
-            document.getElementById('db-view').innerText = JSON.stringify(JSON.parse(data), null, 2);
-        }
+                const response = await puter.ai.chat(prompt, { model: 'gpt-4o' });
+                resultBox.innerHTML = response.text.replace(/\n/g, "<br>");
+                resultBox.className = "mt-6 p-5 rounded-2xl border bg-blue-50 text-blue-900 border-blue-200";
 
-        async function addPaper() {
-            const year = document.getElementById('new-year').value;
-            const sub = document.getElementById('new-subject').value;
-            const top = document.getElementById('new-topics').value;
-            
-            if(!year || !sub) return alert("Fill year and subject!");
-
-            const currentData = JSON.parse(await puter.kv.get(DB_KEY) || "[]");
-            currentData.push({ year, subject: sub, topics: top });
-            
-            await puter.kv.set(DB_KEY, JSON.stringify(currentData));
-            alert("Paper Added to Cloud!");
-            refreshDBView();
-        }
-
-        async function sendRequest() {
-            // Your Email.js send logic here
-            alert("Email sent to Admin!");
+            } catch (err) {
+                resultBox.innerText = "Error searching database.";
+            }
         }
     </script>
 </body>
