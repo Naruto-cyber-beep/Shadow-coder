@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Manage Archive</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <div class="bg-gray-800 p-8 rounded-2xl shadow-xl">
+            <h1 class="text-2xl font-bold mb-6 text-green-400">Add New Paper</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="file" id="file-input" class="bg-gray-700 p-2 rounded col-span-2">
+                <input type="number" id="year" placeholder="Year" class="p-2 rounded bg-gray-700 outline-none focus:ring-2 focus:ring-green-500">
+                <input type="text" id="subject" placeholder="Subject" class="p-2 rounded bg-gray-700 outline-none focus:ring-2 focus:ring-green-500">
+                <textarea id="topics" placeholder="Keywords (e.g. Algebra, Newton, 2018 Paper)" class="w-full p-2 rounded bg-gray-700 h-20 col-span-2"></textarea>
+            </div>
+            <button onclick="uploadAndSave()" id="up-btn" class="w-full bg-green-600 py-3 rounded-lg font-bold hover:bg-green-700 transition">Upload to Cloud</button>
+        </div>
+
+        
+        <div class="bg-gray-800 p-8 rounded-2xl shadow-xl">
+            <h2 class="text-xl font-bold mb-4 text-indigo-400">Current Archive</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-700">
+                            <th class="p-2">Year</th>
+                            <th class="p-2">Subject</th>
+                            <th class="p-2 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="archive-table">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DB_KEY = 'exam_archive_8years';
+
+        // Load table on start
+        window.onload = loadArchive;
+
+        async function loadArchive() {
+            const table = document.getElementById('archive-table');
+            const data = JSON.parse(await puter.kv.get(DB_KEY) || "[]");
+            table.innerHTML = data.map((item, index) => `
+                <tr class="border-b border-gray-700">
+                    <td class="p-2">${item.year}</td>
+                    <td class="p-2">${item.subject}</td>
+                    <td class="p-2 text-right">
+                        <button onclick="deletePaper(${index})" class="text-red-400 hover:text-red-600 text-sm font-bold">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function uploadAndSave() {
+            const fileInput = document.getElementById('file-input');
+            const year = document.getElementById('year').value;
+            const subject = document.getElementById('subject').value;
+            const topics = document.getElementById('topics').value;
+            if (!fileInput.files[0] || !year || !subject) return alert("Missing details!");
+
+            try {
+                // 1. Upload to Puter FS
+                const file = fileInput.files[0];
+                const path = `papers/${Date.now()}_${file.name}`;
+                await puter.fs.write(path, file);
+                const fileURL = await puter.fs.get_public_url(path);
+
+                // 2. Update KV Store
+                const currentData = JSON.parse(await puter.kv.get(DB_KEY) || "[]");
+                currentData.push({ year, subject, topics, downloadURL: fileURL, path: path });
+                await puter.kv.set(DB_KEY, JSON.stringify(currentData));
+
+                alert("Successfully Added!");
+                loadArchive(); // Refresh table
+            } catch (err) { alert(err.message); }
+        }
+
+        async function deletePaper(index) {
+            if (!confirm("Delete this paper forever?")) return;
+            
+            const currentData = JSON.parse(await puter.kv.get(DB_KEY) || "[]");
+            const itemToDelete = currentData[index];
+
+            // 1. Remove file from storage
+            if (itemToDelete.path) await puter.fs.delete(itemToDelete.path);
+
+            // 2. Remove entry from database
+            currentData.splice(index, 1);
+            await puter.kv.set(DB_KEY, JSON.stringify(currentData));
+            
+            loadArchive();
+        }
+    </script>
+</body>
+</html>
