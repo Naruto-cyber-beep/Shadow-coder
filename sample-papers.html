@@ -2,30 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Puter.js Paper Generator</title>
+    <title>Puter.js Paper Generator - Fixed</title>
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 p-8">
+<body class="bg-gray-100 p-10">
 
-    <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md">
-        <h2 class="text-2xl font-bold mb-4 text-indigo-600">Sample Paper Generator</h2>
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-200">
+        <h2 class="text-3xl font-extrabold mb-6 text-indigo-700">Sample Paper AI</h2>
         
         <div class="space-y-4">
-            <input id="subject" type="text" placeholder="Enter Subject (e.g. Class 10 Math)" 
-                   class="w-full p-2 border rounded-md focus:ring-2 focus:ring-indigo-400 outline-none">
+            <input id="subject" type="text" placeholder="Enter Subject (e.g., Physics Grade 12)" 
+                   class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition">
             
             <button onclick="generatePaper()" id="gen-btn"
-                    class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
-                Generate Best Paper
+                    class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 shadow-lg active:scale-95 transition">
+                Generate & Save Best Paper
             </button>
         </div>
 
-        <hr class="my-6">
-
-        <div id="status" class="text-sm text-gray-500 mb-2"></div>
-        <div id="paper-output" class="p-4 bg-gray-100 rounded-md min-h-[100px] whitespace-pre-wrap italic text-gray-700">
-            No paper generated yet...
+        <div id="status" class="mt-4 text-sm font-medium text-gray-500"></div>
+        
+        <div id="paper-output" class="mt-6 p-5 bg-gray-50 rounded-lg border border-dashed border-gray-300 min-h-[150px] whitespace-pre-wrap text-gray-800 leading-relaxed">
+            Your generated paper will appear here...
         </div>
     </div>
 
@@ -33,52 +32,65 @@
         const statusEl = document.getElementById('status');
         const outputEl = document.getElementById('paper-output');
 
-        // 1. Load the "Best Paper" from the Database on startup
-        async function loadSavedData() {
+        // Load existing paper from Puter's Cloud Database on page load
+        window.onload = async () => {
             try {
                 const savedPaper = await puter.kv.get('best_sample_paper');
                 if (savedPaper) {
                     outputEl.innerText = savedPaper;
-                    outputEl.classList.remove('italic', 'text-gray-700');
-                    statusEl.innerText = "Loaded your last saved paper from Cloud.";
+                    statusEl.innerText = "✅ Last paper loaded from cloud.";
                 }
-            } catch (err) {
-                console.log("No data found yet.");
-            }
-        }
-        loadSavedData();
+            } catch (e) { console.log("Cloud store empty."); }
+        };
 
-        // 2. Main Logic: Generate and Store
         async function generatePaper() {
             const subject = document.getElementById('subject').value;
-            if (!subject) return alert("Please enter a subject!");
+            if (!subject) return alert("Please enter a subject first!");
 
             const btn = document.getElementById('gen-btn');
             btn.disabled = true;
-            btn.innerText = "Generating...";
-            statusEl.innerText = "AI is thinking...";
+            btn.innerText = "AI is thinking...";
+            statusEl.innerText = "Connecting to Puter AI...";
 
             try {
-                // Generate the paper using a high-quality model (Gemini-1.5-flash or Claude-3-5-sonnet)
-                const prompt = `Create a high-quality sample paper for ${subject}. Include 5 questions with marks.`;
-                const response = await puter.ai.chat(prompt, { model: 'claude-3-5-sonnet' });
-                
-                const bestPaperText = response.text;
+                // IMPORTANT: Ensure the model name is correct. 
+                // Using 'gpt-4o-mini' or 'claude-3-5-sonnet' is usually most stable.
+                const response = await puter.ai.chat(
+                    `Generate a complete sample paper for ${subject}. 
+                     Include sections for Multiple Choice and Long Answers.`, 
+                    { model: 'gpt-4o-mini' }
+                );
 
-                // 3. Store in Puter's Cloud Database (KV Store)
-                // This makes it "best paper on data" as it stays in the cloud for this user.
-                await puter.kv.set('best_sample_paper', bestPaperText);
+                // FIX: Check for 'message.content' or 'text' depending on Puter version response
+                let content = "";
+                if (response.text) {
+                    content = response.text;
+                } else if (response.message && response.message.content) {
+                    content = response.message.content;
+                } else {
+                    throw new Error("AI returned an empty response. Please try again.");
+                }
 
-                // Update UI
-                outputEl.innerText = bestPaperText;
-                outputEl.classList.remove('italic', 'text-gray-700');
-                statusEl.innerText = "Saved successfully to your Cloud Database!";
+                // 1. Update the UI
+                outputEl.innerText = content;
+                statusEl.innerText = "✨ Paper generated! Saving to cloud...";
+
+                // 2. Save to Puter Database (Key-Value Store)
+                await puter.kv.set('best_sample_paper', content);
+                statusEl.innerText = "✅ Successfully generated and saved to Cloud Database.";
 
             } catch (error) {
-                statusEl.innerText = "Error: " + error.message;
+                console.error("Puter Error:", error);
+                statusEl.innerHTML = `<span class="text-red-500 font-bold">Error: ${error.message}</span>`;
+                
+                // Common Fix: If user isn't logged in, Puter might fail
+                if (error.message.includes("auth") || error.message.includes("sign")) {
+                    statusEl.innerText = "Please sign in to Puter to use free AI.";
+                    await puter.auth.signIn();
+                }
             } finally {
                 btn.disabled = false;
-                btn.innerText = "Generate Best Paper";
+                btn.innerText = "Generate & Save Best Paper";
             }
         }
     </script>
